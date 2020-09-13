@@ -3,10 +3,11 @@ import RPi.GPIO as GPIO
 from time import sleep
 
 # Motor One
+# TODO: Switch in1/in2 on the actual board (right now forward/backward are reversed)
 in1 = 24
 in2 = 23
 ena = 27 # Used to be 25
-temp1=1
+direction = 'forward'
 
 # Motor Two
 in3 = 25
@@ -23,64 +24,151 @@ GPIO.setup(ena,GPIO.OUT)
 GPIO.output(in1,GPIO.LOW)
 GPIO.output(in2,GPIO.LOW)
 
-p=GPIO.PWM(ena,1000)
-p.start(ena)
+p1=GPIO.PWM(ena,1000)
+p1.start(ena)
+
+# Motor Two
+GPIO.setup(in3,GPIO.OUT)
+GPIO.setup(in4,GPIO.OUT)
+GPIO.setup(enb,GPIO.OUT)
+
+GPIO.output(in3,GPIO.LOW)
+GPIO.output(in4,GPIO.LOW)
+
+p2=GPIO.PWM(enb,1000)
+p2.start(enb)
+
 print("\n")
 print("The default speed & direction of motor is LOW & Forward.....")
-print("r-run s-stop f-forward b-backward l-low m-medium h-high e-exit")
+print("r-run p-stop l-low m-medium h-high e-exit")
+print("w-forward a-left d-right s-backward")
 print("\n")    
 
-while(1):
+all_wheels = {
+    'left': {
+        'name': 'left',
+        'in1': in1,
+        'in2': in2,
+        'en': ena,
+        'p': p1
+    },
+    'right': {
+        'name': 'right',
+        'in1': in3,
+        'in2': in4,
+        'en': enb,
+        'p': p2
+    },
+}
 
+def get_wheels():
+    return all_wheels.values()
+
+
+def set_wheels(code):
+    global direction
+    direction = None
+    if code == 'w':
+        direction = 'forward'
+    if code == 's':
+        direction = 'backward'
+    if code == 'a':
+        direction = 'left'
+    if code == 'd':
+        direction = 'right'
+    
+    if direction is None:
+        raise ValueError('Unknown code "{}"'.format(code))
+
+    print(direction)
+
+    run()
+
+def stop():
+    wheels = get_wheels()
+    for wheel in wheels:
+        _in1 = wheel['in1']
+        _in2 = wheel['in2']
+
+        GPIO.output(_in1,GPIO.LOW)
+        GPIO.output(_in2,GPIO.LOW)
+
+
+def run():
+    wheels = get_wheels()
+
+    for wheel in wheels:
+        _in1 = wheel['in1']
+        _in2 = wheel['in2']
+        
+        # Going forward or backward
+        if direction == 'forward':
+            GPIO.output(_in1, GPIO.HIGH)
+            GPIO.output(_in2, GPIO.LOW)
+        elif direction == 'backward':
+            GPIO.output(_in1, GPIO.LOW)
+            GPIO.output(_in2, GPIO.HIGH)
+        
+        # Turning Left Or Right
+        elif direction == wheel['name']:
+            GPIO.output(_in1, GPIO.HIGH)
+            GPIO.output(_in2, GPIO.LOW)
+        elif direction != wheel['name']:
+            GPIO.output(_in1, GPIO.LOW)
+            GPIO.output(_in2, GPIO.LOW)
+        else:
+            raise Exception('Could not find a match for direction "{}"'.format(direction))
+    
+    # always reset x so we do not continuously change settings
+    x = 'z'
+
+def set_power(power_number): # 0 -1
+    for p in [p1, p2]:
+        p.ChangeDutyCycle(power_number)
+
+set_power(50)
+direction = 'forward'
+
+while(1):
     x=raw_input()
+
+    if x=='z': # This is default - just ignore
+        continue
     
     if x=='r':
         print("run")
-        if(temp1==1):
-         GPIO.output(in1,GPIO.HIGH)
-         GPIO.output(in2,GPIO.LOW)
-         print("forward")
-         x='z'
+        if(direction=='forward'):
+            run()
+            print("forward")
         else:
-         GPIO.output(in1,GPIO.LOW)
-         GPIO.output(in2,GPIO.HIGH)
-         print("backward")
-         x='z'
+            run()
+            print("backward")
 
 
-    elif x=='s':
+    elif x=='p':
         print("stop")
-        GPIO.output(in1,GPIO.LOW)
-        GPIO.output(in2,GPIO.LOW)
-        x='z'
-
-    elif x=='f':
-        print("forward")
-        GPIO.output(in1,GPIO.HIGH)
-        GPIO.output(in2,GPIO.LOW)
-        temp1=1
-        x='z'
-
-    elif x=='b':
-        print("backward")
-        GPIO.output(in1,GPIO.LOW)
-        GPIO.output(in2,GPIO.HIGH)
-        temp1=0
-        x='z'
+        x = 'z'
+        stop()
+    
+    elif x in ['w', 'a', 's', 'd']:
+        set_wheels(x)
+        x = 'z'
+        
+        # run()
 
     elif x=='l':
         print("low")
-        p.ChangeDutyCycle(25)
+        set_power(25)
         x='z'
 
     elif x=='m':
         print("medium")
-        p.ChangeDutyCycle(50)
+        set_power(50)
         x='z'
 
     elif x=='h':
         print("high")
-        p.ChangeDutyCycle(75)
+        set_power(75)
         x='z'
      
     
