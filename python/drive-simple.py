@@ -126,8 +126,25 @@ def set_power(power_number): # 0 -1
     for p in [p1, p2]:
         p.ChangeDutyCycle(power_number)
 
-set_power(50)
+def set_power_by_key(x):
+    if x=='l':
+        print("low")
+        set_power(25)
+        return
+
+    elif x=='m':
+        print("medium")
+        set_power(40)
+        return
+
+    elif x=='h':
+        print("high")
+        set_power(75)
+        return
+
 direction = 'forward'
+
+set_power_by_key('l')
 
 while(1):
     x=raw_input()
@@ -156,20 +173,11 @@ while(1):
         
         # run()
 
-    elif x=='l':
-        print("low")
-        set_power(25)
-        x='z'
+    elif x in ['l', 'm', 'h']:
+        set_power_by_key(x)
+        x = 'z'
 
-    elif x=='m':
-        print("medium")
-        set_power(50)
-        x='z'
 
-    elif x=='h':
-        print("high")
-        set_power(75)
-        x='z'
      
     
     elif x=='e':
