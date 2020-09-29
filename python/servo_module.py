@@ -48,6 +48,9 @@ class Servo():
         if position not in self.possible_positions:
             return
 
+        if position == self.current_position:
+            return
+
         self.current_position = position
 
         duty = position + 7

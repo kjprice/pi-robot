@@ -3,4 +3,5 @@ cd "$(dirname "$0")"
 
 cd ..
 
-scp -r python/ pirobot:~/Projects/pirobot
+rsync -r python pirobot:~/Projects/pirobot/
+rsync -r models pirobot:~/Projects/pirobot/

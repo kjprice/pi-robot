@@ -14,6 +14,9 @@ def load_test_image():
 
     return load_image(test_image_path)
 
+def get_file_path_for_save(name = None):
+    return os.path.join(SAVE_IMAGE_DIR, name)
+
 def save_image(img, name = None):
-    filepath = os.path.join(SAVE_IMAGE_DIR, name)
+    filepath = get_file_path_for_save(name)
     cv2.imwrite(filepath, img)

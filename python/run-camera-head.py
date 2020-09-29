@@ -1,9 +1,20 @@
+#!/usr/bin/python3
 import atexit
-import time
 import os
+import time
 
-from image_module import save_image
+import numpy as np
+
+
+# This must be done before we bring in our modules because they depend on the correct directory
+def cd_to_this_directory():
+    abspath = os.path.abspath(__file__)
+    dname = os.path.dirname(abspath)
+    os.chdir(dname)
+cd_to_this_directory()
+
 from camera_module import capture_camera_image, camera_setup, shutdown_camera
+from image_module import save_image
 from process_image_for_servo import get_face_quadrant_from_image, get_image_with_face_boxes
 from servo_module import Servo
 
@@ -27,6 +38,7 @@ def move_servo_based_on_quadrant(quadrant):
 camera_setup(IS_TEST)
 servo = Servo(IS_TEST)
 while True:
+    time_start = time.time()
     img = capture_camera_image(IS_TEST)
 
     quadrant = get_face_quadrant_from_image(img)
@@ -34,7 +46,9 @@ while True:
         save_image_with_faces(img)
     
     move_servo_based_on_quadrant(quadrant)
-
+    time_end = time.time()
+    time_total = time_end - time_start
+    print('Took {} seconds to run'.format(np.round(time_total, 2)))
 
 
 atexit.register(shutdown_camera, servo.teardown)
