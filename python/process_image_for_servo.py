@@ -43,11 +43,37 @@ def get_face_quadrant(img_length, face):
     
     return 2
 
+def get_face_quadrant_from_image(img):
+    faces = get_faces(img)
+
+    face_quadrants = []
+    for face in faces:
+        face_quadrants.append(get_face_quadrant(img.shape[0], face))
+    
+    infinity = float('inf')
+    most_center_quadrant = infinity
+    for face_quadrant in face_quadrants:
+        if abs(face_quadrant) < abs(most_center_quadrant):
+            most_center_quadrant = face_quadrant
+    
+    if most_center_quadrant == infinity:
+        return 0
+
+    return most_center_quadrant
+
+def get_image_with_face_boxes(img):
+    img_copy = img.copy()
+
+    faces = get_faces(img)
+    for (x, y, w, h) in faces:
+        cv2.rectangle(img_copy, (x, y), (x+w, y+h), (255, 0, 0), 2)
+    
+    return img_copy
+
 # To see what the image looks on the boxes
 def display_image_and_boxes(img, boxes):
-    for (x, y, w, h) in boxes:
-        cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
-    cv2.imshow('img', img)
+    img_with_faces = get_image_with_face_boxes(img)
+    cv2.imshow('img', img_with_faces)
     cv2.waitKey()
 
 class TestProcessImages(unittest.TestCase):
@@ -74,6 +100,10 @@ class TestProcessImages(unittest.TestCase):
         self.assertEqual(large_far_left_quandrant, 0)
         far_right_quadrant = get_face_quadrant(100, (80, 10, 90, 30))
         self.assertEqual(far_right_quadrant, 2)
+    def test_integration_get_face_quadrant_from_image(self):
+        quadrant = get_face_quadrant_from_image(self.test_image)
+        # Mike Pence is near the center, so this will be dead center
+        self.assertEqual(quadrant, 0)
 
 if IS_TEST:
     unittest.main()
