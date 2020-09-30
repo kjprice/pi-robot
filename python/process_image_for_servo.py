@@ -57,7 +57,7 @@ def get_face_quadrant_from_image(img):
             most_center_quadrant = face_quadrant
     
     if most_center_quadrant == infinity:
-        return 0
+        return None
 
     return most_center_quadrant
 

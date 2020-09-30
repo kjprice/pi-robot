@@ -28,12 +28,16 @@ def save_image_with_faces(img):
     save_image(img_with_faces, 'test-face-image.jpg')
 
 def move_servo_based_on_quadrant(quadrant):
-    if quadrant < 0:
+    if quadrant == 0:
+        return
+    if quadrant == None:
+        servo.reset()
+    elif quadrant < 0:
         servo.move_left()
     elif quadrant > 0:
         servo.move_right()
     else:
-        servo.reset()
+        raise Exception('Unkown quadrant {}'.format(quadrant))
 
 camera_setup(IS_TEST)
 servo = Servo(IS_TEST)
@@ -49,6 +53,8 @@ while True:
     time_end = time.time()
     time_total = time_end - time_start
     print('Took {} seconds to run'.format(np.round(time_total, 2)))
+    print('Currently at position {} with quadrant {}'.format(servo.current_position, quadrant))
+    time.sleep(0.2)
 
 
 atexit.register(shutdown_camera, servo.teardown)
