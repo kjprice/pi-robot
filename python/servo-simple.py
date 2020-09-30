@@ -15,19 +15,23 @@ servo1 = GPIO.PWM(SERVO_PIN, 50) # 50 Hz pulse
 
 servo1.start(0)
 print('Waitin for {} seconds'.format(TIME_WAIT))
-time.sleep(TIME_WAIT)
-
-print('Rotating 180 degrees in 10 steps')
+time.sleep(1)
 
 # Duty can go from 2-12% (0-180 degrees)
 DUTY_MIN = 2
 DUTY_MAX = 12
 
-duty = DUTY_MIN
-while duty <= DUTY_MAX:
-    servo1.ChangeDutyCycle(duty)
-    time.sleep(1)
-    duty += 1
+print('Try to set it super low')
+servo1.ChangeDutyCycle(0)
+time.sleep(2)
+
+print('Setting servo to start')
+servo1.ChangeDutyCycle(DUTY_MIN)
+time.sleep(2)
+
+print('Setting servo to end')
+servo1.ChangeDutyCycle(DUTY_MIN)
+time.sleep(2)
 
 print('Turning back 90 degrees for 2 seconds')
 servo1.ChangeDutyCycle(7)
