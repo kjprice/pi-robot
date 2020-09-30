@@ -14,8 +14,8 @@ print('Waiting for {} seconds'.format(TIME_WAIT))
 time.sleep(1)
 
 # Duty can go from 2-12% (0-180 degrees)
-DUTY_MIN = 2
-DUTY_MAX = 12
+DUTY_MIN = 2.2
+DUTY_MAX = 11.8
 
 def turn_on():
     global servo
