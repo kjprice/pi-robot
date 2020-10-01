@@ -39,20 +39,44 @@ def move_servo_based_on_quadrant(quadrant):
     else:
         raise Exception('Unkown quadrant {}'.format(quadrant))
 
+def call_and_get_time(function, args):
+    time_start = time.time()
+    response = function(*args)
+
+    time_end = time.time()
+    time_total = time_end - time_start
+
+    return (response, time_total)
+
+def get_stats_text(time_pass_for_calls):
+    text = []
+    for (time, _text) in time_pass_for_calls:
+        time_str = np.round(time, 2)
+
+        text.append('{} ({})'.format(time_str, _text))
+    
+    return ', '.join(text)
+
 camera_setup(IS_TEST)
 servo = Servo(IS_TEST)
 while True:
-    time_start = time.time()
-    img = capture_camera_image(IS_TEST)
+    time_pass_for_calls = []
+    img, total_time = call_and_get_time(capture_camera_image, (IS_TEST,))
+    time_pass_for_calls.append((total_time, 'take picture'))
+
+    quadrant, total_time = call_and_get_time(get_face_quadrant_from_image, (img,))
+    time_pass_for_calls.append((total_time, 'process picture'))
 
     quadrant = get_face_quadrant_from_image(img)
     if IS_TEST:
         save_image_with_faces(img)
-    
-    move_servo_based_on_quadrant(quadrant)
-    time_end = time.time()
-    time_total = time_end - time_start
-    print('Took {} seconds to run'.format(np.round(time_total, 2)))
+
+    _, total_time = call_and_get_time(move_servo_based_on_quadrant, (quadrant,))
+    time_pass_for_calls.append((total_time, 'turn servo'))
+
+    print('Took {} seconds to run'.format(
+        get_stats_text(time_pass_for_calls)
+    ))
     print('Currently at position {} with quadrant {}'.format(servo.current_position, quadrant))
     time.sleep(0.2)
 
