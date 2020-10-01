@@ -28,13 +28,16 @@ def save_image_with_faces(img):
     save_image(img_with_faces, 'test-face-image.jpg')
 
 def move_servo_based_on_quadrant(quadrant):
-    if quadrant == 0:
-        return
+    center_position = [0.45, 0.55]
     if quadrant == None:
         servo.reset()
-    elif quadrant < 0:
+        return
+    if quadrant >= center_position[0] and quadrant <= center_position[1]:
+        return
+    
+    if quadrant < center_position[0]:
         servo.move_left()
-    elif quadrant > 0:
+    elif quadrant > center_position[1]:
         servo.move_right()
     else:
         raise Exception('Unkown quadrant {}'.format(quadrant))
@@ -67,7 +70,6 @@ while True:
     quadrant, total_time = call_and_get_time(get_face_quadrant_from_image, (img,))
     time_pass_for_calls.append((total_time, 'process picture'))
 
-    quadrant = get_face_quadrant_from_image(img)
     if IS_TEST:
         save_image_with_faces(img)
 

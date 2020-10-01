@@ -16,7 +16,8 @@ def camera_setup(is_test):
     if is_test:
         camera = cv2.VideoCapture(0)
     else:
-        camera = PiCamera()
+        # Can be 1080p or 720p
+        camera = PiCamera(resolution='720p')
 
 
 
