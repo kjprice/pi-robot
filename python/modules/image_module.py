@@ -1,7 +1,7 @@
 import cv2
 import os
 
-from config import TEST_IMAGE_DIR, SAVE_IMAGE_DIR
+from modules.config import TEST_IMAGE_DIR, SAVE_IMAGE_DIR
 
 def load_image(path, gray=True):
     img_arr = cv2.imread(path)

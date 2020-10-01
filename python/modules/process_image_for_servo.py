@@ -1,9 +1,8 @@
 import unittest
 import cv2
 
-from image_module import load_test_image
-
-from config import CASCADE_XML_FILEPATH
+from modules.image_module import load_test_image
+from modules.config import CASCADE_XML_FILEPATH
 
 face_cascade = cv2.CascadeClassifier(CASCADE_XML_FILEPATH)
 

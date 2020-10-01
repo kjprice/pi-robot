@@ -2,7 +2,7 @@ import os
 
 import cv2
 
-from image_module import save_image, get_file_path_for_save, load_image
+from modules.image_module import save_image, get_file_path_for_save, load_image
 
 # This import will fail on a mac
 try:

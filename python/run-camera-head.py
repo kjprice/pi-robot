@@ -13,10 +13,10 @@ def cd_to_this_directory():
     os.chdir(dname)
 cd_to_this_directory()
 
-from camera_module import capture_camera_image, camera_setup, shutdown_camera
-from image_module import save_image
-from process_image_for_servo import get_face_quadrant_from_image, get_image_with_face_boxes
-from servo_module import Servo
+from modules.camera_module import capture_camera_image, camera_setup, shutdown_camera
+from modules.image_module import save_image
+from modules.process_image_for_servo import get_face_quadrant_from_image, get_image_with_face_boxes
+from modules.servo_module import Servo
 
 IS_TEST = False
 if 'IS_TEST' in os.environ:
