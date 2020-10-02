@@ -36,9 +36,11 @@ def move_servo_based_on_quadrant(quadrant):
         return
     
     if quadrant < center_position[0]:
-        servo.move_left()
+        amount_to_move = center_position[0] - quadrant
+        servo.move_left(amount_to_move)
     elif quadrant > center_position[1]:
-        servo.move_right()
+        amount_to_move = center_position[0] - quadrant
+        servo.move_right(amount_to_move)
     else:
         raise Exception('Unkown quadrant {}'.format(quadrant))
 
