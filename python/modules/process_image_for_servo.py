@@ -30,30 +30,30 @@ def get_face_x_midpoint(face):
     return x1 + offset
 
 # Will return one of [-2, -1, 0, 1, 2]
-def get_face_quadrant(img_length, face_box):
+def get_face_face_position_x(img_length, face_box):
     face_x_midpoint = get_face_x_midpoint(face_box) 
     return np.round(face_x_midpoint / img_length, 1)
 
-def get_most_center_quadrant(face_quadrants):
+def get_most_center_face_position_x(face_face_position_xs):
     infinity = float('inf')
-    most_center_quadrant = infinity
-    for face_quadrant in face_quadrants:
-        if abs(face_quadrant - 0.5) < abs(most_center_quadrant):
-            most_center_quadrant = face_quadrant
+    most_center_face_position_x = infinity
+    for face_face_position_x in face_face_position_xs:
+        if abs(face_face_position_x - 0.5) < abs(most_center_face_position_x):
+            most_center_face_position_x = face_face_position_x
     
-    if most_center_quadrant == infinity:
+    if most_center_face_position_x == infinity:
         return None
     
-    return most_center_quadrant
+    return most_center_face_position_x
 
-def get_face_quadrant_from_image(img):
+def get_face_face_position_x_from_image(img):
     faces = get_faces(img)
 
-    face_quadrants = []
+    face_face_position_xs = []
     for face in faces:
-        face_quadrants.append(get_face_quadrant(img.shape[0], face))
+        face_face_position_xs.append(get_face_face_position_x(img.shape[0], face))
 
-    return get_most_center_quadrant(face_quadrants)
+    return get_most_center_face_position_x(face_face_position_xs)
 
 def get_image_with_face_boxes(img):
     color_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
@@ -93,22 +93,22 @@ class TestProcessImages(unittest.TestCase):
         self.assertEqual(self.get_face_midpoint(10, 20), 15)
         self.assertEqual(self.get_face_midpoint(0, 100), 50)
         self.assertEqual(self.get_face_midpoint(30, 50), 40)
-    def test_get_face_quadrants(self):
+    def test_get_face_face_position_xs(self):
         # return
-        full_screen_quadrant = get_face_quadrant(100, (0, 0, 100, 100))
-        self.assertEqual(full_screen_quadrant, 0.5)
-        mid_right_quadrant = get_face_quadrant(100, (50, 60, 50, 60))
-        self.assertEqual(mid_right_quadrant, 0.5)
-        far_left_quadrant = get_face_quadrant(100, (10, 20, 30, 40))
-        self.assertEqual(far_left_quadrant, 0.2)
-        large_far_left_quandrant = get_face_quadrant(1000, (0, 50, 900, 900))
+        full_screen_face_position_x = get_face_face_position_x(100, (0, 0, 100, 100))
+        self.assertEqual(full_screen_face_position_x, 0.5)
+        mid_right_face_position_x = get_face_face_position_x(100, (50, 60, 50, 60))
+        self.assertEqual(mid_right_face_position_x, 0.5)
+        far_left_face_position_x = get_face_face_position_x(100, (10, 20, 30, 40))
+        self.assertEqual(far_left_face_position_x, 0.2)
+        large_far_left_quandrant = get_face_face_position_x(1000, (0, 50, 900, 900))
         self.assertEqual(large_far_left_quandrant, 0.4)
-        far_right_quadrant = get_face_quadrant(100, (80, 10, 90, 30))
-        self.assertEqual(far_right_quadrant, 0.8)
-    def test_integration_get_face_quadrant_from_image(self):
-        quadrant = get_face_quadrant_from_image(self.test_image)
+        far_right_face_position_x = get_face_face_position_x(100, (80, 10, 90, 30))
+        self.assertEqual(far_right_face_position_x, 0.8)
+    def test_integration_get_face_face_position_x_from_image(self):
+        face_position_x = get_face_face_position_x_from_image(self.test_image)
         # Mike Pence is near the center, so this will be dead center
-        self.assertEqual(quadrant, 0.6)
+        self.assertEqual(face_position_x, 0.6)
     def test_calculate_degreee_from_duty(self):
         self.assertEqual(calculate_degreee_from_duty(7), 90)
         self.assertEqual(calculate_degreee_from_duty(2), 0)

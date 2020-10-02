@@ -15,7 +15,7 @@ cd_to_this_directory()
 
 from modules.camera_module import capture_camera_image, camera_setup, shutdown_camera
 from modules.image_module import save_image
-from modules.process_image_for_servo import get_face_quadrant_from_image, get_image_with_face_boxes
+from modules.process_image_for_servo import get_face_face_position_x_from_image, get_image_with_face_boxes
 from modules.servo_module import Servo
 
 IS_TEST = False
@@ -27,22 +27,22 @@ def save_image_with_faces(img):
 
     save_image(img_with_faces, 'test-face-image.jpg')
 
-def move_servo_based_on_quadrant(quadrant):
+def move_servo_based_on_face_position_x(face_position_x):
     center_position = [0.45, 0.55]
-    if quadrant == None:
+    if face_position_x == None:
         servo.reset()
         return
-    if quadrant >= center_position[0] and quadrant <= center_position[1]:
+    if face_position_x >= center_position[0] and face_position_x <= center_position[1]:
         return
     
-    if quadrant < center_position[0]:
-        amount_to_move = center_position[0] - quadrant
+    if face_position_x < center_position[0]:
+        amount_to_move = center_position[0] - face_position_x
         servo.move_left(amount_to_move)
-    elif quadrant > center_position[1]:
-        amount_to_move = center_position[0] - quadrant
+    elif face_position_x > center_position[1]:
+        amount_to_move = center_position[0] - face_position_x
         servo.move_right(amount_to_move)
     else:
-        raise Exception('Unkown quadrant {}'.format(quadrant))
+        raise Exception('Unkown face_position_x {}'.format(face_position_x))
 
 def call_and_get_time(function, args):
     time_start = time.time()
@@ -69,19 +69,19 @@ while True:
     img, total_time = call_and_get_time(capture_camera_image, (IS_TEST,))
     time_pass_for_calls.append((total_time, 'take picture'))
 
-    quadrant, total_time = call_and_get_time(get_face_quadrant_from_image, (img,))
+    face_position_x, total_time = call_and_get_time(get_face_face_position_x_from_image, (img,))
     time_pass_for_calls.append((total_time, 'process picture'))
 
     if IS_TEST:
         save_image_with_faces(img)
 
-    _, total_time = call_and_get_time(move_servo_based_on_quadrant, (quadrant,))
+    _, total_time = call_and_get_time(move_servo_based_on_face_position_x, (face_position_x,))
     time_pass_for_calls.append((total_time, 'turn servo'))
 
     print('Took {} seconds to run'.format(
         get_stats_text(time_pass_for_calls)
     ))
-    print('Currently at position {} with quadrant {}'.format(servo.current_position, quadrant))
+    print('Currently at duty {} with face_position_x {}'.format(servo.current_duty, face_position_x))
     time.sleep(0.2)
 
 
