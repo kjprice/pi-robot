@@ -162,7 +162,8 @@ class TestProcessImages(unittest.TestCase):
     def setUp(self):
         self.test_image = load_test_image()
     def get_face_midpoint(self, x1, x2):
-        return get_face_x_midpoint((x1, -1, x2, -1))
+        width = x2 - x1
+        return get_face_x_midpoint((x1, -1, width, -1))
     def test_get_face_midpoint(self):
         self.assertEqual(self.get_face_midpoint(40, 60), 50)
         self.assertEqual(self.get_face_midpoint(10, 20), 15)
@@ -172,18 +173,18 @@ class TestProcessImages(unittest.TestCase):
         # return
         full_screen_face_position_x = get_face_face_position_x(100, (0, 0, 100, 100))
         self.assertEqual(full_screen_face_position_x, 0.5)
-        mid_right_face_position_x = get_face_face_position_x(100, (50, 60, 50, 60))
+        mid_right_face_position_x = get_face_face_position_x(100, (50, 60, 0, 0))
         self.assertEqual(mid_right_face_position_x, 0.5)
         far_left_face_position_x = get_face_face_position_x(100, (10, 20, 30, 40))
         self.assertEqual(far_left_face_position_x, 0.2)
         large_far_left_quandrant = get_face_face_position_x(1000, (0, 50, 900, 900))
         self.assertEqual(large_far_left_quandrant, 0.4)
-        far_right_face_position_x = get_face_face_position_x(100, (80, 10, 90, 30))
+        far_right_face_position_x = get_face_face_position_x(100, (80, 10, 10, 20))
         self.assertEqual(far_right_face_position_x, 0.8)
     def test_integration_get_face_position_x_from_image(self):
         face_position_x = get_face_position_x_from_image(self.test_image)
         # Mike Pence is near the center, so this will be dead center
-        self.assertEqual(face_position_x, 0.2)
+        self.assertEqual(face_position_x, 0.3)
     def test_calculate_degreee_from_duty(self):
         self.assertEqual(calculate_degreee_from_duty(7), 90)
         self.assertEqual(calculate_degreee_from_duty(2), 0)
