@@ -15,7 +15,7 @@ cd_to_this_directory()
 
 from modules.camera_module import capture_camera_image, camera_setup, shutdown_camera
 from modules.image_module import save_image
-from modules.process_image_for_servo import get_face_face_position_x_from_image, get_image_with_face_boxes
+from modules.process_image_for_servo import get_face_position_x_from_image, get_image_with_face_boxes
 from modules.servo_module import Servo
 
 IS_TEST = False
@@ -99,12 +99,14 @@ while True:
     img, total_time = call_and_get_time(capture_camera_image, (IS_TEST,))
     time_pass_for_calls.append((total_time, 'take picture'))
 
-    face_position_x, total_time = call_and_get_time(get_face_face_position_x_from_image, (img,))
+    face_position_x, total_time = call_and_get_time(get_face_position_x_from_image, (img,))
     time_pass_for_calls.append((total_time, 'process picture'))
 
     if IS_TEST:
         save_image_with_faces(img)
 
+    if face_position_x is not None:
+        face_position_x = face_position_x * 2
     _, total_time = call_and_get_time(move_servo_based_on_face_position_x, (face_position_x,))
     time_pass_for_calls.append((total_time, 'turn servo'))
 

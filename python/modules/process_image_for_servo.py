@@ -1,3 +1,4 @@
+from functools import reduce
 import unittest
 
 import cv2
@@ -18,6 +19,16 @@ if __name__ == '__main__':
 DUTY_MIN = 2
 DUTY_MAX = 12
 
+def x_positions_in_image(img):
+    img_width = float(img.shape[1])
+
+    postions_less_than_1 = np.arange(0.1, 1.0, 0.1)
+
+    x_positions = map(lambda a: int(a * img_width), postions_less_than_1)
+
+    return x_positions
+
+
 def get_faces(img):
     faces = face_cascade.detectMultiScale(img, 1.1, 4)
     return faces
@@ -29,48 +40,108 @@ def get_face_x_midpoint(face):
 
     return x1 + offset
 
-# Will return one of [-2, -1, 0, 1, 2]
-def get_face_face_position_x(img_length, face_box):
+def get_face_face_position_x(img_width, face_box):
     face_x_midpoint = get_face_x_midpoint(face_box) 
-    return np.round(face_x_midpoint / img_length, 1)
+    return np.round(face_x_midpoint / img_width, 1)
 
-def get_most_center_face_position_x(face_face_position_xs):
-    infinity = float('inf')
-    most_center_face_position_x = infinity
-    for face_face_position_x in face_face_position_xs:
-        if abs(face_face_position_x - 0.5) < abs(most_center_face_position_x):
-            most_center_face_position_x = face_face_position_x
-    
-    if most_center_face_position_x == infinity:
-        return None
-    
-    return most_center_face_position_x
+def width(face):
+    x1, _, x2, _ = face
+    return x2 - x1
 
-def get_face_face_position_x_from_image(img):
+def get_widest_face(faces):
+    return reduce(lambda a, b: a if width(a) > width(b) else b, faces)
+
+    
+def get_primary_face(faces):
+    return get_widest_face(faces)
+
+def get_face_position_x_from_image(img):
     faces = get_faces(img)
+    if faces is None or len(faces) == 0:
+        return None
 
-    face_face_position_xs = []
-    for face in faces:
-        face_face_position_xs.append(get_face_face_position_x(img.shape[0], face))
+    primary_face = get_primary_face(faces)
 
-    return get_most_center_face_position_x(face_face_position_xs)
+    return get_face_face_position_x(img.shape[1], primary_face)
+
+def draw_box(img, box, color=(0,0,255), line_width=1):
+    x, y, w, h = box
+    cv2.rectangle(img, (x, y), (x+w, y+h), color, line_width)
 
 def get_image_with_face_boxes(img):
     color_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
 
     faces = get_faces(color_image)
-    for (x, y, w, h) in faces:
-        cv2.rectangle(color_image, (x, y), (x+w, y+h), (0, 0, 255), 1)
+    for face in faces:
+        draw_box(color_image, face)
+    primary_face = get_primary_face(faces)
+
+    draw_box(color_image, primary_face, color=(0,255,255))
     
     return color_image
 
-# To see what the image looks on the boxes
-def display_image(img, show_faces=False, vertical_lines=None):
+def image_with_vertical_lines(img, line_x_list):
+    img_height = img.shape[0]
+    for line_x in line_x_list:
+        start = (line_x, 0)
+        end = (line_x, img_height)
+        img = cv2.line(img, start, end, (255, 255, 255), 1)
+    
+    return img
+
+def draw_opaque_rectange(img, box):
+    x1, y1, width, height = box
+    x2 = x1 + width
+    y2 = y1 + height
+    sub_img = img[y1:y2, x1:x2]
+
+    # White box
+    white_rect = np.ones(sub_img.shape, dtype=np.uint8) * 255
+    box_with_opaque_color = cv2.addWeighted(sub_img, 0.5, white_rect, 0.5, 1.0)
+
+    img[y1:y2, x1:x2] = box_with_opaque_color
+
+# expects x_ratio_start to be between 0-1
+def box_of_selected_area(img, x_ratio_start):
+    start_region = x_ratio_start
+
+    x = int(x_ratio_start * img.shape[1])
+    y = 0
+    height = img.shape[0]
+    width = int(0.1 * img.shape[1])
+    box = (x, y, width, height)
+
+    # mutates the object
+    draw_opaque_rectange(img, box)
+
+    return img
+
+
+def draw_texts(img, texts):
+    img_height = img.shape[0]
+    middle_y = img_height // 2
+    for i, text in enumerate(texts):
+        y = middle_y + (i * 30)
+        img = cv2.putText(img, text, (10, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+    
+    return img
+
+# Can be used for debugging purposes
+def extend_image(img, show_faces=False, vertical_lines=None, texts=None):
     if show_faces:
         img = get_image_with_face_boxes(img)
+    if vertical_lines is not None:
+        img = image_with_vertical_lines(img, vertical_lines)
+        region_selected = get_face_position_x_from_image(img)
+        img = box_of_selected_area(img, region_selected)
+    if texts is not None:
+        img = draw_texts(img, texts)
+    
+    return img
+
+def display_image(img):
     cv2.imshow('img', img)
     cv2.waitKey()
-
 
 def calculate_degreee_from_duty(duty):
     duty_range = DUTY_MAX - DUTY_MIN
@@ -105,10 +176,10 @@ class TestProcessImages(unittest.TestCase):
         self.assertEqual(large_far_left_quandrant, 0.4)
         far_right_face_position_x = get_face_face_position_x(100, (80, 10, 90, 30))
         self.assertEqual(far_right_face_position_x, 0.8)
-    def test_integration_get_face_face_position_x_from_image(self):
-        face_position_x = get_face_face_position_x_from_image(self.test_image)
+    def test_integration_get_face_position_x_from_image(self):
+        face_position_x = get_face_position_x_from_image(self.test_image)
         # Mike Pence is near the center, so this will be dead center
-        self.assertEqual(face_position_x, 0.6)
+        self.assertEqual(face_position_x, 0.2)
     def test_calculate_degreee_from_duty(self):
         self.assertEqual(calculate_degreee_from_duty(7), 90)
         self.assertEqual(calculate_degreee_from_duty(2), 0)
@@ -122,5 +193,10 @@ class TestProcessImages(unittest.TestCase):
 
 if IS_TEST:
     img = load_test_image()
+    x_positions = x_positions_in_image(img)
+    texts = ['hello', 'world']
+    img = extend_image(img, show_faces=True, vertical_lines=x_positions, texts=texts)
+    display_image(img)
+
 
     unittest.main()
