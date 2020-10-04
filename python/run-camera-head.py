@@ -101,9 +101,6 @@ while True:
     img, total_time = call_and_get_time(capture_camera_image, (IS_TEST,))
     time_pass_for_calls.append((total_time, 'take picture'))
 
-    img, total_time = call_and_get_time(grascale, (img,))
-    time_pass_for_calls.append((total_time, 'grayscale'))
-
     faces, total_time = call_and_get_time(get_faces, (img,))
     time_pass_for_calls.append((total_time, 'get_faces'))
 

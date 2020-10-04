@@ -2,7 +2,7 @@ import os
 
 import cv2
 
-from modules.image_module import save_image, get_file_path_for_save, load_image
+from modules.image_module import save_image, get_file_path_for_save, load_image, grascale
 
 # This import will fail on a mac
 try:
@@ -23,7 +23,7 @@ def camera_setup(is_test):
 
 def capture_picture_from_webcam():
     _, image = camera.read()
-    return image
+    return grascale(image)
 
 def capture_pircture_from_pi_camera():
     img_filepath = get_file_path_for_save('pi-camera.jpg')
