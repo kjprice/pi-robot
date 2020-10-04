@@ -55,8 +55,9 @@ def get_widest_face(faces):
 def get_primary_face(faces):
     return get_widest_face(faces)
 
-def get_face_position_x_from_image(img):
-    faces = get_faces(img)
+def get_face_position_x_from_image(img, faces=None):
+    if faces is None:
+        faces = get_faces(img)
     if faces is None or len(faces) == 0:
         return None
 
@@ -68,10 +69,11 @@ def draw_box(img, box, color=(0,0,255), line_width=1):
     x, y, w, h = box
     cv2.rectangle(img, (x, y), (x+w, y+h), color, line_width)
 
-def get_image_with_face_boxes(img):
+def get_image_with_face_boxes(img, faces):
     color_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+    if faces is None or len(faces) == 0:
+        return color_image
 
-    faces = get_faces(color_image)
     for face in faces:
         draw_box(color_image, face)
     primary_face = get_primary_face(faces)
@@ -103,6 +105,8 @@ def draw_opaque_rectange(img, box):
 
 # expects x_ratio_start to be between 0-1
 def box_of_selected_area(img, x_ratio_start):
+    if x_ratio_start is None:
+        return img
     start_region = x_ratio_start
 
     x = int(x_ratio_start * img.shape[1])
@@ -127,12 +131,15 @@ def draw_texts(img, texts):
     return img
 
 # Can be used for debugging purposes
-def extend_image(img, show_faces=False, vertical_lines=None, texts=None):
+def extend_image(img, show_faces=False, show_vertical_lines=False, texts=None, faces=None):
+    if faces is None:
+        faces = get_faces(img)
     if show_faces:
-        img = get_image_with_face_boxes(img)
-    if vertical_lines is not None:
-        img = image_with_vertical_lines(img, vertical_lines)
-        region_selected = get_face_position_x_from_image(img)
+        img = get_image_with_face_boxes(img, faces)
+    if show_vertical_lines:
+        x_positions = x_positions_in_image(img)
+        img = image_with_vertical_lines(img, x_positions)
+        region_selected = get_face_position_x_from_image(img, faces)
         img = box_of_selected_area(img, region_selected)
     if texts is not None:
         img = draw_texts(img, texts)
@@ -192,11 +199,11 @@ class TestProcessImages(unittest.TestCase):
         self.assertEqual(calculate_duty_from_degree(180), 12)
 
 if IS_TEST:
-    img = load_test_image()
-    x_positions = x_positions_in_image(img)
-    texts = ['hello', 'world']
-    img = extend_image(img, show_faces=True, vertical_lines=x_positions, texts=texts)
-    display_image(img)
+    # img = load_test_image()
+    # faces = get_faces(img)
+    # texts = ['hello', 'world']
+    # img = extend_image(img, show_faces=True, show_vertical_lines=True, texts=texts, faces=faces)
+    # display_image(img)
 
 
     unittest.main()

@@ -6,10 +6,13 @@ try:
 except ModuleNotFoundError:
     from config import TEST_IMAGE_DIR, SAVE_IMAGE_DIR
 
+def grascale(img):
+    return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
 def load_image(path, gray=True):
     img_arr = cv2.imread(path)
     if gray:
-        return cv2.cvtColor(img_arr, cv2.COLOR_BGR2GRAY)
+        return grascale(img_arr)
     return img_arr
 
 def load_test_image():

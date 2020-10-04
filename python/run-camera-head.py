@@ -14,16 +14,18 @@ def cd_to_this_directory():
 cd_to_this_directory()
 
 from modules.camera_module import capture_camera_image, camera_setup, shutdown_camera
-from modules.image_module import save_image
-from modules.process_image_for_servo import get_face_position_x_from_image, get_image_with_face_boxes
+from modules.image_module import save_image, grascale
+from modules.process_image_for_servo import get_face_position_x_from_image, extend_image, get_faces
 from modules.servo_module import Servo
 
 IS_TEST = False
 if 'IS_TEST' in os.environ:
     IS_TEST = True
 
-def save_image_with_faces(img):
-    img_with_faces = get_image_with_face_boxes(img)
+def save_image_with_faces(img, faces):
+    print('img', img.shape)
+    texts = ['']
+    img_with_faces = extend_image(img, show_faces=True, show_vertical_lines=True, texts=texts, faces=faces)
 
     save_image(img_with_faces, 'test-face-image.jpg')
 
@@ -99,11 +101,17 @@ while True:
     img, total_time = call_and_get_time(capture_camera_image, (IS_TEST,))
     time_pass_for_calls.append((total_time, 'take picture'))
 
-    face_position_x, total_time = call_and_get_time(get_face_position_x_from_image, (img,))
+    img, total_time = call_and_get_time(grascale, (img,))
+    time_pass_for_calls.append((total_time, 'grayscale'))
+
+    faces, total_time = call_and_get_time(get_faces, (img,))
+    time_pass_for_calls.append((total_time, 'get_faces'))
+
+    face_position_x, total_time = call_and_get_time(get_face_position_x_from_image, (img, faces))
     time_pass_for_calls.append((total_time, 'process picture'))
 
     if IS_TEST:
-        save_image_with_faces(img)
+        save_image_with_faces(img, faces)
 
     if face_position_x is not None:
         face_position_x = face_position_x * 2
