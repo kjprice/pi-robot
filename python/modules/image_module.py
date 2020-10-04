@@ -17,6 +17,7 @@ def load_image(path, gray=True):
 
 def load_test_image():
     test_image_path = os.path.join(TEST_IMAGE_DIR, 'barack-obama-and-donald-trump.jpg')
+    # test_image_path = os.path.join(TEST_IMAGE_DIR, 'kj-face.png')
 
     return load_image(test_image_path)
 

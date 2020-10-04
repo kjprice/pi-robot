@@ -34,19 +34,16 @@ def get_faces(img):
     return faces
 
 def get_face_x_midpoint(face):
-    x1, y1, x2, y2 = face
+    x1, y1, width, height = face
 
-    offset = (x2 - x1) // 2
-
-    return x1 + offset
+    return x1 + (width // 2)
 
 def get_face_face_position_x(img_width, face_box):
-    face_x_midpoint = get_face_x_midpoint(face_box) 
+    face_x_midpoint = get_face_x_midpoint(face_box)
     return np.round(face_x_midpoint / img_width, 1)
 
 def width(face):
-    x1, _, x2, _ = face
-    return x2 - x1
+    return face[2]
 
 def get_widest_face(faces):
     return reduce(lambda a, b: a if width(a) > width(b) else b, faces)
@@ -107,9 +104,9 @@ def draw_opaque_rectange(img, box):
 def box_of_selected_area(img, x_ratio_start):
     if x_ratio_start is None:
         return img
-    start_region = x_ratio_start
+    start_region = x_ratio_start - 0.05
 
-    x = int(x_ratio_start * img.shape[1])
+    x = int(start_region * img.shape[1])
     y = 0
     height = img.shape[0]
     width = int(0.1 * img.shape[1])
