@@ -7,6 +7,8 @@ import time
 
 import RPi.GPIO as GPIO
 
+import numpy as np
+
 # This must be done before we bring in our modules because they depend on the correct directory
 def cd_to_this_directory():
     abspath = os.path.abspath(__file__)
@@ -26,20 +28,21 @@ running_slowly = False
 current_duty = 7 # Right in the middle
 
 # Duty can go from 2-12% (0-180 degrees)
-DUTY_MIN = 2.2
-DUTY_MAX = 11.8
+DUTY_MIN = 2.4
+DUTY_MAX = 11.6
 
 def turn_servo(duty):
+    rounded_duty = np.round(duty, 2)
     global current_duty
-    if duty < 2:
-        print('Number {} is too low. Ignoring'.format(n))
+    if rounded_duty < 2:
+        print('Number {} is too low. Ignoring'.format(rounded_duty))
         return
-    if duty > 12:
-        print('Number {} is too high. Ignoring'.format(n))
+    if rounded_duty > 12:
+        print('Number {} is too high. Ignoring'.format(rounded_duty))
         return
     
-    current_duty = duty
-    servo.ChangeDutyCycle(duty)
+    current_duty = rounded_duty
+    servo.ChangeDutyCycle(rounded_duty)
 
 def turn_on():
     global servo
@@ -77,6 +80,8 @@ def start_running_slowly():
 
 def stop_running_slowly():
     global running_slowly
+    if not running_slowly:
+        return
     print('ending process to run slowly')
 
     running_slowly = False
@@ -119,20 +124,28 @@ def get_number_of_pictures_to_take(x):
 
     return None
 
-def take_pictures(x):
+async def take_pictures(x, to_wait=None):
     n = get_number_of_pictures_to_take(x)
     for i in range(n):
         print('Taking picture {} of {}'.format(i, n), end='\r')
         img = capture_camera_image()
         save_test_image(img, i, current_duty)
-    print('Finished taking pictures')
+        if to_wait is not None:
+            await asyncio.sleep(1)
+
+    print('Finished taking {} pictures'.format(n))
+
+async def turn_servo_and_take_pictures():
+    start_running_slowly()
+    await take_pictures('p10', 1)
+    stop_running_slowly()
 
 instructions = '''
 Please type any of the following commands:
 Servo Instructions:
     Positions: l=low | h=high | m=middle
     Positions(any): any number greater than 2
-    Routine: s=take pictures slowly
+    Routines: s=take pictures slowly | tt=turn and take pictures
     State: on | off | e=exit
     Instructions: i = show-instructions
 Camera Instructions:
@@ -164,7 +177,7 @@ async def handle_user_input(future):
             continue
 
         if x in ['p5', 'p10']:
-            take_pictures(x)
+            await take_pictures(x)
         if x == 'l':
             run_low()
         if x == 'm':
@@ -185,6 +198,8 @@ async def handle_user_input(future):
             start_running_slowly()
         else: # If any other key was typed we want to stop running slowly
             stop_running_slowly()
+        if x == 'tt':
+            await turn_servo_and_take_pictures()
 
         # This is a catch all to see if the user provided a specific number
         set_specific_duty(x)
