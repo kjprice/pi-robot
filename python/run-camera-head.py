@@ -16,7 +16,7 @@ cd_to_this_directory()
 from modules.camera_module import capture_camera_image, camera_setup, shutdown_camera
 from modules.image_module import save_image, grascale
 from modules.process_image_for_servo import get_face_position_x_from_image, extend_image, get_faces
-from modules.servo_module import Servo
+from modules.servo_module import Servo, calculate_duty_from_image_position
 
 IS_TEST = False
 if 'IS_TEST' in os.environ:
@@ -65,12 +65,12 @@ def move_servo_based_on_face_position_x(face_position_x):
     if face_position_x >= center_position[0] and face_position_x <= center_position[1]:
         return
     
+    duty_change = calculate_duty_from_image_position(face_position_x)
+    
     if face_position_x < center_position[0]:
-        amount_to_move = face_position_x
-        servo.move_left(amount_to_move)
+        servo.move_left(duty_change)
     elif face_position_x > center_position[1]:
-        amount_to_move = face_position_x - 0.5
-        servo.move_right(amount_to_move)
+        servo.move_right(duty_change)
     else:
         raise Exception('Unkown face_position_x {}'.format(face_position_x))
 
@@ -110,8 +110,6 @@ while True:
     if IS_TEST:
         save_image_with_faces(img, faces)
 
-    if face_position_x is not None:
-        face_position_x = face_position_x * 2
     _, total_time = call_and_get_time(move_servo_based_on_face_position_x, (face_position_x,))
     time_pass_for_calls.append((total_time, 'turn servo'))
 

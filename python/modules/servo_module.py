@@ -23,6 +23,20 @@ def setup_servo_main():
 
     return servo
 
+# input will be between 0-1
+def calculate_duty_from_image_position(img_position_x):
+    # from 0-0.5
+    distance_from_center = abs(0.5 - img_position_x)
+    ratio_away_from_center = distance_from_center / 0.5
+
+    # Duties needed to go from one side of an image to the other
+    duty_per_full_image = 0.35
+    half_duty_per_full_image = duty_per_full_image / 2
+
+    duty_change = ratio_away_from_center * half_duty_per_full_image
+
+    return duty_change * 2
+
 # This is the stubbed version of the servo for testing (not real)
 class StubServo():
     def start(self, position):
@@ -67,6 +81,12 @@ class Servo():
 class TestServoModule(unittest.TestCase):
     def setUp(self):
         self.servo = Servo(IS_TEST)
+    def test_calculate_duty_from_image_position(self):
+        self.assertEqual(calculate_duty_from_image_position(1), 0.175)
+        self.assertEqual(calculate_duty_from_image_position(0), 0.175)
+        self.assertEqual(calculate_duty_from_image_position(0.5), 0)
+        self.assertEqual(calculate_duty_from_image_position(0.25), 0.0875)
+
     def test_1_start_servo(self):
         self.assertEqual(self.servo.current_duty, 7)
 
