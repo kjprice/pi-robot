@@ -1,11 +1,22 @@
 #!/usr/bin/python3
-
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
-import RPi.GPIO as GPIO
+import os
 import sys
 import time
 
+import RPi.GPIO as GPIO
+
+# This must be done before we bring in our modules because they depend on the correct directory
+def cd_to_this_directory():
+    abspath = os.path.abspath(__file__)
+    dname = os.path.dirname(abspath)
+    os.chdir(dname)
+cd_to_this_directory()
+
+
+from test_modules.test_camera import capture_camera_image, save_test_image
+from modules.camera_module import camera_setup 
 # Settings
 SERVO_PIN = 7 # Can be any IO pins including: 7,11,12,13,15,16,18,22
 
@@ -100,6 +111,22 @@ def run_all_tests():
     run_middle()
     wait()
 
+def get_number_of_pictures_to_take(x):
+    if x == 'p5':
+        return 5
+    if x == 'p10':
+        return 10
+
+    return None
+
+def take_pictures(x):
+    n = get_number_of_pictures_to_take(x)
+    for i in range(n):
+        print('Taking picture {} of {}'.format(i, n), end='\r')
+        img = capture_camera_image()
+        save_test_image(img, i, current_duty)
+    print('Finished taking pictures')
+
 instructions = '''
 Please type any of the following commands:
 Servo Instructions:
@@ -136,6 +163,8 @@ async def handle_user_input(future):
         if x == '':
             continue
 
+        if x in ['p5', 'p10']:
+            take_pictures(x)
         if x == 'l':
             run_low()
         if x == 'm':
