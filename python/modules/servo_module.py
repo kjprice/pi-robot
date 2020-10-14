@@ -1,7 +1,12 @@
 import time
 import unittest
 
+import numpy as np
+
+# Some servos have duty=2 at the far left and some are the opposite
+SHOULD_REVERSE = True
 IS_TEST = False
+
 if __name__ == '__main__':
     IS_TEST = True
 
@@ -35,7 +40,7 @@ def calculate_duty_from_image_position(img_position_x):
 
     duty_change = ratio_away_from_center * half_duty_per_full_image
 
-    return duty_change * 2
+    return np.round(duty_change * 3, 2)
 
 # This is the stubbed version of the servo for testing (not real)
 class StubServo():
@@ -64,14 +69,18 @@ class Servo():
         if duty == self.current_duty:
             return
 
-        self.current_duty = duty
+        self.current_duty = np.round(duty, 2)
 
         self.servo.ChangeDutyCycle(duty)
     def reset(self):
         self.go_to(self.center)
     def move_left(self, amount_to_move):
-        self.go_to(self.current_duty - amount_to_move)
+        if not SHOULD_REVERSE:
+            amount_to_move *= -1
+        self.go_to(self.current_duty + amount_to_move)
     def move_right(self, amount_to_move):
+        if SHOULD_REVERSE:
+            amount_to_move *= -1
         self.go_to(self.current_duty + amount_to_move)
     def teardown(self):
         print('shutting down servo')

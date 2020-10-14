@@ -16,15 +16,18 @@ cd_to_this_directory()
 from modules.camera_module import capture_camera_image, camera_setup, shutdown_camera
 from modules.image_module import save_image, grascale
 from modules.process_image_for_servo import get_face_position_x_from_image, extend_image, get_faces
-from modules.servo_module import Servo, calculate_duty_from_image_position
+from modules.servo_module import Servo, calculate_duty_from_image_position, calculate_duty_from_image_position
 
 IS_TEST = False
 if 'IS_TEST' in os.environ:
     IS_TEST = True
 
-def save_image_with_faces(img, faces):
-    print('img', img.shape)
-    texts = ['']
+def save_image_with_faces(img, faces, face_position_x, old_duty, new_duty):
+    texts = [
+        'Face Position: {}'.format(face_position_x),
+        'Old Duty: {}'.format(old_duty),
+        'New Duty: {}'.format(new_duty),
+    ]
     img_with_faces = extend_image(img, show_faces=True, show_vertical_lines=True, texts=texts, faces=faces)
 
     save_image(img_with_faces, 'test-face-image.jpg')
@@ -107,14 +110,16 @@ while True:
     face_position_x, total_time = call_and_get_time(get_face_position_x_from_image, (img, faces))
     time_pass_for_calls.append((total_time, 'process picture'))
 
-    if IS_TEST:
-        save_image_with_faces(img, faces)
+    
+    old_duty = servo.current_duty
 
     _, total_time = call_and_get_time(move_servo_based_on_face_position_x, (face_position_x,))
     time_pass_for_calls.append((total_time, 'turn servo'))
 
     print('Took {} seconds to run'.format(get_stats_text(time_pass_for_calls)))
-    print('Currently at duty {} with face_position_x {}'.format(servo.current_duty, face_position_x))
+    new_duty = servo.current_duty
+    print('Currently at duty {} with face_position_x {}'.format(new_duty, face_position_x))
+    save_image_with_faces(img, faces, face_position_x, old_duty, new_duty)
     time.sleep(0.2)
 
 
