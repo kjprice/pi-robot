@@ -14,11 +14,13 @@ def cd_to_this_directory():
     abspath = os.path.abspath(__file__)
     dname = os.path.dirname(abspath)
     os.chdir(dname)
+
 cd_to_this_directory()
 
 
-from test_modules.test_camera import capture_camera_image, save_test_image
-from modules.camera_module import camera_setup 
+if 'IGNORE_CAMERA' not in os.environ:
+    from test_modules.test_camera import capture_camera_image, save_test_image, test_fast_image_capture
+    from modules.camera_module import camera_setup 
 # Settings
 SERVO_PIN = 7 # Can be any IO pins including: 7,11,12,13,15,16,18,22
 
@@ -69,7 +71,7 @@ def run_high():
     turn_servo(DUTY_MAX)
 
 def run_middle():
-    print('Turning back 90 degrees for 2 seconds')
+    print('Turning back 90 degrees')
     turn_servo(7)
 
 def start_running_slowly():
@@ -135,6 +137,7 @@ async def take_pictures(x, to_wait=None):
 
     print('Finished taking {} pictures'.format(n))
 
+# From this test we find that it takes about 0.35 duties to go from one end of the image to the other
 async def turn_servo_and_take_pictures():
     start_running_slowly()
     await take_pictures('p10', 1)
@@ -145,9 +148,13 @@ Please type any of the following commands:
 Servo Instructions:
     Positions: l=low | h=high | m=middle
     Positions(any): any number greater than 2
-    Routines: s=take pictures slowly | tt=turn and take pictures
     State: on | off | e=exit
     Instructions: i = show-instructions
+'''
+
+if 'IGNORE_CAMERA' not in os.environ:
+    instructions += '''
+    Routines: s=take pictures slowly | tt=turn and take pictures | q=take quick pictures
 Camera Instructions:
     Take Pictures: p5="5 pictures" | p10="10 pictures"
 
@@ -190,6 +197,9 @@ async def handle_user_input(future):
             turn_off()
         if x == 'i':
             show_instructions()
+        if x == 'q':
+            print('Taking fast image captures')
+            test_fast_image_capture()
         if x == 'e':
             should_stop_immediately = True
             future.set_result('closing user input')
