@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import atexit
 import os
+import requests
 import time
 
 import numpy as np
@@ -14,19 +15,59 @@ def cd_to_this_directory():
 cd_to_this_directory()
 
 from modules.camera_module import capture_camera_image, camera_setup, shutdown_camera
+from modules.config import get_servo_url
 from modules.image_module import save_image, grascale
 from modules.process_image_for_servo import get_face_position_x_from_image, extend_image, get_faces
-from modules.servo_module import Servo, calculate_duty_from_image_position, calculate_duty_from_image_position
+from modules.servo_module import calculate_duty_from_image_position
 
 IS_TEST = False
 if 'IS_TEST' in os.environ:
     IS_TEST = True
 
-def save_image_with_faces(img, faces, face_position_x, old_duty, new_duty):
+servo_url = get_servo_url(IS_TEST)
+
+def get_servo_url_path(path):
+    global servo_url
+    url = '/'.join([servo_url, path])
+
+    return url
+
+def handle_servo_server_response(response):
+    text = response.text
+    status_code = response.status_code
+    if response.status_code != 200:
+        raise Exception('Unkown status code "{}" with text "{}"'.format(status_code, text))
+    if text != 'success':
+        raise Exception('"success" not retrieved from server. Instead, received "{}"'.format(text))
+
+def send_servo_duty(duty_change, direction):
+    url = get_servo_url_path('setServoPosition')
+
+    print('Sending request to "{}"'.format(url))
+
+    response = requests.post(url, json={
+        "duty": duty_change,
+        "direction": direction
+    })
+
+    handle_servo_server_response(response)
+
+def send_reset_servo():
+    url = get_servo_url_path('resetServo')
+    print('resetting servo')
+    response = requests.post(url)
+    handle_servo_server_response(response)
+
+def test_connection_with_servo_server():
+    url = get_servo_url_path('testConnection')
+    print('Testing connection with servo server on url "{}"'.format(url))
+    response = requests.get(url)
+    handle_servo_server_response(response)
+    print('Successfully connected with servo server')
+
+def save_image_with_faces(img, faces, face_position_x):
     texts = [
-        'Face Position: {}'.format(face_position_x),
-        'Old Duty: {}'.format(old_duty),
-        'New Duty: {}'.format(new_duty),
+        'Face Position: {}'.format(face_position_x)
     ]
     img_with_faces = extend_image(img, show_faces=True, show_vertical_lines=True, texts=texts, faces=faces)
 
@@ -61,7 +102,7 @@ def move_servo_based_on_face_position_x(face_position_x):
     # No face
     if face_position_x is None:
         if has_too_much_time_passed_without_face():
-            servo.reset()
+            send_reset_servo()
         return
     
     # if dead center, then stay there
@@ -71,9 +112,9 @@ def move_servo_based_on_face_position_x(face_position_x):
     duty_change = calculate_duty_from_image_position(face_position_x)
     
     if face_position_x < center_position[0]:
-        servo.move_left(duty_change)
+        send_servo_duty(duty_change, 'left')
     elif face_position_x > center_position[1]:
-        servo.move_right(duty_change)
+        send_servo_duty(duty_change, 'right')
     else:
         raise Exception('Unkown face_position_x {}'.format(face_position_x))
 
@@ -98,7 +139,8 @@ def get_stats_text(time_pass_for_calls):
     return ', '.join(text)
 
 camera_setup(IS_TEST)
-servo = Servo(IS_TEST)
+test_connection_with_servo_server()
+time.sleep(1)
 while True:
     time_pass_for_calls = []
     img, total_time = call_and_get_time(capture_camera_image, (IS_TEST,))
@@ -111,16 +153,13 @@ while True:
     time_pass_for_calls.append((total_time, 'process picture'))
 
     
-    old_duty = servo.current_duty
-
     _, total_time = call_and_get_time(move_servo_based_on_face_position_x, (face_position_x,))
     time_pass_for_calls.append((total_time, 'turn servo'))
 
     print('Took {} seconds to run'.format(get_stats_text(time_pass_for_calls)))
-    new_duty = servo.current_duty
-    print('Currently at duty {} with face_position_x {}'.format(new_duty, face_position_x))
-    save_image_with_faces(img, faces, face_position_x, old_duty, new_duty)
+    print('Currently at face_position_x {}'.format(face_position_x))
+    save_image_with_faces(img, faces, face_position_x)
     time.sleep(0.2)
 
 
-atexit.register(shutdown_camera, servo.teardown)
+atexit.register(shutdown_camera)
