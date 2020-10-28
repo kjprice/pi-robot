@@ -14,7 +14,7 @@ def cd_to_this_directory():
     os.chdir(dname)
 cd_to_this_directory()
 
-from modules.camera_module import capture_camera_image, camera_setup, shutdown_camera
+from modules.camera_module import image_generator, camera_setup, shutdown_camera
 from modules.config import get_servo_url
 from modules.image_module import save_image, grascale
 from modules.process_image_for_servo import get_face_position_x_from_image, extend_image, get_faces
@@ -138,13 +138,17 @@ def get_stats_text(time_pass_for_calls):
     
     return ', '.join(text)
 
-camera_setup(IS_TEST)
+camera_setup(IS_TEST, grayscale=True)
 test_connection_with_servo_server()
 time.sleep(1)
-while True:
+for img, time_passed_for_image in image_generator():
     time_pass_for_calls = []
-    img, total_time = call_and_get_time(capture_camera_image, (IS_TEST,))
-    time_pass_for_calls.append((total_time, 'take picture'))
+
+    time_pass_for_calls.append((time_passed_for_image, 'take picture'))
+
+    
+    img, total_time = call_and_get_time(grascale, (img,))
+    time_pass_for_calls.append((total_time, 'generate grayscale'))
 
     faces, total_time = call_and_get_time(get_faces, (img,))
     time_pass_for_calls.append((total_time, 'get_faces'))
