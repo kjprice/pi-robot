@@ -160,8 +160,7 @@ for img, time_passed_for_image in image_generator():
     _, total_time = call_and_get_time(move_servo_based_on_face_position_x, (face_position_x,))
     time_pass_for_calls.append((total_time, 'turn servo'))
 
-    print('Took {} seconds to run'.format(get_stats_text(time_pass_for_calls)))
-    print('Currently at face_position_x {}'.format(face_position_x))
+    print('Took {} seconds to run || At face_position_x {}'.format(get_stats_text(time_pass_for_calls), face_position_x), end='\r')
     save_image_with_faces(img, faces, face_position_x)
     time.sleep(0.2)
 
