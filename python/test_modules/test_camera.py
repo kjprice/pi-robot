@@ -6,7 +6,7 @@ import numpy as np
 
 from modules.camera_module import camera_setup, image_generator
 from modules.image_module import save_image, get_file_path_for_save, load_image, save_image
-from modules.process_image_for_servo import extend_image, get_faces
+from modules.process_image_for_servo import extend_image
 
 camera = camera_setup()
 

@@ -6,11 +6,14 @@ import numpy as np
 
 try:
     from modules.image_module import load_test_image
-    from modules.config import CASCADE_XML_FILEPATH
+    from modules.config import get_face_classifiers
 except ModuleNotFoundError:
     from image_module import load_test_image
-    from config import CASCADE_XML_FILEPATH
-face_cascade = cv2.CascadeClassifier(CASCADE_XML_FILEPATH)
+    from config import get_face_classifiers
+
+
+# TODO: Add all of the models
+face_cascades = get_face_classifiers()
 
 IS_TEST = False
 if __name__ == '__main__':
@@ -28,10 +31,25 @@ def x_positions_in_image(img):
 
     return x_positions
 
-
+def find_faces_in_any_classifier(img):
+    for classifier in face_cascades:
+        faces = classifier.detectMultiScale(img, 1.1, 4)
+        if len(faces) > 0:
+            return faces
+    
+    return None
+        
+    
 def get_faces(img):
-    faces = face_cascade.detectMultiScale(img, 1.1, 4)
+    faces = find_faces_in_any_classifier(img)
     return faces
+
+def find_person(img):
+    faces = get_faces(img)
+    if faces is not None and len(faces) > 0:
+        return faces
+    
+    return None
 
 def get_face_x_midpoint(face):
     x1, y1, width, height = face
@@ -54,7 +72,7 @@ def get_primary_face(faces):
 
 def get_face_position_x_from_image(img, faces=None):
     if faces is None:
-        faces = get_faces(img)
+        faces = find_person(img)
     if faces is None or len(faces) == 0:
         return None
 
@@ -130,7 +148,7 @@ def draw_texts(img, texts):
 # Can be used for debugging purposes
 def extend_image(img, show_faces=False, show_vertical_lines=False, texts=None, faces=None):
     if faces is None:
-        faces = get_faces(img)
+        faces = find_person(img)
     if show_faces:
         img = get_image_with_face_boxes(img, faces)
     if show_vertical_lines:
@@ -198,7 +216,7 @@ class TestProcessImages(unittest.TestCase):
 
 if IS_TEST:
     # img = load_test_image()
-    # faces = get_faces(img)
+    # faces = find_person(img)
     # texts = ['hello', 'world']
     # img = extend_image(img, show_faces=True, show_vertical_lines=True, texts=texts, faces=faces)
     # display_image(img)

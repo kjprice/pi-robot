@@ -3,7 +3,7 @@ import time
 
 import cv2
 
-from modules.image_module import save_image, get_file_path_for_save, load_image, grascale
+from modules.image_module import save_image, get_file_path_for_save, load_image, grayscale
 
 # This import will fail on a mac
 try:
@@ -25,12 +25,11 @@ def camera_setup(is_test=False, framerate=30, grayscale=False, resolution=(640, 
         if grayscale:
             camera.color_effects = (128,128) # turn camera to black and white
         camera.framerate = framerate
-
+        print('Warming up camera')
+        camera.start_preview()
     return camera
 
-def image_generator():
-    print('Warming up camera')
-    camera.start_preview()
+def pi_image_generator():
     time.sleep(0.5)
     with picamera.array.PiRGBArray(camera) as stream:
         # Using "array.PiRGBArray" the stream will have an "array" property
@@ -44,10 +43,23 @@ def image_generator():
 
             stream.seek(0)
 
-
-def capture_picture_from_webcam():
+def capture_picture_from_webcam(run_grayscale = False):
     _, image = camera.read()
-    return grascale(image)
+
+    if run_grayscale:
+        return grayscale(image)
+    
+    return image
+
+def webcam_image_generator():
+    while True:
+        yield (capture_picture_from_webcam(), 0)
+
+def image_generator(is_test=False):
+    if is_test:
+        return webcam_image_generator()
+
+    return pi_image_generator()
 
 def capture_pircture_from_pi_camera():
     img_filepath = get_file_path_for_save('pi-camera.jpg')

@@ -16,8 +16,8 @@ cd_to_this_directory()
 
 from modules.camera_module import image_generator, camera_setup, shutdown_camera
 from modules.config import get_servo_url
-from modules.image_module import save_image, grascale
-from modules.process_image_for_servo import get_face_position_x_from_image, extend_image, get_faces
+from modules.image_module import save_image, process_image
+from modules.process_image_for_servo import get_face_position_x_from_image, extend_image, find_person
 from modules.servo_module import calculate_duty_from_image_position
 
 IS_TEST = False
@@ -139,26 +139,28 @@ def get_stats_text(time_pass_for_calls):
     return ', '.join(text)
 
 camera_setup(IS_TEST, grayscale=True)
-test_connection_with_servo_server()
+if not IS_TEST:
+    test_connection_with_servo_server()
 time.sleep(1)
-for img, time_passed_for_image in image_generator():
+for img, time_passed_for_image in image_generator(IS_TEST):
     time_pass_for_calls = []
 
     time_pass_for_calls.append((time_passed_for_image, 'take picture'))
 
     
-    img, total_time = call_and_get_time(grascale, (img,))
-    time_pass_for_calls.append((total_time, 'generate grayscale'))
+    img, total_time = call_and_get_time(process_image, (img,))
+    time_pass_for_calls.append((total_time, 'clean img'))
 
-    faces, total_time = call_and_get_time(get_faces, (img,))
-    time_pass_for_calls.append((total_time, 'get_faces'))
+    faces, total_time = call_and_get_time(find_person, (img,))
+    time_pass_for_calls.append((total_time, 'find_person'))
 
     face_position_x, total_time = call_and_get_time(get_face_position_x_from_image, (img, faces))
     time_pass_for_calls.append((total_time, 'process picture'))
 
     
-    _, total_time = call_and_get_time(move_servo_based_on_face_position_x, (face_position_x,))
-    time_pass_for_calls.append((total_time, 'turn servo'))
+    if not IS_TEST:
+        _, total_time = call_and_get_time(move_servo_based_on_face_position_x, (face_position_x,))
+        time_pass_for_calls.append((total_time, 'turn servo'))
 
     print('Took {} seconds to run || At face_position_x {}'.format(get_stats_text(time_pass_for_calls), face_position_x), end='\r')
     save_image_with_faces(img, faces, face_position_x)
