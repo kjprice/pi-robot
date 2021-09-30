@@ -143,8 +143,6 @@ def fps(times):
 def calculate_time_spent_average(total_times):
     if len(total_times) == 0:
         return -1
-    if len(total_times) > MAX_ITEMS_FOR_TOTAL_TIMES:
-        del total_times[0] # Delete oldest item
     
     avg = np.mean(total_times)
     return np.round(avg, 2)
@@ -167,6 +165,12 @@ class Camera_Head:
     time_pass_for_calls = []
     total_time_list_faces = []
     total_time_list_no_faces = []
+
+    def limit_total_time_stored(self):
+        if len(self.total_time_list_faces) > MAX_ITEMS_FOR_TOTAL_TIMES:
+            del self.total_time_list_faces[0] # Delete oldest item
+        if len(self.total_time_list_no_faces) > MAX_ITEMS_FOR_TOTAL_TIMES:
+            del self.total_time_list_no_faces[0] # Delete oldest item
 
     def log_processing_time(self):
         mean_time_faces = calculate_time_spent_average(self.total_time_list_faces)
@@ -207,6 +211,8 @@ class Camera_Head:
             self.total_time_list_faces.append(time_all_total)
         else:
             self.total_time_list_no_faces.append(time_all_total)
+        
+        self.limit_total_time_stored()
 
 if __name__ == "__main__":
     camera_head = Camera_Head()
