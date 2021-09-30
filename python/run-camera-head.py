@@ -149,16 +149,6 @@ def calculate_time_spent_average(total_times):
     avg = np.mean(total_times)
     return np.round(avg, 2)
 
-def print_time_spent_all(total_time_list_faces, total_time_list_no_faces):
-    mean_time_faces = calculate_time_spent_average(total_time_list_faces)
-    mean_time_no_faces = calculate_time_spent_average(total_time_list_no_faces)
-
-    fps_faces = fps(total_time_list_faces)
-
-    sum_total_time_faces = np.round(np.sum(total_time_list_faces), 2)
-
-    print('Takes {} seconds total (average  of {} seconds) to run {} images with faces ({} fps) and {} to run {} imags WITHOUT faces'.format(sum_total_time_faces, mean_time_faces, len(total_time_list_faces), fps_faces, mean_time_no_faces, len(total_time_list_no_faces)))
-
 def get_stats_text(time_pass_for_calls):
     text = []
     for (time, _text) in time_pass_for_calls:
@@ -172,20 +162,25 @@ camera_setup(IS_TEST, grayscale=True)
 if not IS_TEST:
     test_connection_with_servo_server()
 time.sleep(1)
-total_time_list_faces = []
-total_time_list_no_faces = []
 
 class Camera_Head:
-    time_all_start = None
     time_pass_for_calls = []
-    def __init__(self):
-        self.time_all_start = time.time()
+    total_time_list_faces = []
+    total_time_list_no_faces = []
 
-    def log_processing_time():
-        pass
+    def log_processing_time(self):
+        mean_time_faces = calculate_time_spent_average(self.total_time_list_faces)
+        mean_time_no_faces = calculate_time_spent_average(self.total_time_list_no_faces)
+
+        fps_faces = fps(self.total_time_list_faces)
+
+        sum_total_time_faces = np.round(np.sum(self.total_time_list_faces), 2)
+
+        print('Takes {} seconds total (average  of {} seconds) to run {} images with faces ({} fps) and {} to run {} imags WITHOUT faces'.format(sum_total_time_faces, mean_time_faces, len(self.total_time_list_faces), fps_faces, mean_time_no_faces, len(self.total_time_list_no_faces)))
+
     def on_image_receive(self, img, time_passed_for_image):
+        time_all_start = time.time()
         self.time_pass_for_calls.append((time_passed_for_image, 'take picture'))
-
         
         img, total_time = call_and_get_time(process_image, (img,))
         self.time_pass_for_calls.append((total_time, 'clean img'))
@@ -203,16 +198,15 @@ class Camera_Head:
             _, total_time = call_and_get_time(move_servo_based_on_face_position_x, (face_position_x,))
             self.time_pass_for_calls.append((total_time, 'turn servo'))
 
-        # print('Took {} seconds to run || At face_position_x {}'.format(get_stats_text(time_pass_for_calls), face_position_x), end='\r')
-        print_time_spent_all(total_time_list_faces, total_time_list_no_faces)
+        self.log_processing_time()
 
         save_image_with_faces(img, faces, face_position_x)
         time_all_end = time.time()
-        time_all_total = (time_all_end - self.time_all_start)
+        time_all_total = (time_all_end - time_all_start)
         if faces is not None and len(faces) > 0:
-            total_time_list_faces.append(time_all_total)
+            self.total_time_list_faces.append(time_all_total)
         else:
-            total_time_list_no_faces.append(time_all_total)
+            self.total_time_list_no_faces.append(time_all_total)
 
 if __name__ == "__main__":
     camera_head = Camera_Head()
