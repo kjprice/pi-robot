@@ -129,6 +129,36 @@ def call_and_get_time(function, args):
 
     return (response, time_total)
 
+MAX_ITEMS_FOR_TOTAL_TIMES = 10
+def fps(times):
+    total_time = np.sum(times)
+
+    if total_time == 0:
+        return 0
+
+    _fps = len(times) / total_time
+
+    return int(_fps)
+
+def calculate_time_spent_average(total_times):
+    if len(total_times) == 0:
+        return -1
+    if len(total_times) > MAX_ITEMS_FOR_TOTAL_TIMES:
+        del total_times[0] # Delete oldest item
+    
+    avg = np.mean(total_times)
+    return np.round(avg, 2)
+
+def print_time_spent_all(total_time_list_faces, total_time_list_no_faces):
+    mean_time_faces = calculate_time_spent_average(total_time_list_faces)
+    mean_time_no_faces = calculate_time_spent_average(total_time_list_no_faces)
+
+    fps_faces = fps(total_time_list_faces)
+
+    sum_total_time_faces = np.round(np.sum(total_time_list_faces), 2)
+
+    print('Takes {} seconds total (average  of {} seconds) to run {} images with faces ({} fps) and {} to run {} imags WITHOUT faces'.format(sum_total_time_faces, mean_time_faces, len(total_time_list_faces), fps_faces, mean_time_no_faces, len(total_time_list_no_faces)))
+
 def get_stats_text(time_pass_for_calls):
     text = []
     for (time, _text) in time_pass_for_calls:
@@ -142,7 +172,11 @@ camera_setup(IS_TEST, grayscale=True)
 if not IS_TEST:
     test_connection_with_servo_server()
 time.sleep(1)
+total_time_list_faces = []
+total_time_list_no_faces = []
+
 for img, time_passed_for_image in image_generator(IS_TEST):
+    time_all_start = time.time()
     time_pass_for_calls = []
 
     time_pass_for_calls.append((time_passed_for_image, 'take picture'))
@@ -154,6 +188,8 @@ for img, time_passed_for_image in image_generator(IS_TEST):
     faces, total_time = call_and_get_time(find_person, (img,))
     time_pass_for_calls.append((total_time, 'find_person'))
 
+    # TODO: Clean image (make sharper perhaps) to better find faces
+    # TODO: Try to find pedestrians as well
     face_position_x, total_time = call_and_get_time(get_face_position_x_from_image, (img, faces))
     time_pass_for_calls.append((total_time, 'process picture'))
 
@@ -162,9 +198,17 @@ for img, time_passed_for_image in image_generator(IS_TEST):
         _, total_time = call_and_get_time(move_servo_based_on_face_position_x, (face_position_x,))
         time_pass_for_calls.append((total_time, 'turn servo'))
 
-    print('Took {} seconds to run || At face_position_x {}'.format(get_stats_text(time_pass_for_calls), face_position_x), end='\r')
+    # print('Took {} seconds to run || At face_position_x {}'.format(get_stats_text(time_pass_for_calls), face_position_x), end='\r')
+    print_time_spent_all(total_time_list_faces, total_time_list_no_faces)
+
     save_image_with_faces(img, faces, face_position_x)
-    time.sleep(0.2)
+    time_all_end = time.time()
+    time_all_total = (time_all_end - time_all_start)
+    if faces is not None and len(faces) > 0:
+        total_time_list_faces.append(time_all_total)
+    else:
+        total_time_list_no_faces.append(time_all_total)
+    # time.sleep(0.2)
 
 
 atexit.register(shutdown_camera)
