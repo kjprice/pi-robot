@@ -175,40 +175,49 @@ time.sleep(1)
 total_time_list_faces = []
 total_time_list_no_faces = []
 
-for img, time_passed_for_image in image_generator(IS_TEST):
-    time_all_start = time.time()
+class Camera_Head:
+    time_all_start = None
     time_pass_for_calls = []
+    def __init__(self):
+        self.time_all_start = time.time()
 
-    time_pass_for_calls.append((time_passed_for_image, 'take picture'))
+    def log_processing_time():
+        pass
+    def on_image_receive(self, img, time_passed_for_image):
+        self.time_pass_for_calls.append((time_passed_for_image, 'take picture'))
 
-    
-    img, total_time = call_and_get_time(process_image, (img,))
-    time_pass_for_calls.append((total_time, 'clean img'))
+        
+        img, total_time = call_and_get_time(process_image, (img,))
+        self.time_pass_for_calls.append((total_time, 'clean img'))
 
-    faces, total_time = call_and_get_time(find_person, (img,))
-    time_pass_for_calls.append((total_time, 'find_person'))
+        faces, total_time = call_and_get_time(find_person, (img,))
+        self.time_pass_for_calls.append((total_time, 'find_person'))
 
-    # TODO: Clean image (make sharper perhaps) to better find faces
-    # TODO: Try to find pedestrians as well
-    face_position_x, total_time = call_and_get_time(get_face_position_x_from_image, (img, faces))
-    time_pass_for_calls.append((total_time, 'process picture'))
+        # TODO: Clean image (make sharper perhaps) to better find faces
+        # TODO: Try to find pedestrians as well
+        face_position_x, total_time = call_and_get_time(get_face_position_x_from_image, (img, faces))
+        self.time_pass_for_calls.append((total_time, 'process picture'))
 
-    
-    if not IS_TEST:
-        _, total_time = call_and_get_time(move_servo_based_on_face_position_x, (face_position_x,))
-        time_pass_for_calls.append((total_time, 'turn servo'))
 
-    # print('Took {} seconds to run || At face_position_x {}'.format(get_stats_text(time_pass_for_calls), face_position_x), end='\r')
-    print_time_spent_all(total_time_list_faces, total_time_list_no_faces)
+        if not IS_TEST:
+            _, total_time = call_and_get_time(move_servo_based_on_face_position_x, (face_position_x,))
+            self.time_pass_for_calls.append((total_time, 'turn servo'))
 
-    save_image_with_faces(img, faces, face_position_x)
-    time_all_end = time.time()
-    time_all_total = (time_all_end - time_all_start)
-    if faces is not None and len(faces) > 0:
-        total_time_list_faces.append(time_all_total)
-    else:
-        total_time_list_no_faces.append(time_all_total)
-    # time.sleep(0.2)
+        # print('Took {} seconds to run || At face_position_x {}'.format(get_stats_text(time_pass_for_calls), face_position_x), end='\r')
+        print_time_spent_all(total_time_list_faces, total_time_list_no_faces)
+
+        save_image_with_faces(img, faces, face_position_x)
+        time_all_end = time.time()
+        time_all_total = (time_all_end - self.time_all_start)
+        if faces is not None and len(faces) > 0:
+            total_time_list_faces.append(time_all_total)
+        else:
+            total_time_list_no_faces.append(time_all_total)
+
+if __name__ == "__main__":
+    camera_head = Camera_Head()
+    for img, time_passed_for_image in image_generator(IS_TEST):
+        camera_head.on_image_receive(img, time_passed_for_image)    
 
 
 atexit.register(shutdown_camera)
