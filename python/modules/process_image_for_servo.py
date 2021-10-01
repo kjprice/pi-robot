@@ -214,12 +214,14 @@ class TestProcessImages(unittest.TestCase):
         self.assertEqual(calculate_duty_from_degree(94), 7.22)
         self.assertEqual(calculate_duty_from_degree(180), 12)
 
-if IS_TEST:
-    # img = load_test_image()
-    # faces = find_person(img)
-    # texts = ['hello', 'world']
-    # img = extend_image(img, show_faces=True, show_vertical_lines=True, texts=texts, faces=faces)
-    # display_image(img)
+def display_test_image():
+    img = load_test_image()
+    faces = find_person(img)
+    texts = ['hello', 'world']
+    img = extend_image(img, show_faces=True, show_vertical_lines=True, texts=texts, faces=faces)
+    display_image(img)
 
+if IS_TEST:
+    display_test_image()
 
     unittest.main()

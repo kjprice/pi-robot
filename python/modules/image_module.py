@@ -21,11 +21,13 @@ def load_image(path, gray=True):
     return img_arr
 
 def load_test_image():
-    test_image_path = os.path.join(TEST_IMAGE_DIR, 'barack-obama-and-donald-trump.jpg')
+    test_image_path = os.path.join(TEST_IMAGE_DIR, 'image-raw.jpg')
+    # test_image_path = os.path.join(TEST_IMAGE_DIR, 'barack-obama-and-donald-trump.jpg')
     # test_image_path = os.path.join(TEST_IMAGE_DIR, 'kj-face.png')
 
     return load_image(test_image_path)
 
+# TODO: Write code to automatically create filename when "name" is None
 def get_file_path_for_save(name = None):
     return os.path.join(SAVE_IMAGE_DIR, name)
 
