@@ -222,6 +222,6 @@ def display_test_image():
     display_image(img)
 
 if IS_TEST:
-    display_test_image()
+    # display_test_image()
 
     unittest.main()

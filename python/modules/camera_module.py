@@ -55,6 +55,7 @@ def webcam_image_generator():
     while True:
         yield (capture_picture_from_webcam(), 0)
 
+# TODO: If processing takes longer than taking the picture, then the generator creates a queue of images to be processed
 def image_generator(is_test=False):
     if is_test:
         return webcam_image_generator()

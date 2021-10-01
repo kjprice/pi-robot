@@ -71,7 +71,7 @@ def save_image_with_faces(img, faces, face_position_x):
     ]
     img_with_faces = extend_image(img, show_faces=True, show_vertical_lines=True, texts=texts, faces=faces)
 
-    save_image(img, 'image-raw.jpg')
+    # save_image(img, 'image-raw.jpg')
     save_image(img_with_faces, 'test-face-image.jpg')
 
 time_without_face = None
