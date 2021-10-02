@@ -1,0 +1,113 @@
+#!/usr/bin/python3
+
+# TODO (here):
+# - Process image
+# - Send info to servo server
+
+from base64 import b64decode
+from flask import Flask, request
+from flask_cors import CORS
+from gzip import decompress
+import multiprocessing
+import os
+import time
+
+# This must be done before we bring in our modules because they depend on the correct directory
+def cd_to_this_directory():
+    abspath = os.path.abspath(__file__)
+    dname = os.path.dirname(abspath)
+    os.chdir(dname)
+cd_to_this_directory()
+
+from modules.config import get_hostname
+from modules.camera_module import image_bytes_to_array
+
+
+app = Flask(__name__)
+print(app)
+CORS(app)
+
+IS_TEST = False
+if 'IS_TEST' in os.environ:
+    IS_TEST = True
+  
+# Global variables
+camera_hostname = None
+camera_bin_dir = None
+async_process = None
+
+ALLOWED_HOSTNAMES = [
+  'kj-macbook.lan', # KJ Macbook
+]
+
+@app.route('/setCameraHostname', methods=['POST'])
+def set_hostname_of_camera_server():
+    global camera_hostname, camera_bin_dir
+    data = request.get_json()
+    hostname = data['hostname']
+    bin_dir = data['bin_dir']
+
+    if hostname not in ALLOWED_HOSTNAMES:
+        return 'Unknown hostname {}'.format(hostname)
+  
+    camera_hostname = hostname
+    camera_bin_dir = bin_dir
+
+    reset_async_process()
+
+    return 'success'
+
+# TODO: Clean this up - maybe decouple from run-camera-head.py
+# def process_image(img):
+
+
+# An async operation
+def continuously_find_and_process_images():
+    while True:
+        if camera_hostname is not None:
+            img = pull_image_from_camera_server()
+            # TODO: Do something with the img
+
+        time.sleep(0.1) # Wait 1/10th of a second
+
+
+def set_async_process():
+    global async_process
+    async_process = multiprocessing.Process(target=continuously_find_and_process_images, name="Process_Images")
+    async_process.start()
+
+def stop_async_process():
+    global async_process
+    if async_process is None:
+        return
+    
+    async_process.terminate()
+    async_process = None
+
+def reset_async_process():
+    stop_async_process()
+    set_async_process()
+
+@app.route('/testConnection')
+def test_connection():
+    return 'success'
+
+def get_shell_script_to_pull_zipped_image():
+    base_script = 'sh {}/return_image.sh'.format(camera_bin_dir)
+    if camera_hostname == get_hostname():
+        return base_script
+    
+    return 'ssh {} "{}"'.format(camera_hostname, base_script)
+
+def pull_image_from_camera_server():
+    shell_script = get_shell_script_to_pull_zipped_image()
+    shell_script = '{}'.format(shell_script) # Unzip output
+    stream = os.popen(shell_script)
+    output = stream.read()
+
+    zipped_image_bytes = b64decode(output)
+    image_bytes = decompress(zipped_image_bytes)
+
+    image_array = image_bytes_to_array(image_bytes)
+
+    return image_array

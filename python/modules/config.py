@@ -1,6 +1,8 @@
 import os
 
 import cv2
+import socket
+
 
 DATA_DIR = os.path.join('..', 'data')
 TEST_IMAGE_DIR = os.path.join(DATA_DIR, 'test-images')
@@ -21,6 +23,20 @@ SERVER_HOST = None
 
 SERVO_ENV_KEY = 'SERVO_HOST'
 
+POSSIBLE_PROCESSING_SERVER_HOSTNAMES = [
+    'kj-macbook.lan' # KJ's Macbook
+]
+
+def get_hostname():
+    return socket.gethostname()
+
+def get_processing_server_urls():
+    urls = []
+    for hostname in POSSIBLE_PROCESSING_SERVER_HOSTNAMES:
+        urls.append('http://{}:5000'.format(hostname))
+
+    return urls
+    
 if SERVO_ENV_KEY  in os.environ:
     SERVER_HOST = os.environ[SERVO_ENV_KEY]
     print('Found the servo hostname "{}" from the environment variable {}'.format(SERVER_HOST, SERVO_ENV_KEY))
@@ -58,3 +74,15 @@ def get_servo_hostname(is_test):
 ensure_directory_exists(SAVE_IMAGE_DIR)
 def get_servo_url(is_test):
     return 'http://{}:5000'.format(get_servo_hostname(is_test))
+
+def get_bin_folder():
+    abspath = os.path.abspath(__file__)
+    dname = os.path.dirname(abspath)
+
+    # Go up two directories
+    dname_pieces = dname.split(os.path.sep)
+    parent_directory_pieces = dname_pieces[:-2]
+    dname_base = os.path.sep.join(parent_directory_pieces)
+
+    bin_dir = os.path.join(dname_base, 'bin')
+    return bin_dir

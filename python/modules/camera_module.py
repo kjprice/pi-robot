@@ -2,6 +2,7 @@ import os
 import time
 
 import cv2
+import numpy as np
 
 from modules.image_module import save_image, get_file_path_for_save, load_image, grayscale
 
@@ -80,3 +81,6 @@ def shutdown_camera(is_test):
     print('shutting down')
     if camera is not None:
         camera.release()
+
+def image_bytes_to_array(image_bytes):
+    return np.fromstring(image_bytes, np.uint8)
