@@ -83,4 +83,7 @@ def shutdown_camera(is_test):
         camera.release()
 
 def image_bytes_to_array(image_bytes):
-    return np.fromstring(image_bytes, np.uint8)
+    nparr = np.fromstring(image_bytes, np.uint8)
+    img_np = cv2.imdecode(nparr, cv2.IMREAD_COLOR) # cv2.IMREAD_COLOR in OpenCV 3.1
+
+    return img_np

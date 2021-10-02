@@ -21,10 +21,10 @@ cd_to_this_directory()
 
 from modules.config import get_hostname
 from modules.camera_module import image_bytes_to_array
+from modules.image_processor import Image_Processor
 
 
 app = Flask(__name__)
-print(app)
 CORS(app)
 
 IS_TEST = False
@@ -40,9 +40,16 @@ ALLOWED_HOSTNAMES = [
   'kj-macbook.lan', # KJ Macbook
 ]
 
+def startup(hostname_of_camera_server, bin_dir_of_camera_server):
+    global camera_hostname, camera_bin_dir
+
+    camera_hostname = hostname_of_camera_server
+    camera_bin_dir = bin_dir_of_camera_server
+
+    reset_async_process()
+
 @app.route('/setCameraHostname', methods=['POST'])
 def set_hostname_of_camera_server():
-    global camera_hostname, camera_bin_dir
     data = request.get_json()
     hostname = data['hostname']
     bin_dir = data['bin_dir']
@@ -50,10 +57,7 @@ def set_hostname_of_camera_server():
     if hostname not in ALLOWED_HOSTNAMES:
         return 'Unknown hostname {}'.format(hostname)
   
-    camera_hostname = hostname
-    camera_bin_dir = bin_dir
-
-    reset_async_process()
+    startup(hostname, bin_dir)
 
     return 'success'
 
@@ -63,10 +67,14 @@ def set_hostname_of_camera_server():
 
 # An async operation
 def continuously_find_and_process_images():
+    image_processor = Image_Processor()
+    images_count = 0
     while True:
+        images_count += 1
         if camera_hostname is not None:
             img = pull_image_from_camera_server()
             # TODO: Do something with the img
+            image_processor.process_message_immediately(img, 0)
 
         time.sleep(0.1) # Wait 1/10th of a second
 
