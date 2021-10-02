@@ -9,9 +9,19 @@ except ModuleNotFoundError:
 def grayscale(img):
     return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+# Only works with grayscale (one channel)
+def increase_contrast(img):
+    print()
+    print('contrast')
+    print(img.shape)
+    # CLAHE (Contrast Limited Adaptive Histogram Equalization)
+    clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8,8))
+    return clahe.apply(img)
+
 def process_image(img):
     grayscale_img = grayscale(img)
-    return grayscale_img
+    contrast_img = increase_contrast(grayscale_img)
+    return contrast_img
     # return cv2.normalize(grayscale_img)
 
 def load_image(path, gray=True):
