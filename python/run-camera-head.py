@@ -16,14 +16,14 @@ def cd_to_this_directory():
 cd_to_this_directory()
 
 from modules.camera_module import image_generator, camera_setup, shutdown_camera
-from modules.config import get_bin_folder, get_hostname, get_processing_server_urls, get_servo_url, get_bin_folder
+from modules.config import ensure_directory_exists, get_bin_folder, get_hostname, get_processing_server_urls, get_servo_url, SAVE_IMAGE_DIR 
 from modules.image_module import save_image
 from modules.image_processor import Image_Processor
 from modules.server_module import handle_default_server_response
 
 # We do not need too many images - it is ok to throw away some
 # TODO: Decide which images to throw away based on if they are more blurry than others
-MAX_IMAGES_TO_PROCESS_PER_SECOND = 20
+MAX_IMAGES_TO_PROCESS_PER_SECOND = 6
 
 IS_TEST = False
 if 'IS_TEST' in os.environ:
@@ -86,6 +86,9 @@ if not IS_TEST:
 time.sleep(1)
 
 class CameraHead():
+    FILENAMES_FOR_SAVING = ['A.jpg', 'B.jpg', 'C.jpg', 'D.jpg']
+    FOLDER_TO_SAVE_TO = 'images-captured'
+    index_of_last_filename_used = 0
     is_processing_server_online = None
     image_processor = None
     minimum_time_in_seconds_between_images = None
@@ -100,6 +103,8 @@ class CameraHead():
         self.count_images_discarded = 0
         self.time_started = time.time()
 
+        self.ensure_save_filepath_exists()
+
     # TODO: This method should consider the quality of the image over other images - ie, drop if very blurry
     def should_keep_image(self):
         now = time.time()
@@ -112,6 +117,25 @@ class CameraHead():
         
         self.last_image_received_time = now
         return True
+    
+    def get_alternating_filename(self) -> str:
+        current_index_for_filename = self.index_of_last_filename_used + 1
+        if current_index_for_filename == len(self.FILENAMES_FOR_SAVING):
+            current_index_for_filename = 0
+        
+        self.index_of_last_filename_used = current_index_for_filename
+
+        return self.FILENAMES_FOR_SAVING[current_index_for_filename]
+    
+    def ensure_save_filepath_exists(self):
+        ensure_directory_exists(os.path.join(SAVE_IMAGE_DIR, self.FOLDER_TO_SAVE_TO))
+
+    def create_image_filepath(self, filename):
+        return os.path.join('images-captured', filename)
+    
+    def alternate_save_image_for_later(self, img):
+        filename = self.get_alternating_filename()
+        save_image(img, self.create_image_filepath(filename))
 
     def run(self):
         self.is_processing_server_online = check_if_processing_server_is_online()
@@ -127,7 +151,7 @@ class CameraHead():
             if self.is_processing_server_online:
                 # TODO: Decide whether to make greyscale before saving - compare time savings
                 print('Found {} image(s) and dropped {} image(s)'.format(images_count, self.count_images_discarded), end='\r')
-                save_image(img, 'image-raw.jpg')
+                self.alternate_save_image_for_later(img)
             else:
                 self.image_processor.process_message_immediately(img, time_passed_for_image)
 

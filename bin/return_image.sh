@@ -1,7 +1,9 @@
 #!/bin/bash
 cd "$(dirname "$0")"
-cd ..
+cd ../data/images/images-captured
 
-# We need to make a copy of the image, otherwise the image might be corrupted as it is overwritten
-cp data/images/image-raw.jpg data/images/image-raw-safe.jpg
-gzip -c data/images/image-raw-safe.jpg | base64
+# Get the newest image
+img_to_pull=$(ls -t | head -n 1)
+
+# Zip and then encode so that python can digest a string of recognizable characters
+gzip -c $img_to_pull | base64
