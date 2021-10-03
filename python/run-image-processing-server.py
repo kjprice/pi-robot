@@ -38,6 +38,7 @@ async_process = None
 
 ALLOWED_HOSTNAMES = [
   'kj-macbook.lan', # KJ Macbook
+  'pirobot',
 ]
 
 def startup(hostname_of_camera_server, bin_dir_of_camera_server):
@@ -75,9 +76,6 @@ def continuously_find_and_process_images():
             img = pull_image_from_camera_server()
             # TODO: Do something with the img
             image_processor.process_message_immediately(img, 0)
-
-        time.sleep(0.1) # Wait 1/10th of a second
-
 
 def set_async_process():
     global async_process
