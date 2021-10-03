@@ -41,14 +41,7 @@ ALLOWED_HOSTNAMES = [
   'pirobot',
 ]
 
-def startup(hostname_of_camera_server, bin_dir_of_camera_server):
-    global camera_hostname, camera_bin_dir
-
-    camera_hostname = hostname_of_camera_server
-    camera_bin_dir = bin_dir_of_camera_server
-
-    reset_async_process()
-
+## ROUTES ##
 @app.route('/setCameraHostname', methods=['POST'])
 def set_hostname_of_camera_server():
     data = request.get_json()
@@ -62,11 +55,11 @@ def set_hostname_of_camera_server():
 
     return 'success'
 
-# TODO: Clean this up - maybe decouple from run-camera-head.py
-# def process_image(img):
+@app.route('/testConnection')
+def test_connection():
+    return 'success'
 
-
-# An async operation
+## ASYNC OPERATIONS ##
 def continuously_find_and_process_images():
     image_processor = Image_Processor()
     images_count = 0
@@ -94,10 +87,6 @@ def reset_async_process():
     stop_async_process()
     set_async_process()
 
-@app.route('/testConnection')
-def test_connection():
-    return 'success'
-
 def get_shell_script_to_pull_zipped_image():
     base_script = 'sh {}/return_image.sh'.format(camera_bin_dir)
     if camera_hostname == get_hostname():
@@ -117,3 +106,11 @@ def pull_image_from_camera_server():
     image_array = image_bytes_to_array(image_bytes)
 
     return image_array
+
+def startup(hostname_of_camera_server, bin_dir_of_camera_server):
+    global camera_hostname, camera_bin_dir
+
+    camera_hostname = hostname_of_camera_server
+    camera_bin_dir = bin_dir_of_camera_server
+
+    reset_async_process()
