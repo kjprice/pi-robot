@@ -34,6 +34,7 @@ def receive_servo_position():
 
     print('2. decoded data')
     old_duty = servo.current_duty
+    print('Moving From {} to {}'.format(old_duty, duty))
 
     if direction == 'left':
         servo.move_left(duty)

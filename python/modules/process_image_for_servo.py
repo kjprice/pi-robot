@@ -58,7 +58,12 @@ def get_face_x_midpoint(face):
 
 def get_face_face_position_x(img_width, face_box):
     face_x_midpoint = get_face_x_midpoint(face_box)
-    return np.round(face_x_midpoint / img_width, 1)
+
+    # Will be between 0-1
+    ratio_face_center_on_image = np.round(face_x_midpoint / img_width, 1)
+
+    # Will return a number between -1 and 1
+    return np.round(ratio_face_center_on_image * 2 - 1, 2)
 
 def width(face):
     return face[2]
@@ -179,19 +184,19 @@ class TestProcessImages(unittest.TestCase):
     def test_get_face_face_position_xs(self):
         # return
         full_screen_face_position_x = get_face_face_position_x(100, (0, 0, 100, 100))
-        self.assertEqual(full_screen_face_position_x, 0.5)
+        self.assertEqual(full_screen_face_position_x, 0)
         mid_right_face_position_x = get_face_face_position_x(100, (50, 60, 0, 0))
-        self.assertEqual(mid_right_face_position_x, 0.5)
+        self.assertEqual(mid_right_face_position_x, 0)
         far_left_face_position_x = get_face_face_position_x(100, (10, 20, 30, 40))
-        self.assertEqual(far_left_face_position_x, 0.2)
+        self.assertEqual(far_left_face_position_x, -0.6)
         large_far_left_quandrant = get_face_face_position_x(1000, (0, 50, 900, 900))
-        self.assertEqual(large_far_left_quandrant, 0.4)
+        self.assertEqual(large_far_left_quandrant, -0.2)
         far_right_face_position_x = get_face_face_position_x(100, (80, 10, 10, 20))
-        self.assertEqual(far_right_face_position_x, 0.8)
+        self.assertEqual(far_right_face_position_x, 0.6)
     def test_integration_get_face_position_x_from_image(self):
         face_position_x = get_face_position_x_from_image(self.test_image)
         # Mike Pence is near the center, so this will be dead center
-        self.assertEqual(face_position_x, 0.3)
+        self.assertEqual(face_position_x, -0.4)
 
 def display_test_image():
     img = load_test_image()

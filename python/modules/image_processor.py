@@ -121,13 +121,15 @@ def send_servo_duty(duty_change, direction):
     handle_default_server_response(response)
 
 def move_servo_based_on_face_position_x(face_position_x):
-    center_position = [0.45, 0.55]
+    # TODO: Make this available from a config
+    center_position = [-0.1, 0.1]
     # No face
     if face_position_x is None:
         if has_too_much_time_passed_without_face():
             send_reset_servo()
         return
     
+    reset_time_with_out_face()
     # if dead center, then stay there
     if face_position_x >= center_position[0] and face_position_x <= center_position[1]:
         return
@@ -140,8 +142,6 @@ def move_servo_based_on_face_position_x(face_position_x):
         send_servo_duty(duty_change, 'right')
     else:
         raise Exception('Unkown face_position_x {}'.format(face_position_x))
-
-    reset_time_with_out_face()
 
 
 # This class performs processing on an image and will output various metrics of performance
