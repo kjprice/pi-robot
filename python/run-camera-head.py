@@ -81,8 +81,7 @@ def check_if_processing_server_is_online():
         return False
 
 camera_setup(IS_TEST, grayscale=True)
-if not IS_TEST:
-    test_connection_with_servo_server()
+
 time.sleep(1)
 
 class CameraHead():
@@ -139,6 +138,9 @@ class CameraHead():
 
     def run(self):
         self.is_processing_server_online = check_if_processing_server_is_online()
+
+        if not self.is_processing_server_online and not IS_TEST:
+            test_connection_with_servo_server()
 
         images_count = 0
         for img, time_passed_for_image in image_generator(IS_TEST):
