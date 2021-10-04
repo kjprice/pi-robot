@@ -165,17 +165,6 @@ def display_image(img):
     cv2.imshow('img', img)
     cv2.waitKey()
 
-def calculate_degreee_from_duty(duty):
-    duty_range = DUTY_MAX - DUTY_MIN
-    degree = ((duty - DUTY_MIN) / duty_range) * 180
-    return degree
-
-def calculate_duty_from_degree(degree):
-    duty_range = DUTY_MAX - DUTY_MIN
-    duty = (degree / 180) * duty_range + DUTY_MIN
-
-    return np.round(duty, 2)
-
 class TestProcessImages(unittest.TestCase):
     def setUp(self):
         self.test_image = load_test_image()
@@ -203,16 +192,6 @@ class TestProcessImages(unittest.TestCase):
         face_position_x = get_face_position_x_from_image(self.test_image)
         # Mike Pence is near the center, so this will be dead center
         self.assertEqual(face_position_x, 0.3)
-    def test_calculate_degreee_from_duty(self):
-        self.assertEqual(calculate_degreee_from_duty(7), 90)
-        self.assertEqual(calculate_degreee_from_duty(2), 0)
-        self.assertEqual(calculate_degreee_from_duty(10.5), 153)
-        self.assertEqual(calculate_degreee_from_duty(12), 180)
-    def test_calculate_duty_from_degree(self):
-        self.assertEqual(calculate_duty_from_degree(0), 2)
-        self.assertEqual(calculate_duty_from_degree(90), 7)
-        self.assertEqual(calculate_duty_from_degree(94), 7.22)
-        self.assertEqual(calculate_duty_from_degree(180), 12)
 
 def display_test_image():
     img = load_test_image()
