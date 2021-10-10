@@ -11,9 +11,6 @@ def grayscale(img):
 
 # Only works with grayscale (one channel)
 def increase_contrast(img):
-    print()
-    print('contrast')
-    print(img.shape)
     # CLAHE (Contrast Limited Adaptive Histogram Equalization)
     clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8,8))
     return clahe.apply(img)
