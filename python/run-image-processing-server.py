@@ -16,7 +16,7 @@ def cd_to_this_directory():
     os.chdir(dname)
 cd_to_this_directory()
 
-from modules.config import get_hostname
+from modules.config import get_cache_info, get_hostname, set_cache_info
 from modules.camera_module import image_bytes_to_array
 from modules.image_processor import Image_Processor
 
@@ -27,7 +27,9 @@ CORS(app)
 IS_TEST = False
 if 'IS_TEST' in os.environ:
     IS_TEST = True
-  
+
+CACHE_FILE_NAME = 'camera_server_info.json'
+
 # Global variables
 camera_hostname = None
 camera_bin_dir = None
@@ -38,8 +40,17 @@ ALLOWED_HOSTNAMES = [
   'kj-macbook.lan', # KJ Macbook
 ]
 
-# TODO: Go through all hostnames and get the first one that works
-# def set_dfeault_camera_server():
+# This will try to set the last camer server used - speeds up starting up server
+def set_default_camera_server():
+    server_cache_info = get_cache_info(CACHE_FILE_NAME)
+    print('server_cache_info', server_cache_info)
+    if server_cache_info is None:
+        return
+    
+    hostname = server_cache_info['hostname_of_camera_server']
+    bin_dir = server_cache_info['bin_dir_of_camera_server']
+    
+    startup(hostname, bin_dir)
 
 ## ROUTES ##
 @app.route('/setCameraHostname', methods=['POST'])
@@ -110,10 +121,20 @@ def pull_image_from_camera_server():
 
     return image_array
 
+def set_cache_server_info(hostname_of_camera_server, bin_dir_of_camera_server):
+    set_cache_info(CACHE_FILE_NAME, {
+        'hostname_of_camera_server': hostname_of_camera_server,
+        'bin_dir_of_camera_server': bin_dir_of_camera_server
+    })
+
+
 def startup(hostname_of_camera_server, bin_dir_of_camera_server):
     global camera_hostname, camera_bin_dir
+    set_cache_server_info(hostname_of_camera_server, bin_dir_of_camera_server)
 
     camera_hostname = hostname_of_camera_server
     camera_bin_dir = bin_dir_of_camera_server
 
     reset_async_process()
+
+set_default_camera_server()

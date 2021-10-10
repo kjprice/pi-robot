@@ -1,3 +1,4 @@
+import json
 import os
 
 import cv2
@@ -7,6 +8,7 @@ import socket
 DATA_DIR = os.path.join('..', 'data')
 TEST_IMAGE_DIR = os.path.join(DATA_DIR, 'test-images')
 SAVE_IMAGE_DIR = os.path.join(DATA_DIR, 'images')
+CACHE_DIR = os.path.join(DATA_DIR, 'cache')
 
 MODELS_DIR = os.path.join('..', 'models')
 
@@ -48,6 +50,8 @@ def ensure_directory_exists(directory):
         return os.makedirs(directory)
     except:
         return None
+ensure_directory_exists(SAVE_IMAGE_DIR)
+ensure_directory_exists(CACHE_DIR)
 
 def get_classifier_path(filename):
     directory = cv2.data.haarcascades
@@ -71,7 +75,6 @@ def get_servo_hostname(is_test):
     
     return 'pi3misc' # Alternatively "pi3misc.local" could work for the hostname
 
-ensure_directory_exists(SAVE_IMAGE_DIR)
 def get_servo_url(is_test):
     return 'http://{}:5000'.format(get_servo_hostname(is_test))
 
@@ -86,3 +89,19 @@ def get_bin_folder():
 
     bin_dir = os.path.join(dname_base, 'bin')
     return bin_dir
+
+def get_cache_filepath(file_name):
+    return os.path.join(CACHE_DIR, file_name)
+
+def set_cache_info(file_name, cache_info):
+    cache_filepath = get_cache_filepath(file_name)
+    with open(cache_filepath, 'w') as f:
+        json.dump(cache_info, f)
+
+def get_cache_info(file_name):
+    cache_filepath = get_cache_filepath(file_name)
+    if not os.path.isfile(cache_filepath):
+        return None
+
+    with open(cache_filepath, 'r') as f:
+        return json.load(f)

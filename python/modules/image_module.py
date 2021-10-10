@@ -16,6 +16,7 @@ def increase_contrast(img):
     return clahe.apply(img)
 
 def process_image(img):
+    # TODO: Try bluring image
     grayscale_img = grayscale(img)
     contrast_img = increase_contrast(grayscale_img)
     return contrast_img
