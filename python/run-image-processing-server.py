@@ -1,8 +1,5 @@
 #!/usr/bin/python3
 
-# TODO (here):
-# - Process image
-# - Send info to servo server
 
 from base64 import b64decode
 from flask import Flask, request
@@ -37,9 +34,12 @@ camera_bin_dir = None
 async_process = None
 
 ALLOWED_HOSTNAMES = [
-  'kj-macbook.lan', # KJ Macbook
   'pirobot',
+  'kj-macbook.lan', # KJ Macbook
 ]
+
+# TODO: Go through all hostnames and get the first one that works
+# def set_dfeault_camera_server():
 
 ## ROUTES ##
 @app.route('/setCameraHostname', methods=['POST'])
@@ -66,9 +66,12 @@ def continuously_find_and_process_images():
     while True:
         images_count += 1
         if camera_hostname is not None:
+            time_start = time.time()
             img = pull_image_from_camera_server()
+            time_end = time.time()
+            time_total = time_end - time_start
             # TODO: Do something with the img
-            image_processor.process_message_immediately(img, 0)
+            image_processor.process_message_immediately(img, time_total)
 
 def set_async_process():
     global async_process
