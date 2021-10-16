@@ -1,12 +1,18 @@
 #!/usr/bin/python3
 import atexit
+import multiprocessing
 import os
 import requests
 from requests.exceptions import ConnectionError
 import time
 
+import flask
+from flask import Flask
+from flask_cors import CORS
 import numpy as np
 
+app = Flask(__name__)
+CORS(app)
 
 # This must be done before we bring in our modules because they depend on the correct directory
 def cd_to_this_directory():
@@ -15,7 +21,7 @@ def cd_to_this_directory():
     os.chdir(dname)
 cd_to_this_directory()
 
-from modules.camera_module import image_generator, camera_setup, shutdown_camera
+from modules.camera_module import image_generator, camera_setup
 from modules.config import ensure_directory_exists, get_bin_folder, get_hostname, get_processing_server_urls, get_servo_url, SAVE_IMAGE_DIR 
 from modules.image_module import save_image
 from modules.image_processor import Image_Processor
@@ -24,12 +30,25 @@ from modules.server_module import handle_default_server_response
 # We do not need too many images - it is ok to throw away some
 # TODO: Decide which images to throw away based on if they are more blurry than others
 MAX_IMAGES_TO_PROCESS_PER_SECOND = 6
+GET_IMAGE_ENDPOINT = '/getImage'
+FOLDER_TO_SAVE_TO = 'images-captured'
 
 IS_TEST = False
 if 'IS_TEST' in os.environ:
     IS_TEST = True
 
+PORT = os.environ['PORT']
+
 servo_url = get_servo_url(IS_TEST)
+
+def get_most_recent_saved_image_filepath():
+    directory_path = os.path.join(SAVE_IMAGE_DIR, FOLDER_TO_SAVE_TO)
+    file_objects = os.listdir(directory_path)
+    file_objects_paths = [os.path.join(directory_path, filename) for filename in file_objects]
+    file_paths = list(filter(os.path.isfile, file_objects_paths))
+    file_paths.sort(key=lambda f: os.path.getmtime(f))
+    oldest_sorted_filepaths = file_paths[::-1]
+    return oldest_sorted_filepaths[0]
 
 def get_servo_url_path(path):
     global servo_url
@@ -52,6 +71,9 @@ def test_connection_with_image_processing_server(url):
         return True
     return False
 
+def get_image_url():
+    return 'http://{}:{}{}'.format(get_hostname(), PORT, GET_IMAGE_ENDPOINT)
+
 def send_hostname_to_processing_server(processing_server_url):
     hostname = get_hostname()
 
@@ -59,7 +81,8 @@ def send_hostname_to_processing_server(processing_server_url):
 
     response = requests.post(url_endpoint, json={
         "hostname": hostname,
-        "bin_dir": get_bin_folder()
+        "bin_dir": get_bin_folder(),
+        "img_url": get_image_url()
     })
 
     handle_default_server_response(response)
@@ -79,14 +102,8 @@ def check_if_processing_server_is_online():
         return False
     except (ConnectionRefusedError, ConnectionError) as e:
         return False
-
-camera_setup(IS_TEST, grayscale=True)
-
-time.sleep(1)
-
 class CameraHead():
     FILENAMES_FOR_SAVING = ['A.jpg', 'B.jpg', 'C.jpg', 'D.jpg']
-    FOLDER_TO_SAVE_TO = 'images-captured'
     index_of_last_filename_used = 0
     is_processing_server_online = None
     image_processor = None
@@ -127,16 +144,19 @@ class CameraHead():
         return self.FILENAMES_FOR_SAVING[current_index_for_filename]
     
     def ensure_save_filepath_exists(self):
-        ensure_directory_exists(os.path.join(SAVE_IMAGE_DIR, self.FOLDER_TO_SAVE_TO))
+        ensure_directory_exists(os.path.join(SAVE_IMAGE_DIR, FOLDER_TO_SAVE_TO))
 
     def create_image_filepath(self, filename):
-        return os.path.join('images-captured', filename)
+        return os.path.join(FOLDER_TO_SAVE_TO, filename)
     
     def alternate_save_image_for_later(self, img):
         filename = self.get_alternating_filename()
         save_image(img, self.create_image_filepath(filename))
 
     def run(self):
+        camera_setup(IS_TEST, grayscale=True)
+
+        time.sleep(1) # Give time for camera to warm up
         self.is_processing_server_online = check_if_processing_server_is_online()
 
         if not self.is_processing_server_online and not IS_TEST:
@@ -151,15 +171,25 @@ class CameraHead():
             images_count += 1
             # TODO: Periodically check to make sure that server is still online (every 10 seconds)
             if self.is_processing_server_online:
-                # TODO: Decide whether to make greyscale before saving - compare time savings
                 print('Found {} image(s) and dropped {} image(s)'.format(images_count, self.count_images_discarded), end='\r')
-                self.alternate_save_image_for_later(img)
             else:
                 self.image_processor.process_message_immediately(img, time_passed_for_image)
 
+            # TODO: Decide whether to make greyscale before saving - compare time savings
+            self.alternate_save_image_for_later(img)
 
-if __name__ == "__main__":
-    camera_head = CameraHead()
-    camera_head.run()
+async_process = None
+camera_head = CameraHead()
+async_process = multiprocessing.Process(target=camera_head.run, name="Process_Images")
+async_process.start()
 
-atexit.register(shutdown_camera)
+## ROUTES ##
+@app.route(GET_IMAGE_ENDPOINT)
+def get_image():
+    oldest_image_path = get_most_recent_saved_image_filepath()
+    with open(oldest_image_path, 'rb') as f:
+        resp = flask.Response(f.read())
+        resp.headers['Content-Type'] = 'image/jpg'
+        return resp
+
+print('Image endpoint available at: {}'.format(get_image_url()))

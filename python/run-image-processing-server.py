@@ -1,13 +1,12 @@
 #!/usr/bin/python3
 
-
-from base64 import b64decode
-from flask import Flask, request
-from flask_cors import CORS
-from gzip import decompress
 import multiprocessing
 import os
 import time
+
+from flask import Flask, request
+from flask_cors import CORS
+import requests
 
 # This must be done before we bring in our modules because they depend on the correct directory
 def cd_to_this_directory():
@@ -16,7 +15,7 @@ def cd_to_this_directory():
     os.chdir(dname)
 cd_to_this_directory()
 
-from modules.config import get_cache_info, get_hostname, set_cache_info
+from modules.config import get_cache_info, set_cache_info
 from modules.camera_module import image_bytes_to_array
 from modules.image_processor import Image_Processor
 
@@ -32,7 +31,7 @@ CACHE_FILE_NAME = 'camera_server_info.json'
 
 # Global variables
 camera_hostname = None
-camera_bin_dir = None
+camera_image_endpoint = None
 async_process = None
 
 ALLOWED_HOSTNAMES = [
@@ -48,21 +47,22 @@ def set_default_camera_server():
         return
     
     hostname = server_cache_info['hostname_of_camera_server']
-    bin_dir = server_cache_info['bin_dir_of_camera_server']
-    
-    startup(hostname, bin_dir)
+    get_image_endpoint = None
+    if 'camera_image_endpoint' in server_cache_info:
+        get_image_endpoint = server_cache_info['camera_image_endpoint']
+    startup(hostname, get_image_endpoint)
 
 ## ROUTES ##
 @app.route('/setCameraHostname', methods=['POST'])
 def set_hostname_of_camera_server():
     data = request.get_json()
     hostname = data['hostname']
-    bin_dir = data['bin_dir']
+    camera_image_endpoint = data['img_url']
 
     if hostname not in ALLOWED_HOSTNAMES:
         return 'Unknown hostname {}'.format(hostname)
   
-    startup(hostname, bin_dir)
+    startup(hostname, camera_image_endpoint)
 
     return 'success'
 
@@ -81,8 +81,8 @@ def continuously_find_and_process_images():
             img = pull_image_from_camera_server()
             time_end = time.time()
             time_total = time_end - time_start
-            # TODO: Do something with the img
-            image_processor.process_message_immediately(img, time_total)
+            if img is not None:
+                image_processor.process_message_immediately(img, time_total)
 
 def set_async_process():
     global async_process
@@ -101,39 +101,34 @@ def reset_async_process():
     stop_async_process()
     set_async_process()
 
-def get_shell_script_to_pull_zipped_image():
-    base_script = 'sh {}/return_image.sh'.format(camera_bin_dir)
-    if camera_hostname == get_hostname():
-        return base_script
-    
-    return 'ssh {} "{}"'.format(camera_hostname, base_script)
-
+# Now we pull the image over http
+# TODO: Compress request
 def pull_image_from_camera_server():
-    shell_script = get_shell_script_to_pull_zipped_image()
-    shell_script = '{}'.format(shell_script) # Unzip output
-    stream = os.popen(shell_script)
-    output = stream.read()
+    global camera_image_endpoint
+    if camera_image_endpoint is None:
+        return
+    response = requests.get(camera_image_endpoint, stream=True)
 
-    zipped_image_bytes = b64decode(output)
-    image_bytes = decompress(zipped_image_bytes)
+    if len(response.content) == 0:
+        return None
 
-    image_array = image_bytes_to_array(image_bytes)
+    image_array = image_bytes_to_array(response.content)
 
     return image_array
 
-def set_cache_server_info(hostname_of_camera_server, bin_dir_of_camera_server):
+def set_cache_server_info(hostname_of_camera_server, get_image_endpoint):
     set_cache_info(CACHE_FILE_NAME, {
         'hostname_of_camera_server': hostname_of_camera_server,
-        'bin_dir_of_camera_server': bin_dir_of_camera_server
+        'camera_image_endpoint': get_image_endpoint
     })
 
 
-def startup(hostname_of_camera_server, bin_dir_of_camera_server):
-    global camera_hostname, camera_bin_dir
-    set_cache_server_info(hostname_of_camera_server, bin_dir_of_camera_server)
+def startup(hostname_of_camera_server, get_image_endpoint):
+    global camera_hostname, camera_image_endpoint
+    set_cache_server_info(hostname_of_camera_server, get_image_endpoint)
 
     camera_hostname = hostname_of_camera_server
-    camera_bin_dir = bin_dir_of_camera_server
+    camera_image_endpoint = get_image_endpoint
 
     reset_async_process()
 
