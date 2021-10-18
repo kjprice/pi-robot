@@ -9,6 +9,7 @@ DATA_DIR = os.path.join('..', 'data')
 TEST_IMAGE_DIR = os.path.join(DATA_DIR, 'test-images')
 SAVE_IMAGE_DIR = os.path.join(DATA_DIR, 'images')
 CACHE_DIR = os.path.join(DATA_DIR, 'cache')
+LOGS_DIR = os.path.join(DATA_DIR, 'logs')
 
 MODELS_DIR = os.path.join('..', 'models')
 
@@ -52,6 +53,7 @@ def ensure_directory_exists(directory):
         return None
 ensure_directory_exists(SAVE_IMAGE_DIR)
 ensure_directory_exists(CACHE_DIR)
+ensure_directory_exists(LOGS_DIR)
 
 def get_classifier_path(filename):
     directory = cv2.data.haarcascades
@@ -97,6 +99,19 @@ def set_cache_info(file_name, cache_info):
     cache_filepath = get_cache_filepath(file_name)
     with open(cache_filepath, 'w') as f:
         json.dump(cache_info, f)
+
+def get_log_filepath(file_name):
+    return os.path.join(LOGS_DIR, file_name)
+
+def delete_log_info(file_name):
+    filepath = get_log_filepath(file_name)
+    if os.path.isfile(filepath):
+        os.remove(filepath)
+
+def append_log_info(file_name, text):
+    filepath = get_log_filepath(file_name)
+    with open(filepath, 'a') as f:
+        f.write(text)
 
 def get_cache_info(file_name):
     cache_filepath = get_cache_filepath(file_name)

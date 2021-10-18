@@ -8,13 +8,13 @@ import requests
 
 
 try:
-    from modules.config import get_servo_url, get_bin_folder, ensure_directory_exists, SAVE_IMAGE_DIR
+    from modules.config import get_servo_url, ensure_directory_exists, SAVE_IMAGE_DIR, delete_log_info, append_log_info
     from modules.image_module import process_image, save_image
     from modules.process_image_for_servo import extend_image, find_person, get_face_position_x_from_image
     from modules.server_module import handle_default_server_response
     from modules.servo_module import calculate_duty_from_image_position
 except ModuleNotFoundError:
-    from config import get_servo_url, get_bin_folder, ensure_directory_exists, SAVE_IMAGE_DIR
+    from config import get_servo_url, ensure_directory_exists, SAVE_IMAGE_DIR, delete_log_info, append_log_info
     from image_module import process_image, save_image
     from process_image_for_servo import extend_image, find_person, get_face_position_x_from_image
     from server_module import handle_default_server_response
@@ -28,6 +28,8 @@ servo_url = get_servo_url(IS_TEST)
 
 MAX_ITEMS_FOR_TOTAL_TIMES = 10
 SAVE_IMAGES_CONTINUOUS_DIR = os.path.join(SAVE_IMAGE_DIR, 'images_continous')
+
+TIME_LOG_FILENAME = 'processing_time_log.tcv'
 
 def setup_continous_photos_directory():
     try:
@@ -168,6 +170,8 @@ class Image_Processor:
     time_pass_for_calls = []
     total_time_list_faces = []
     total_time_list_no_faces = []
+    def __init__(self):
+        delete_log_info(TIME_LOG_FILENAME)
 
     def limit_total_time_stored(self):
         if len(self.total_time_list_faces) > MAX_ITEMS_FOR_TOTAL_TIMES:
@@ -175,7 +179,7 @@ class Image_Processor:
         if len(self.total_time_list_no_faces) > MAX_ITEMS_FOR_TOTAL_TIMES:
             del self.total_time_list_no_faces[0] # Delete oldest item
 
-    def log_processing_time(self):
+    def print_processing_time_all(self):
         mean_time_faces = calculate_time_spent_average(self.total_time_list_faces)
         mean_time_no_faces = calculate_time_spent_average(self.total_time_list_no_faces)
 
@@ -184,6 +188,9 @@ class Image_Processor:
         sum_total_time_faces = np.round(np.sum(self.total_time_list_faces), 2)
 
         print('Takes {} seconds total (average  of {} seconds) to run {} images with faces ({} fps) and {} to run {} imags WITHOUT faces'.format(sum_total_time_faces, mean_time_faces, len(self.total_time_list_faces), fps_faces, mean_time_no_faces, len(self.total_time_list_no_faces)))
+
+    def log_processing_time(self):
+        append_log_info(TIME_LOG_FILENAME, get_stats_text(self.time_pass_for_calls))
 
     def process_message_immediately(self, img, time_passed_for_image):
         time_all_start = time.time()
@@ -206,7 +213,10 @@ class Image_Processor:
             duty_change, total_time = call_and_get_time(move_servo_based_on_face_position_x, (face_position_x,))
             self.time_pass_for_calls.append((total_time, 'turn servo'))
 
+        self.print_processing_time_all()
+
         self.log_processing_time()
+        self.time_pass_for_calls = []
 
         save_image_with_faces(img, faces, face_position_x, duty_change)
         time_all_end = time.time()
