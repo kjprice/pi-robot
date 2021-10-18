@@ -75,9 +75,7 @@ def get_widest_face(faces):
 def get_primary_face(faces):
     return get_widest_face(faces)
 
-def get_face_position_x_from_image(img, faces=None):
-    if faces is None:
-        faces = find_person(img)
+def get_face_position_x_from_image(img, faces):
     if faces is None or len(faces) == 0:
         return None
 
