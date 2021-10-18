@@ -1,18 +1,20 @@
 import os
+import datetime
 import time
+import shutil
 
 import numpy as np
 import requests
 
 
 try:
-    from modules.config import get_servo_url, get_bin_folder
+    from modules.config import get_servo_url, get_bin_folder, ensure_directory_exists, SAVE_IMAGE_DIR
     from modules.image_module import process_image, save_image
     from modules.process_image_for_servo import extend_image, find_person, get_face_position_x_from_image
     from modules.server_module import handle_default_server_response
     from modules.servo_module import calculate_duty_from_image_position
 except ModuleNotFoundError:
-    from config import get_servo_url, get_bin_folder
+    from config import get_servo_url, get_bin_folder, ensure_directory_exists, SAVE_IMAGE_DIR
     from image_module import process_image, save_image
     from process_image_for_servo import extend_image, find_person, get_face_position_x_from_image
     from server_module import handle_default_server_response
@@ -25,6 +27,16 @@ if 'IS_TEST' in os.environ:
 servo_url = get_servo_url(IS_TEST)
 
 MAX_ITEMS_FOR_TOTAL_TIMES = 10
+SAVE_IMAGES_CONTINUOUS_DIR = os.path.join(SAVE_IMAGE_DIR, 'images_continous')
+
+def setup_continous_photos_directory():
+    try:
+        shutil.rmtree(SAVE_IMAGES_CONTINUOUS_DIR)
+        print('Cleaned (removed) directory with continuous images')
+    except FileNotFoundError:
+        pass
+    ensure_directory_exists(SAVE_IMAGES_CONTINUOUS_DIR)
+setup_continous_photos_directory()
 
 def save_image_with_faces(img, faces, face_position_x):
     texts = [
@@ -34,6 +46,8 @@ def save_image_with_faces(img, faces, face_position_x):
 
     # save_image(img, 'image-raw.jpg')
     save_image(img_with_faces, 'test-face-image.jpg')
+    filepath = os.path.join('images_continous', 'img-{}.jpg'.format(str(datetime.datetime.now())))
+    save_image(img_with_faces, filepath)
 
 
 def call_and_get_time(function, args):
