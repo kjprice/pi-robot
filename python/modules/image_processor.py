@@ -38,10 +38,13 @@ def setup_continous_photos_directory():
     ensure_directory_exists(SAVE_IMAGES_CONTINUOUS_DIR)
 setup_continous_photos_directory()
 
-def save_image_with_faces(img, faces, face_position_x):
+def save_image_with_faces(img, faces, face_position_x, duty_change):
     texts = [
         'Face Position: {}'.format(face_position_x)
     ]
+    print('duty_change', duty_change)
+    if duty_change is not None:
+        texts.append('Duty Change: {}'.format(duty_change))
     img_with_faces = extend_image(img, show_faces=True, show_vertical_lines=True, texts=texts, faces=faces)
 
     # save_image(img, 'image-raw.jpg')
@@ -156,6 +159,8 @@ def move_servo_based_on_face_position_x(face_position_x):
         send_servo_duty(duty_change, 'right')
     else:
         raise Exception('Unkown face_position_x {}'.format(face_position_x))
+    
+    return duty_change
 
 
 # This class performs processing on an image and will output various metrics of performance
@@ -195,13 +200,15 @@ class Image_Processor:
         face_position_x, total_time = call_and_get_time(get_face_position_x_from_image, (img, faces))
         self.time_pass_for_calls.append((total_time, 'process picture'))
 
+        duty_change = None
         if not IS_TEST:
-            _, total_time = call_and_get_time(move_servo_based_on_face_position_x, (face_position_x,))
+            # TODO: Get duty from a seperate method
+            duty_change, total_time = call_and_get_time(move_servo_based_on_face_position_x, (face_position_x,))
             self.time_pass_for_calls.append((total_time, 'turn servo'))
 
         self.log_processing_time()
 
-        save_image_with_faces(img, faces, face_position_x)
+        save_image_with_faces(img, faces, face_position_x, duty_change)
         time_all_end = time.time()
         time_all_total = (time_all_end - time_all_start)
         if faces is not None and len(faces) > 0:
