@@ -191,27 +191,53 @@ class Image_Processor:
 
     def log_processing_time(self):
         append_log_info(TIME_LOG_FILENAME, get_stats_text(self.time_pass_for_calls))
+    
+    def set_initial_time(self, time_passed_for_image):
+        self.time_pass_for_calls.append((time_passed_for_image, 'get image'))
 
-    def process_message_immediately(self, img, time_passed_for_image):
-        time_all_start = time.time()
-        self.time_pass_for_calls.append((time_passed_for_image, 'take picture'))
-        
+    def process_image(self, img):
         img, total_time = call_and_get_time(process_image, (img,))
-        self.time_pass_for_calls.append((total_time, 'clean img'))
+        self.time_pass_for_calls.append((total_time, 'process image'))
 
+        return img
+
+    def find_person(self, img):
         faces, total_time = call_and_get_time(find_person, (img,))
         self.time_pass_for_calls.append((total_time, 'find_person'))
 
+        return faces
+
+    def get_face_position(self, img, faces):
         # TODO: Clean image (make sharper perhaps) to better find faces
         # TODO: Try to find pedestrians as well
+        # TODO: Why do we need to pass img in here?
         face_position_x, total_time = call_and_get_time(get_face_position_x_from_image, (img, faces))
         self.time_pass_for_calls.append((total_time, 'process picture'))
 
-        duty_change = None
-        if not IS_TEST:
-            # TODO: Get duty from a seperate method
-            duty_change, total_time = call_and_get_time(move_servo_based_on_face_position_x, (face_position_x,))
-            self.time_pass_for_calls.append((total_time, 'turn servo'))
+        return face_position_x
+    
+    def move_servo(self, face_position_x):
+        if IS_TEST:
+            return None
+
+        # TODO: Get duty from a seperate method
+        duty_change, total_time = call_and_get_time(move_servo_based_on_face_position_x, (face_position_x,))
+        self.time_pass_for_calls.append((total_time, 'turn servo'))
+
+        return duty_change
+
+    def process_message_immediately(self, img, time_passed_for_image):
+        time_all_start = time.time()
+
+        self.set_initial_time(time_passed_for_image)        
+
+        img = self.process_image(img)
+
+        faces = self.find_person(img)
+
+        face_position_x = self.get_face_position(img, faces)
+
+        duty_change = self.move_servo(face_position_x)
 
         self.print_processing_time_all()
 
