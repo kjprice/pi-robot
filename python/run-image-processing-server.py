@@ -78,7 +78,11 @@ def continuously_find_and_process_images():
         images_count += 1
         if camera_hostname is not None:
             time_start = time.time()
-            img = pull_image_from_camera_server()
+            try:
+                img = pull_image_from_camera_server()
+            except requests.exceptions.ConnectionError:
+                print('Could not pull image from server - connection refused - stopping now')
+                return
             time_end = time.time()
             time_total = time_end - time_start
             if img is not None:
@@ -108,11 +112,7 @@ def pull_image_from_camera_server():
     global camera_image_endpoint
     if camera_image_endpoint is None:
         return
-    try:
-        response = requests.get(camera_image_endpoint, stream=True)
-    except requests.exceptions.ConnectionError:
-        print('Could not pull image from server - connection refused')
-        return
+    response = requests.get(camera_image_endpoint, stream=True)
 
     if len(response.content) == 0:
         print('Response from camera server is empty - no image found')
