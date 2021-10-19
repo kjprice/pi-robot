@@ -240,7 +240,7 @@ class Image_Processor:
         # TODO: Try to find pedestrians as well
         # TODO: Why do we need to pass img in here?
         face_position_x, total_time = call_and_get_time(get_face_position_x_from_image, (img, faces))
-        self.add_stat('process_picture', total_time)
+        self.add_stat('get_faces', total_time)
 
         return face_position_x
     
