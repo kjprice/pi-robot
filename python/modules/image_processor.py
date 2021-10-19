@@ -265,6 +265,10 @@ class Image_Processor:
             self.total_time_list_no_faces.append(time_all_total)
 
         self.add_stat('time_total', time_all_total)
+    
+    def save_image_with_faces(self, img, faces, face_position_x, duty_change):
+        _, total_time = call_and_get_time(save_image_with_faces, (img, faces, face_position_x, duty_change))
+        self.add_stat('save_images', total_time)
 
     def process_message_immediately(self, img, time_passed_for_image):
         time_all_start = time.time()
@@ -279,7 +283,7 @@ class Image_Processor:
 
         duty_change = self.move_servo(face_position_x)
 
-        save_image_with_faces(img, faces, face_position_x, duty_change)
+        self.save_image_with_faces(img, faces, face_position_x, duty_change)
 
         self.set_time_to_run_all_stat(time_all_start, faces)
         
