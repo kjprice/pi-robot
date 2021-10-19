@@ -103,13 +103,19 @@ def reset_async_process():
 
 # Now we pull the image over http
 # TODO: Compress request
+# TODO: Determine how long this takes to run
 def pull_image_from_camera_server():
     global camera_image_endpoint
     if camera_image_endpoint is None:
         return
-    response = requests.get(camera_image_endpoint, stream=True)
+    try:
+        response = requests.get(camera_image_endpoint, stream=True)
+    except requests.exceptions.ConnectionError:
+        print('Could not pull image from server - connection refused')
+        return
 
     if len(response.content) == 0:
+        print('Response from camera server is empty - no image found')
         return None
 
     image_array = image_bytes_to_array(response.content)
