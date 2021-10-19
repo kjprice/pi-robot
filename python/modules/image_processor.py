@@ -84,8 +84,11 @@ def get_stats_text(stats_info):
     text = []
     headers = []
     for (field, value) in stats_info:
-        time_str = np.round(value, 2)
-        text.append(str(time_str))
+        if type(value) == float:
+            value = np.round(value, 2)
+        if value is None:
+            value = ''
+        text.append(str(value))
         headers.append(field)
 
     return text, headers
@@ -164,6 +167,14 @@ def move_servo_based_on_face_position_x(face_position_x):
     
     return duty_change
 
+def get_time_delta(time1, time2):
+    if time1 is None:
+        return None
+    
+    time_delta = time2 - time1
+
+    return float('{}.{}'.format(time_delta.seconds, time_delta.microseconds))
+
 
 # This class performs processing on an image and will output various metrics of performance
 class Image_Processor:
@@ -192,16 +203,22 @@ class Image_Processor:
         sum_total_time_faces = np.round(np.sum(self.total_time_list_faces), 2)
 
         print('Takes {} seconds total (average  of {} seconds) to run {} images with faces ({} fps) and {} to run {} imags WITHOUT faces'.format(sum_total_time_faces, mean_time_faces, len(self.total_time_list_faces), fps_faces, mean_time_no_faces, len(self.total_time_list_no_faces)))
-
+    
     def log_processing_time(self):
+        last_image_run_time = self.last_image_run_time
+        is_first_image = self.last_image_run_time is None
+        self.last_image_run_time = datetime.datetime.now()
+
+        time_passed = get_time_delta(last_image_run_time, self.last_image_run_time)
+
+        self.add_stat('time_passed', time_passed)
+        self.add_stat('ended_at', self.last_image_run_time)
+
         cells, headers = get_stats_text(self.stats_info)
-        if self.last_image_run_time is None:
+        if is_first_image:
             append_log_info(TIME_LOG_FILENAME, '\t'.join(headers))
 
         append_log_info(TIME_LOG_FILENAME, '\t'.join(cells))
-
-        # TODO: Move somewhere else
-        self.last_image_run_time = datetime.datetime.now()
 
     
     def set_initial_time(self, time_passed_for_image):
@@ -237,6 +254,16 @@ class Image_Processor:
         self.add_stat('turn_servo', total_time)
 
         return duty_change
+    
+    def set_time_to_run_all_stat(self, time_start, faces):
+        time_all_end = time.time()
+        time_all_total = (time_all_end - time_start)
+        if faces is not None and len(faces) > 0:
+            self.total_time_list_faces.append(time_all_total)
+        else:
+            self.total_time_list_no_faces.append(time_all_total)
+
+        self.add_stat('time_total', time_all_total)
 
     def process_message_immediately(self, img, time_passed_for_image):
         time_all_start = time.time()
@@ -251,17 +278,12 @@ class Image_Processor:
 
         duty_change = self.move_servo(face_position_x)
 
-        self.print_processing_time_all()
-
-        self.log_processing_time()
-        self.stats_info = []
-
         save_image_with_faces(img, faces, face_position_x, duty_change)
-        time_all_end = time.time()
-        time_all_total = (time_all_end - time_all_start)
-        if faces is not None and len(faces) > 0:
-            self.total_time_list_faces.append(time_all_total)
-        else:
-            self.total_time_list_no_faces.append(time_all_total)
+
+        self.set_time_to_run_all_stat(time_all_start, faces)
         
         self.limit_total_time_stored()
+
+        self.log_processing_time()
+        self.print_processing_time_all()
+        self.stats_info = []
