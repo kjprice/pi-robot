@@ -8,13 +8,13 @@ import requests
 
 
 try:
-    from modules.config import get_servo_url, ensure_directory_exists, SAVE_IMAGE_DIR, delete_log_info, append_log_info
+    from modules.config import get_servo_url, ensure_directory_exists, SAVE_IMAGE_DIR, delete_log_info, append_log_info, write_log_info
     from modules.image_module import process_image, save_image
     from modules.process_image_for_servo import extend_image, find_person, get_face_position_x_from_image
     from modules.server_module import handle_default_server_response
     from modules.servo_module import calculate_duty_from_image_position
 except ModuleNotFoundError:
-    from config import get_servo_url, ensure_directory_exists, SAVE_IMAGE_DIR, delete_log_info, append_log_info
+    from config import get_servo_url, ensure_directory_exists, SAVE_IMAGE_DIR, delete_log_info, append_log_info, write_log_info
     from image_module import process_image, save_image
     from process_image_for_servo import extend_image, find_person, get_face_position_x_from_image
     from server_module import handle_default_server_response
@@ -182,8 +182,6 @@ class Image_Processor:
     total_time_list_faces = []
     total_time_list_no_faces = []
     last_image_run_time = None
-    def __init__(self):
-        delete_log_info(TIME_LOG_FILENAME)
     
     def add_stat(self, field, value):
         self.stats_info.append((field, value))
@@ -217,7 +215,7 @@ class Image_Processor:
 
         cells, headers = get_stats_text(self.stats_info)
         if is_first_image:
-            append_log_info(TIME_LOG_FILENAME, '\t'.join(headers))
+            write_log_info(TIME_LOG_FILENAME, '\t'.join(headers))
 
         append_log_info(TIME_LOG_FILENAME, '\t'.join(cells))
 

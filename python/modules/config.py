@@ -108,10 +108,13 @@ def delete_log_info(file_name):
     if os.path.isfile(filepath):
         os.remove(filepath)
 
-def append_log_info(file_name, text):
+def write_log_info(file_name, text, mode='w'):
     filepath = get_log_filepath(file_name)
-    with open(filepath, 'a') as f:
+    with open(filepath, mode) as f:
         f.write(text + '\n')
+
+def append_log_info(file_name, text):
+    write_log_info(file_name, text, mode='a')
 
 def get_cache_info(file_name):
     cache_filepath = get_cache_filepath(file_name)
