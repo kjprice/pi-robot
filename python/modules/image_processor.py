@@ -204,13 +204,14 @@ class Image_Processor:
 
         print('Takes {} seconds total (average  of {} seconds) to run {} images with faces ({} fps) and {} to run {} imags WITHOUT faces'.format(sum_total_time_faces, mean_time_faces, len(self.total_time_list_faces), fps_faces, mean_time_no_faces, len(self.total_time_list_no_faces)))
     
-    def log_processing_time(self):
+    def log_processing_time(self, faces):
         last_image_run_time = self.last_image_run_time
         is_first_image = self.last_image_run_time is None
         self.last_image_run_time = datetime.datetime.now()
 
         time_passed = get_time_delta(last_image_run_time, self.last_image_run_time)
 
+        self.add_stat('faces_count_found', len([] if faces is None else faces))
         self.add_stat('time_passed', time_passed)
         self.add_stat('ended_at', self.last_image_run_time)
 
@@ -284,6 +285,6 @@ class Image_Processor:
         
         self.limit_total_time_stored()
 
-        self.log_processing_time()
+        self.log_processing_time(faces)
         self.print_processing_time_all()
         self.stats_info = []
