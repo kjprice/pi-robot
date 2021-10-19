@@ -44,7 +44,6 @@ def save_image_with_faces(img, faces, face_position_x, duty_change):
     texts = [
         'Face Position: {}'.format(face_position_x)
     ]
-    print('duty_change', duty_change)
     if duty_change is not None:
         texts.append('Duty Change: {}'.format(duty_change))
     img_with_faces = extend_image(img, show_faces=True, show_vertical_lines=True, texts=texts, faces=faces)
@@ -84,10 +83,10 @@ def calculate_time_spent_average(total_times):
 def get_stats_text(stats_info):
     text = []
     headers = []
-    for (time, header) in stats_info:
-        time_str = np.round(time, 2)
+    for (field, value) in stats_info:
+        time_str = np.round(value, 2)
         text.append(str(time_str))
-        headers.append(header)
+        headers.append(field)
 
     return text, headers
 
@@ -171,9 +170,12 @@ class Image_Processor:
     stats_info = []
     total_time_list_faces = []
     total_time_list_no_faces = []
-    images_processed_count = 0
+    last_image_run_time = None
     def __init__(self):
         delete_log_info(TIME_LOG_FILENAME)
+    
+    def add_stat(self, field, value):
+        self.stats_info.append((field, value))
 
     def limit_total_time_stored(self):
         if len(self.total_time_list_faces) > MAX_ITEMS_FOR_TOTAL_TIMES:
@@ -193,27 +195,27 @@ class Image_Processor:
 
     def log_processing_time(self):
         cells, headers = get_stats_text(self.stats_info)
-        if self.images_processed_count == 0:
+        if self.last_image_run_time is None:
             append_log_info(TIME_LOG_FILENAME, '\t'.join(headers))
 
         append_log_info(TIME_LOG_FILENAME, '\t'.join(cells))
 
         # TODO: Move somewhere else
-        self.images_processed_count += 1
+        self.last_image_run_time = datetime.datetime.now()
 
     
     def set_initial_time(self, time_passed_for_image):
-        self.stats_info.append((time_passed_for_image, 'get_image'))
+        self.add_stat('get_image', time_passed_for_image)
 
     def process_image(self, img):
         img, total_time = call_and_get_time(process_image, (img,))
-        self.stats_info.append((total_time, 'process_image'))
+        self.add_stat('process_image', total_time)
 
         return img
 
     def find_person(self, img):
         faces, total_time = call_and_get_time(find_person, (img,))
-        self.stats_info.append((total_time, 'find_person'))
+        self.add_stat('find_person', total_time)
 
         return faces
 
@@ -222,7 +224,7 @@ class Image_Processor:
         # TODO: Try to find pedestrians as well
         # TODO: Why do we need to pass img in here?
         face_position_x, total_time = call_and_get_time(get_face_position_x_from_image, (img, faces))
-        self.stats_info.append((total_time, 'process_picture'))
+        self.add_stat('process_picture', total_time)
 
         return face_position_x
     
@@ -232,7 +234,7 @@ class Image_Processor:
 
         # TODO: Get duty from a seperate method
         duty_change, total_time = call_and_get_time(move_servo_based_on_face_position_x, (face_position_x,))
-        self.stats_info.append((total_time, 'turn_servo'))
+        self.add_stat('turn_servo', total_time)
 
         return duty_change
 
