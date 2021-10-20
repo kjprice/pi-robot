@@ -40,7 +40,7 @@ def find_faces_in_any_classifier(img):
     return None
 
 # https://www.pyimagesearch.com/2015/09/07/blur-detection-with-opencv/
-def calculate_blur(img):
+def calculate_image_clarity(img):
     return cv2.Laplacian(img, cv2.CV_64F).var()
     
 def get_faces(img):
