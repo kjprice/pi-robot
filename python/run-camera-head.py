@@ -47,8 +47,8 @@ def get_most_recent_saved_image_filepath():
     file_objects_paths = [os.path.join(directory_path, filename) for filename in file_objects]
     file_paths = list(filter(os.path.isfile, file_objects_paths))
     file_paths.sort(key=lambda f: os.path.getmtime(f))
-    oldest_sorted_filepaths = file_paths[::-1]
-    return oldest_sorted_filepaths[0]
+    newest_sorted_filepaths = file_paths[::-1]
+    return newest_sorted_filepaths[0]
 
 def get_servo_url_path(path):
     global servo_url
@@ -183,12 +183,32 @@ camera_head = CameraHead()
 async_process = multiprocessing.Process(target=camera_head.run, name="Process_Images")
 async_process.start()
 
+last_image_sent_updated_time = 0
+def get_latest_image():
+    global last_image_sent_updated_time
+    is_image_newest = False
+    while not is_image_newest:
+        newest_image_path = get_most_recent_saved_image_filepath()
+
+        this_image_sent_updated_time = os.path.getmtime(newest_image_path)
+        if this_image_sent_updated_time <= last_image_sent_updated_time:
+            print('This image is old!!!')
+        else:
+            is_image_newest = True
+    last_image_sent_updated_time = this_image_sent_updated_time
+
+    return newest_image_path
+
 ## ROUTES ##
 @app.route(GET_IMAGE_ENDPOINT)
 def get_image():
-    oldest_image_path = get_most_recent_saved_image_filepath()
-    with open(oldest_image_path, 'rb') as f:
+
+    image_filepath = get_latest_image()
+
+    # TODO: detect if image is corrupted (bottom of image will be jacked up) - see data/images/corrupted_img.jpg
+    with open(image_filepath, 'rb') as f:
         resp = flask.Response(f.read())
+        # TODO: Add headers: file-updated-timestamp, image filename
         resp.headers['Content-Type'] = 'image/jpg'
         return resp
 
