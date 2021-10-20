@@ -38,7 +38,10 @@ def find_faces_in_any_classifier(img):
             return faces
     
     return None
-        
+
+# https://www.pyimagesearch.com/2015/09/07/blur-detection-with-opencv/
+def calculate_blur(img):
+    return cv2.Laplacian(img, cv2.CV_64F).var()
     
 def get_faces(img):
     faces = find_faces_in_any_classifier(img)
@@ -100,6 +103,7 @@ def get_image_with_face_boxes(img, faces):
     
     return color_image
 
+# TODO: This is now incorrect I think
 def image_with_vertical_lines(img, line_x_list):
     img_height = img.shape[0]
     for line_x in line_x_list:

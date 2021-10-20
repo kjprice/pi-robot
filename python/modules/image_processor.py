@@ -10,13 +10,13 @@ import requests
 try:
     from modules.config import get_servo_url, ensure_directory_exists, SAVE_IMAGE_DIR, delete_log_info, append_log_info, write_log_info
     from modules.image_module import process_image, save_image
-    from modules.process_image_for_servo import extend_image, find_person, get_face_position_x_from_image
+    from modules.process_image_for_servo import calculate_blur, extend_image, find_person, get_face_position_x_from_image
     from modules.server_module import handle_default_server_response
     from modules.servo_module import calculate_duty_from_image_position
 except ModuleNotFoundError:
     from config import get_servo_url, ensure_directory_exists, SAVE_IMAGE_DIR, delete_log_info, append_log_info, write_log_info
     from image_module import process_image, save_image
-    from process_image_for_servo import extend_image, find_person, get_face_position_x_from_image
+    from process_image_for_servo import calculate_blur, extend_image, find_person, get_face_position_x_from_image
     from server_module import handle_default_server_response
     from servo_module import calculate_duty_from_image_position
 
@@ -40,9 +40,10 @@ def setup_continous_photos_directory():
     ensure_directory_exists(SAVE_IMAGES_CONTINUOUS_DIR)
 setup_continous_photos_directory()
 
-def save_image_with_faces(img, faces, face_position_x, duty_change):
+def save_image_with_faces(img, faces, face_position_x, duty_change, blur):
     texts = [
-        'Face Position: {}'.format(face_position_x)
+        'Face Position: {}'.format(face_position_x),
+        'Blur: {}'.format(int(blur))
     ]
     if duty_change is not None:
         texts.append('Duty Change: {}'.format(duty_change))
@@ -228,6 +229,12 @@ class Image_Processor:
         self.add_stat('process_image', total_time)
 
         return img
+    
+    def calculate_blur(self, img):
+        blur, total_time = call_and_get_time(calculate_blur, (img,))
+        self.add_stat('calculate_blur', total_time)
+
+        return blur
 
     def find_person(self, img):
         faces, total_time = call_and_get_time(find_person, (img,))
@@ -264,8 +271,8 @@ class Image_Processor:
 
         self.add_stat('time_total', time_all_total)
     
-    def save_image_with_faces(self, img, faces, face_position_x, duty_change):
-        _, total_time = call_and_get_time(save_image_with_faces, (img, faces, face_position_x, duty_change))
+    def save_image_with_faces(self, img, faces, face_position_x, duty_change, blur):
+        _, total_time = call_and_get_time(save_image_with_faces, (img, faces, face_position_x, duty_change, blur))
         self.add_stat('save_images', total_time)
 
     def process_message_immediately(self, img, time_passed_for_image):
@@ -275,13 +282,15 @@ class Image_Processor:
 
         img = self.process_image(img)
 
+        blur = self.calculate_blur(img)
+
         faces = self.find_person(img)
 
         face_position_x = self.get_face_position(img, faces)
 
         duty_change = self.move_servo(face_position_x)
 
-        self.save_image_with_faces(img, faces, face_position_x, duty_change)
+        self.save_image_with_faces(img, faces, face_position_x, duty_change, blur)
 
         self.set_time_to_run_all_stat(time_all_start, faces)
         
