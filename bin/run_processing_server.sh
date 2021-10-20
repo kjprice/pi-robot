@@ -8,4 +8,5 @@ alias flask=/Users/kjprice/anaconda3/envs/python3.6/bin/flask
 
 export FLASK_APP=run-image-processing-server.py
 # lsof -ti tcp:5000 | xargs kill
-flask run --host=0.0.0.0
+export PORT=5000
+flask run --host=0.0.0.0 --port=$PORT
