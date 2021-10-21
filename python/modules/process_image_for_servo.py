@@ -31,6 +31,7 @@ def x_positions_in_image(img):
 
     return x_positions
 
+# TODO: IMPORTANT - we may want to run all of these in parallel and find the optimal face
 def find_faces_in_any_classifier(img):
     for classifier in face_cascades:
         faces = classifier.detectMultiScale(img, 1.1, 4)
@@ -103,15 +104,30 @@ def get_image_with_face_boxes(img, faces):
     
     return color_image
 
-# TODO: This is now incorrect I think
-def image_with_vertical_lines(img, line_x_list):
+def image_with_vertical_line(img, line_x):
     img_height = img.shape[0]
-    for line_x in line_x_list:
-        start = (line_x, 0)
-        end = (line_x, img_height)
-        img = cv2.line(img, start, end, (255, 255, 255), 1)
+    start = (line_x, 0)
+    end = (line_x, img_height)
+    img = cv2.line(img, start, end, (255, 255, 255), 1)
     
     return img
+
+def image_with_vertical_lines(img, line_x_list):
+    for line_x in line_x_list:
+        img = image_with_vertical_line(img, line_x)
+    
+    return img
+
+def draw_primary_face_line(img, faces):
+    if faces is None:
+        return img
+
+    primary_face = get_primary_face(faces)
+
+    x, y, w, h = primary_face
+    line_x = int(x + (w /2))
+
+    return image_with_vertical_line(img, line_x)
 
 def draw_opaque_rectange(img, box):
     x1, y1, width, height = box
@@ -124,24 +140,6 @@ def draw_opaque_rectange(img, box):
     box_with_opaque_color = cv2.addWeighted(sub_img, 0.5, white_rect, 0.5, 1.0)
 
     img[y1:y2, x1:x2] = box_with_opaque_color
-
-# expects x_ratio_start to be between 0-1
-def box_of_selected_area(img, x_ratio_start):
-    if x_ratio_start is None:
-        return img
-    start_region = x_ratio_start - 0.05
-
-    x = int(start_region * img.shape[1])
-    y = 0
-    height = img.shape[0]
-    width = int(0.1 * img.shape[1])
-    box = (x, y, width, height)
-
-    # mutates the object
-    draw_opaque_rectange(img, box)
-
-    return img
-
 
 def draw_texts(img, texts):
     img_height = img.shape[0]
@@ -159,10 +157,8 @@ def extend_image(img, show_faces=False, show_vertical_lines=False, texts=None, f
     if show_faces:
         img = get_image_with_face_boxes(img, faces)
     if show_vertical_lines:
-        x_positions = x_positions_in_image(img)
-        img = image_with_vertical_lines(img, x_positions)
-        region_selected = get_face_position_x_from_image(img, faces)
-        img = box_of_selected_area(img, region_selected)
+        img = draw_primary_face_line(img, faces)
+
     if texts is not None:
         img = draw_texts(img, texts)
     
