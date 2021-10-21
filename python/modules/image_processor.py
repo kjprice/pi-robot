@@ -242,6 +242,7 @@ class Image_Processor:
 
         return faces
 
+    # TODO: Draw line in box based on duty change position
     def get_face_position(self, img, faces):
         # TODO: Clean image (make sharper perhaps) to better find faces
         # TODO: Try to find pedestrians as well
@@ -299,3 +300,8 @@ class Image_Processor:
         self.log_processing_time(faces)
         self.print_processing_time_all()
         self.stats_info = []
+        
+        # Give time for the servo server to change before getting a new image
+        # TODO: Make this smarter
+        if duty_change is not None:
+            time.sleep(0.1)
