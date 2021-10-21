@@ -31,6 +31,9 @@ MAX_IMAGES_TO_PROCESS_PER_SECOND = 6
 GET_IMAGE_ENDPOINT = '/getImage'
 FOLDER_TO_SAVE_TO = 'images-captured'
 
+# If false, we will use pub/sub; the two patterns behave completely differently https://github.com/jeffbass/imagezmq/blob/48614483298b782b37dffdddd6b75b9ae0ee525c/docs/req-vs-pub.rst
+REQ_REP = True
+
 IS_TEST = False
 if 'IS_TEST' in os.environ:
     IS_TEST = True
@@ -93,6 +96,13 @@ def check_if_processing_server_is_online():
     #     return False
     # except (ConnectionRefusedError, ConnectionError) as e:
     #     return False
+
+def get_image_sender():
+    if REQ_REP:
+        return imagezmq.ImageSender(connect_to='tcp://kj-macbook.lan:6666', REQ_REP=True)
+    else:
+        return imagezmq.ImageSender(connect_to='tcp://*:6666', REQ_REP=False)
+
 class CameraHead():
     is_processing_server_online = None
     image_processor = None
@@ -115,11 +125,10 @@ class CameraHead():
         #     test_connection_with_servo_server()
 
         images_count = 0
-        sender = imagezmq.ImageSender(connect_to='tcp://kj-macbook.lan:6666')
+        sender = get_image_sender()
 
         rpi_name = get_hostname() # send RPi hostname with each image
 
-        time.sleep(2.0)  # allow camera sensor to warm up
         for img, time_passed_for_image in image_generator(IS_TEST):
             images_count += 1
             # TODO: Periodically check to make sure that server is still online (every 10 seconds)
