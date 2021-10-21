@@ -1,17 +1,10 @@
 #!/usr/bin/python3
-import atexit
 import multiprocessing
 import os
 import requests
-from requests.exceptions import ConnectionError
 import time
 
 import imagezmq
-from flask import Flask
-from flask_cors import CORS
-
-app = Flask(__name__)
-CORS(app)
 
 # This must be done before we bring in our modules because they depend on the correct directory
 def cd_to_this_directory():
@@ -38,8 +31,6 @@ IS_TEST = False
 if 'IS_TEST' in os.environ:
     IS_TEST = True
 
-PORT = os.environ['PORT']
-
 servo_url = get_servo_url(IS_TEST)
 
 def get_servo_url_path(path):
@@ -63,39 +54,9 @@ def test_connection_with_image_processing_server(url):
         return True
     return False
 
-def get_image_url():
-    return 'http://{}:{}{}'.format(get_hostname(), PORT, GET_IMAGE_ENDPOINT)
-
-def send_hostname_to_processing_server(processing_server_url):
-    hostname = get_hostname()
-
-    url_endpoint = '{}/setCameraHostname'.format(processing_server_url)
-
-    response = requests.post(url_endpoint, json={
-        "hostname": hostname,
-        "bin_dir": get_bin_folder(),
-        "img_url": get_image_url()
-    })
-
-    handle_default_server_response(response)
-
 def check_if_processing_server_is_online():
     # TODO: We probably want to bring this logic back in the future
     return True
-    # try:
-    #     for url in get_processing_server_urls():
-    #         print('Attempting to hit url: {}'.format(url))
-    #         if test_connection_with_image_processing_server(url):
-    #             print('Succesfully connected to processing server')
-
-    #             send_hostname_to_processing_server(url)
-    #             print('Successfully synced hostname with processing server')
-    #             print()
-
-    #             return True
-    #     return False
-    # except (ConnectionRefusedError, ConnectionError) as e:
-    #     return False
 
 def get_image_sender():
     if REQ_REP:
@@ -137,8 +98,6 @@ class CameraHead():
         images_count = 0
         sender = get_image_sender()
 
-        rpi_name = get_hostname() # send RPi hostname with each image
-
         for img, time_passed_for_image in image_generator(IS_TEST):
             time_start = time.time() - time_passed_for_image
             images_count += 1
@@ -154,7 +113,11 @@ class CameraHead():
             else:
                 self.image_processor.process_message_immediately(img, time_passed_for_image, time_start)
 
-async_process = None
-camera_head = CameraHead()
-async_process = multiprocessing.Process(target=camera_head.run, name="Process_Images")
-async_process.start()
+def start_camera_process():
+    async_process = None
+    camera_head = CameraHead()
+    async_process = multiprocessing.Process(target=camera_head.run, name="Process_Images")
+    async_process.start()
+
+if __name__ == '__main__':
+    start_camera_process()

@@ -4,8 +4,6 @@ import os
 import time
 
 import cv2
-from flask import Flask
-from flask_cors import CORS
 import imagezmq
 
 # This must be done before we bring in our modules because they depend on the correct directory
@@ -18,13 +16,10 @@ cd_to_this_directory()
 from modules.image_processor import Image_Processor
 from modules.workers.image_stream_worker import get_perpetual_list_of_images_from_worker
 
-app = Flask(__name__)
-CORS(app)
-
 IS_TEST = 'IS_TEST' in os.environ
 
 # If false, we will use pub/sub; the two patterns behave completely differently https://github.com/jeffbass/imagezmq/blob/48614483298b782b37dffdddd6b75b9ae0ee525c/docs/req-vs-pub.rst
-REQ_REP = False
+REQ_REP = True
 # Setting this assumes that camera head is running locally
 LOCAL_PUB_SUB = (not REQ_REP) and 'LOCAL_PUB_SUB' in os.environ
 
@@ -98,6 +93,6 @@ def continuously_find_and_process_images():
         if REQ_REP:
             image_hub.send_reply(b'OK')
 
-
 # TODO: Move to multiprocessing
-continuously_find_and_process_images()
+if __name__ == '__main__':
+    continuously_find_and_process_images()
