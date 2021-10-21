@@ -71,7 +71,9 @@ def get_image_from_image_hub(image_hub):
     return get_image_for_pub_sub_from_image_hub(image_hub)
 
 ## ASYNC OPERATIONS ##
-def continuously_find_and_process_images():
+def continuously_find_and_process_images(env=None):
+    if env is not None:
+        os.environ = env
     image_processor = Image_Processor()
     images_count = 0
     image_hub = get_image_hub()

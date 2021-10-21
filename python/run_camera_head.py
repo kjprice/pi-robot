@@ -27,14 +27,11 @@ FOLDER_TO_SAVE_TO = 'images-captured'
 # If false, we will use pub/sub; the two patterns behave completely differently https://github.com/jeffbass/imagezmq/blob/48614483298b782b37dffdddd6b75b9ae0ee525c/docs/req-vs-pub.rst
 REQ_REP = True
 
-IS_TEST = False
-if 'IS_TEST' in os.environ:
-    IS_TEST = True
-
-servo_url = get_servo_url(IS_TEST)
+def is_test():
+    return 'IS_TEST' in os.environ
 
 def get_servo_url_path(path):
-    global servo_url
+    servo_url = get_servo_url(is_test())
     url = '/'.join([servo_url, path])
 
     return url
@@ -87,7 +84,7 @@ class CameraHead():
         return True
 
     def run(self):
-        camera_setup(IS_TEST, grayscale=True)
+        camera_setup(is_test(), grayscale=True)
 
         time.sleep(1) # Give time for camera to warm up
         self.is_processing_server_online = check_if_processing_server_is_online()
@@ -98,7 +95,7 @@ class CameraHead():
         images_count = 0
         sender = get_image_sender()
 
-        for img, time_passed_for_image in image_generator(IS_TEST):
+        for img, time_passed_for_image in image_generator(is_test()):
             time_start = time.time() - time_passed_for_image
             images_count += 1
             # TODO: Periodically check to make sure that server is still online (every 10 seconds)
@@ -113,7 +110,9 @@ class CameraHead():
             else:
                 self.image_processor.process_message_immediately(img, time_passed_for_image, time_start)
 
-def start_camera_process():
+def start_camera_process(env=None):
+    if env is not None:
+        os.environ = env
     async_process = None
     camera_head = CameraHead()
     async_process = multiprocessing.Process(target=camera_head.run, name="Process_Images")
