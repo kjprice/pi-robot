@@ -9,6 +9,9 @@ except ModuleNotFoundError:
 def grayscale(img):
     return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+def blur_image(img):
+    return cv2.GaussianBlur(img,(5,5),cv2.BORDER_DEFAULT)
+
 # Only works with grayscale (one channel)
 def increase_contrast(img):
     # CLAHE (Contrast Limited Adaptive Histogram Equalization)
@@ -26,8 +29,9 @@ def process_image(img):
     # TODO: Try bluring image
     if not is_image_grayscale(img):
         img = grayscale(img)
-    contrast_img = increase_contrast(img)
-    return contrast_img
+    img = blur_image(img)
+    img = increase_contrast(img)
+    return img
     # return cv2.normalize(grayscale_img)
 
 def load_image(path, gray=True):
