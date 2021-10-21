@@ -7,10 +7,4 @@ To get the servo Motor up and running, it is recommended to wire the servo up to
 
 From the raspberry pi, you can run `servo-simple.py` which will test out if it is all connecteed correctly
 
-TODO:
- - Create python module (servo-module) to control servo
- - Create python module (read-faces) that can read an image and detect where a face is in the image
- - Create root python script that will:
-  - pull a picture from the camera
-  - Find where the nearest face is
-  - Turn the servo in the direction of the face
+The servo accepts a "duty" (a number between 2-12) which determines where to turn. The duty will have to turn 2.9 duties to span a single entire image from the camera (as of this commit).
