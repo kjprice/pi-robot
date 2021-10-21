@@ -283,6 +283,7 @@ class Image_Processor:
 
         img = self.process_image(img)
 
+        # TODO: Use this to determine if we should keep the image or get a new image - if the image is too blurry, that means the servo is probably moving
         clarity = self.calculate_image_clarity(img)
 
         faces = self.find_person(img)
