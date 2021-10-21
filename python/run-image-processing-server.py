@@ -82,7 +82,7 @@ def continuously_find_and_process_images():
         images_count += 1
 
         if image is not None:
-            image_processor.process_message_immediately(image, time_to_pull)
+            image_processor.process_message_immediately(image, time_to_pull, time_start)
         
         if REQ_REP:
             image_hub.send_reply(b'OK')

@@ -276,9 +276,7 @@ class Image_Processor:
         _, total_time = call_and_get_time(save_image_with_faces, (img, faces, face_position_x, duty_change, clarity))
         self.add_stat('save_images', total_time)
 
-    def process_message_immediately(self, img, time_passed_for_image):
-        time_all_start = time.time()
-
+    def process_message_immediately(self, img, time_passed_for_image, time_all_start):
         self.set_initial_time(time_passed_for_image)        
 
         img = self.process_image(img)

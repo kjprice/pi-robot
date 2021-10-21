@@ -130,6 +130,7 @@ class CameraHead():
         rpi_name = get_hostname() # send RPi hostname with each image
 
         for img, time_passed_for_image in image_generator(IS_TEST):
+            time_start = time.time() - time_passed_for_image
             images_count += 1
             # TODO: Periodically check to make sure that server is still online (every 10 seconds)
             if self.is_processing_server_online:
@@ -137,7 +138,7 @@ class CameraHead():
                 sender.send_image(rpi_name, img)
                 print('Found {} image(s) and dropped {} image(s)'.format(images_count, self.count_images_discarded), end='\r')
             else:
-                self.image_processor.process_message_immediately(img, time_passed_for_image)
+                self.image_processor.process_message_immediately(img, time_passed_for_image, time_start)
 
 async_process = None
 camera_head = CameraHead()
