@@ -147,7 +147,7 @@ class CameraHead():
                 if self.should_throttle_image():
                     self.count_images_used += 1
                     # TODO: Decide whether to make greyscale before saving - compare time savings
-                    sender.send_image(rpi_name, img)
+                    sender.send_image(str(time.time()), img)
                 else:
                     self.count_images_discarded += 1
                 print('Found {} image(s) and dropped {} image(s)'.format(self.count_images_used, self.count_images_discarded), end='\r')
