@@ -31,9 +31,12 @@ POSSIBLE_PROCESSING_SERVER_HOSTNAMES = [
     'kj-macbook.lan' # KJ's Macbook
 ]
 
+def get_figure_filepath(filename):
+    return os.path.join(FIGURES_DIR, filename)
+
 def save_plot(filename, plot):
     fig = plot.get_figure()
-    filepath = os.path.join(FIGURES_DIR, filename)
+    filepath = get_figure_filepath(filename)
     fig.savefig(filepath)
 
 def get_hostname():

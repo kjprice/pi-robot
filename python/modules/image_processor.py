@@ -24,6 +24,7 @@ except ModuleNotFoundError:
 IS_TEST = False
 if 'IS_TEST' in os.environ:
     IS_TEST = True
+SAVE_PLOT_OF_PROCESSING_TIMES = True
 
 servo_url = get_servo_url(IS_TEST)
 
@@ -44,10 +45,8 @@ def get_stats_df():
 def save_plot_of_times(df=None):
     if df is None:
         df = get_stats_df()
-    plot = df.drop('faces_count_found', axis=1).plot.line()
+    plot = df.drop('faces_count_found', axis=1).plot.line(ylim=(0, 0.6), figsize=(10, 6), grid=True)
     save_plot(PLOT_FILEPATH, plot)
-    # fig.savefig('test.jpg')
-    # print(df)
 
 
 print('TIME_LOG_FILENAME', TIME_LOG_FILENAME)
@@ -322,7 +321,8 @@ class Image_Processor:
 
         self.save_image_with_faces(img, faces, face_position_x, duty_change, clarity)
 
-        self.save_plot_of_times()
+        if SAVE_PLOT_OF_PROCESSING_TIMES:
+            self.save_plot_of_times()
 
         self.set_time_to_run_all_stat(time_all_start, faces)
         self.limit_total_time_stored()
