@@ -128,20 +128,26 @@ def get_servo_url_path(path):
 def send_reset_servo():
     url = get_servo_url_path('resetServo')
     print('resetting servo')
-    response = requests.post(url)
-    handle_default_server_response(response)
+    try:
+        response = requests.post(url)
+        handle_default_server_response(response)
+    except requests.exceptions.ConnectionError:
+        print('Could not send duty to servo server')
 
 def send_servo_duty(duty_change, direction):
     url = get_servo_url_path('setServoPosition')
 
     print('Sending request to "{}"'.format(url))
+    
+    try:
+        response = requests.post(url, json={
+            "duty": duty_change,
+            "direction": direction
+        })
 
-    response = requests.post(url, json={
-        "duty": duty_change,
-        "direction": direction
-    })
-
-    handle_default_server_response(response)
+        handle_default_server_response(response)
+    except requests.exceptions.ConnectionError:
+        print('Could not send duty to servo server')
 
 def move_servo_based_on_face_position_x(face_position_x):
     # TODO: Make this available from a config
