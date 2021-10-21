@@ -4,7 +4,7 @@ import time
 import cv2
 import numpy as np
 
-from modules.image_module import save_image, get_file_path_for_save, load_image, grayscale
+from modules.image_module import get_file_path_for_save, load_image, grayscale
 
 # This import will fail on a mac
 try:
@@ -30,7 +30,7 @@ def camera_setup(is_test=False, framerate=30, grayscale=False, resolution=(640, 
         camera.start_preview()
     return camera
 
-def pi_image_generator():
+def pi_image_generator(grayscale):
     time.sleep(0.5)
     with picamera.array.PiRGBArray(camera) as stream:
         # Using "array.PiRGBArray" the stream will have an "array" property
@@ -52,17 +52,17 @@ def capture_picture_from_webcam(run_grayscale = False):
     
     return image
 
-def webcam_image_generator():
+def webcam_image_generator(grayscale=True):
     while True:
-        yield (capture_picture_from_webcam(), 0)
+        yield (capture_picture_from_webcam(grayscale), 0)
 
 # TODO: If processing takes longer than taking the picture, then the generator creates a queue of images to be processed
 # TODO: Use VideoStream (as shown in https://github.com/jeffbass/imagezmq)
-def image_generator(is_test=False):
+def image_generator(is_test=False, grayscale=True):
     if is_test:
-        return webcam_image_generator()
+        return webcam_image_generator(grayscale)
 
-    return pi_image_generator()
+    return pi_image_generator(grayscale)
 
 def capture_pircture_from_pi_camera():
     img_filepath = get_file_path_for_save('pi-camera.jpg')

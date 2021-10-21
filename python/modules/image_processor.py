@@ -61,7 +61,6 @@ def print_aggregated_stats(df=None):
     print()
 
 
-print('TIME_LOG_FILENAME', TIME_LOG_FILENAME)
 def setup_continous_photos_directory():
     try:
         shutil.rmtree(SAVE_IMAGES_CONTINUOUS_DIR)

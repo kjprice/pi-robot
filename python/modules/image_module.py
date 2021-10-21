@@ -15,10 +15,18 @@ def increase_contrast(img):
     clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8,8))
     return clahe.apply(img)
 
+def is_image_grayscale(img):
+    if len(img.shape) == 2:
+        return True
+    channels_count = img.shape[2]
+    return channels_count == 1
+
+
 def process_image(img):
     # TODO: Try bluring image
-    grayscale_img = grayscale(img)
-    contrast_img = increase_contrast(grayscale_img)
+    if not is_image_grayscale(img):
+        img = grayscale(img)
+    contrast_img = increase_contrast(img)
     return contrast_img
     # return cv2.normalize(grayscale_img)
 
