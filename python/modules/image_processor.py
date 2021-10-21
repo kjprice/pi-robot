@@ -184,8 +184,10 @@ class Image_Processor:
     total_time_list_no_faces = []
     last_image_run_time = None
     
-    def add_stat(self, field, value):
-        self.stats_info.append((field, value))
+    def add_stat(self, field, value, index=-1):
+        if index == -1:
+            index = len(self.stats_info)
+        self.stats_info.insert(index, (field, value))
 
     def limit_total_time_stored(self):
         if len(self.total_time_list_faces) > MAX_ITEMS_FOR_TOTAL_TIMES:
@@ -211,7 +213,7 @@ class Image_Processor:
         time_passed = get_time_delta(last_image_run_time, self.last_image_run_time)
 
         self.add_stat('faces_count_found', len([] if faces is None else faces))
-        self.add_stat('time_passed', time_passed)
+        self.add_stat('time_passed', time_passed, index=0)
         self.add_stat('ended_at', self.last_image_run_time)
 
         cells, headers = get_stats_text(self.stats_info)
@@ -222,7 +224,7 @@ class Image_Processor:
 
     
     def set_initial_time(self, time_passed_for_image):
-        self.add_stat('get_image', time_passed_for_image)
+        self.add_stat('get_image', time_passed_for_image, index=0)
 
     def process_image(self, img):
         img, total_time = call_and_get_time(process_image, (img,))
@@ -238,7 +240,7 @@ class Image_Processor:
 
     def find_person(self, img):
         faces, total_time = call_and_get_time(find_person, (img,))
-        self.add_stat('find_person', total_time)
+        self.add_stat('find_person', total_time, index=0)
 
         return faces
 
@@ -270,11 +272,11 @@ class Image_Processor:
         else:
             self.total_time_list_no_faces.append(time_all_total)
 
-        self.add_stat('time_total', time_all_total)
+        self.add_stat('time_total', time_all_total, index=0)
     
     def save_image_with_faces(self, img, faces, face_position_x, duty_change, clarity):
         _, total_time = call_and_get_time(save_image_with_faces, (img, faces, face_position_x, duty_change, clarity))
-        self.add_stat('save_images', total_time)
+        self.add_stat('save_images', total_time, index=1)
 
     def process_message_immediately(self, img, time_passed_for_image, time_all_start):
         self.set_initial_time(time_passed_for_image)        
