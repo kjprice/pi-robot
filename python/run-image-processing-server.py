@@ -27,7 +27,7 @@ IS_TEST = 'IS_TEST' in os.environ
 # If false, we will use pub/sub; the two patterns behave completely differently https://github.com/jeffbass/imagezmq/blob/48614483298b782b37dffdddd6b75b9ae0ee525c/docs/req-vs-pub.rst
 REQ_REP = True
 # Setting this assumes that camera head is running locally
-LOCAL_PUB_SUB = REQ_REP and 'LOCAL_PUB_SUB' in os.environ
+LOCAL_PUB_SUB = (not REQ_REP) and 'LOCAL_PUB_SUB' in os.environ
 
 CACHE_FILE_NAME = 'camera_server_info.json'
 
