@@ -56,20 +56,23 @@ class Servo():
             self.servo = setup_servo_main()
         
         self.servo.start(0)
+        self.reset()
 
-    def go_to(self, duty):
+    def go_to(self, duty, force = False):
+        print('go_to: {}, force: {}'.format(duty, force))
         # TODO: This logic is broken - the servo never moves after getting stuck at one of the far ends
-        if duty < self.duty_range[0] or duty > self.duty_range[1]:
-            return
+        if not force:
+            if duty < self.duty_range[0] or duty > self.duty_range[1]:
+                return
 
-        if duty == self.current_duty:
-            return
+            if duty == self.current_duty:
+                return
 
         self.current_duty = np.round(duty, 2)
 
         self.servo.ChangeDutyCycle(duty)
     def reset(self):
-        self.go_to(self.center)
+        self.go_to(self.center, force=True)
     def move_left(self, duty_to_move):
         if not SHOULD_REVERSE:
             duty_to_move *= -1
