@@ -29,8 +29,8 @@ def process_image(img):
     # TODO: Try bluring image
     if not is_image_grayscale(img):
         img = grayscale(img)
-    img = blur_image(img)
-    img = increase_contrast(img)
+    # img = blur_image(img)
+    # img = increase_contrast(img)
     return img
     # return cv2.normalize(grayscale_img)
 
