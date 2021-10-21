@@ -106,14 +106,24 @@ def get_image_sender():
 class CameraHead():
     is_processing_server_online = None
     image_processor = None
-    count_images_discarded = None
+    count_images_discarded = 0
+    count_images_used = 0
     time_started = None
+    last_image_sent_time = None
 
     def __init__(self) -> None:
         self.image_processor = Image_Processor()
         self.is_processing_server_online = False
-        self.count_images_discarded = 0
         self.time_started = time.time()
+        self.time_needed_between_images = 1 / MAX_IMAGES_TO_PROCESS_PER_SECOND
+    
+    def should_throttle_image(self):
+        if self.last_image_sent_time is not None:
+            now = time.time()
+            if now - self.last_image_sent_time < self.time_needed_between_images:
+                return False
+        self.last_image_sent_time = time.time()
+        return True
 
     def run(self):
         camera_setup(IS_TEST, grayscale=True)
@@ -134,9 +144,13 @@ class CameraHead():
             images_count += 1
             # TODO: Periodically check to make sure that server is still online (every 10 seconds)
             if self.is_processing_server_online:
-                # TODO: Decide whether to make greyscale before saving - compare time savings
-                sender.send_image(rpi_name, img)
-                print('Found {} image(s) and dropped {} image(s)'.format(images_count, self.count_images_discarded), end='\r')
+                if self.should_throttle_image():
+                    self.count_images_used += 1
+                    # TODO: Decide whether to make greyscale before saving - compare time savings
+                    sender.send_image(rpi_name, img)
+                else:
+                    self.count_images_discarded += 1
+                print('Found {} image(s) and dropped {} image(s)'.format(self.count_images_used, self.count_images_discarded), end='\r')
             else:
                 self.image_processor.process_message_immediately(img, time_passed_for_image, time_start)
 
