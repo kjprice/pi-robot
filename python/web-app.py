@@ -3,7 +3,7 @@
 #  - ssh or local camera head
 #  - image processing-server
 #  - servo server
-
+# - Display images directly in browser
 
 import os
 
@@ -25,7 +25,7 @@ app = socketio.WSGIApp(sio, static_files={
     '/static': '../static/'
 })
 
-PORT = 5000
+PORT = 9898
 
 def create_homepage_url():
   return 'http://{}:{}/'.format(get_hostname(), PORT)

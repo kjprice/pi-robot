@@ -1,5 +1,5 @@
 window.onload = () => {
-  const socket = io("http://kj-macbook.lan:5000/");
+  window.socket = io(window.location.host);
 
   socket.on("connect", () => {
     console.log(socket.id);
