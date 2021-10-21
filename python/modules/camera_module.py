@@ -30,7 +30,7 @@ def camera_setup(is_test=False, framerate=30, grayscale=False, resolution=(640, 
         camera.start_preview()
     return camera
 
-def pi_image_generator(grayscale):
+def pi_image_generator(grayscale): # TODO: Make grayscale
     time.sleep(0.5)
     with picamera.array.PiRGBArray(camera) as stream:
         # Using "array.PiRGBArray" the stream will have an "array" property
