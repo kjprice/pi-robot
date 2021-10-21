@@ -134,15 +134,14 @@ def send_reset_servo():
     except requests.exceptions.ConnectionError:
         print('Could not send duty to servo server')
 
-def send_servo_duty(duty_change, direction):
+def send_servo_duty(duty_change):
     url = get_servo_url_path('setServoPosition')
 
     print('Sending request to "{}"'.format(url))
     
     try:
         response = requests.post(url, json={
-            "duty": duty_change,
-            "direction": direction
+            "duty": duty_change
         })
 
         handle_default_server_response(response)
@@ -165,12 +164,7 @@ def move_servo_based_on_face_position_x(face_position_x):
     
     duty_change = calculate_duty_from_image_position(face_position_x)
     
-    if face_position_x < center_position[0]:
-        send_servo_duty(duty_change, 'left')
-    elif face_position_x > center_position[1]:
-        send_servo_duty(duty_change, 'right')
-    else:
-        raise Exception('Unkown face_position_x {}'.format(face_position_x))
+    send_servo_duty(duty_change)
     
     return duty_change
 

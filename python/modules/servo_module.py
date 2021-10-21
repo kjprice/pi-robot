@@ -59,7 +59,8 @@ class Servo():
         self.reset()
 
     def go_to(self, duty, force = False):
-        print('go_to: {}, force: {}'.format(duty, force))
+        if not IS_TEST:
+            print('go_to: {}, force: {}'.format(duty, force))
         # TODO: This logic is broken - the servo never moves after getting stuck at one of the far ends
         if not force:
             if duty < self.duty_range[0] or duty > self.duty_range[1]:
@@ -73,12 +74,8 @@ class Servo():
         self.servo.ChangeDutyCycle(duty)
     def reset(self):
         self.go_to(self.center, force=True)
-    def move_left(self, duty_to_move):
+    def move(self, duty_to_move):
         if not SHOULD_REVERSE:
-            duty_to_move *= -1
-        self.go_to(self.current_duty + duty_to_move)
-    def move_right(self, duty_to_move):
-        if SHOULD_REVERSE:
             duty_to_move *= -1
         self.go_to(self.current_duty + duty_to_move)
     def teardown(self):
@@ -101,24 +98,13 @@ class TestServoModule(unittest.TestCase):
     def test_3_move_servo(self):
         self.assertEqual(self.servo.current_duty, 7)
 
-        self.servo.move_left(1)
+        self.servo.move(1)
         self.assertEqual(self.servo.current_duty, 6)
-        self.servo.move_left(1)
+        self.servo.move(1)
         self.assertEqual(self.servo.current_duty, 5)
-    #     self.servo.reset()
-    #     self.assertEqual(self.servo.current_duty, 7)
-    #     self.servo.move_right(1)
-    #     self.assertEqual(self.servo.current_duty, 8)
+        self.servo.move(-1)
+        self.assertEqual(self.servo.current_duty, 6)
 
-    #     self.servo.go_to(12)
-    #     self.assertEqual(self.servo.current_duty, 12)
-    #     self.servo.move_right(1)
-    #     self.assertEqual(self.servo.current_duty, 12)
-        
-    #     self.servo.go_to(2)
-    #     self.assertEqual(self.servo.current_duty, 2)
-    #     self.servo.move_left(1)
-    #     self.assertEqual(self.servo.current_duty, 2)
 
 if IS_TEST:
     unittest.main()

@@ -30,18 +30,12 @@ def receive_servo_position():
     data = request.get_json()
 
     duty = data['duty']
-    direction = data['direction']
 
     print('2. decoded data')
     old_duty = servo.current_duty
     print('Moving From {} to {}'.format(old_duty, duty))
 
-    if direction == 'left':
-        servo.move_left(duty)
-    elif direction == 'right':
-        servo.move_right(duty)
-    else:
-        raise ValueError('Unkown direction "{}"'.format(direction))
+    servo.move(duty)
 
     print('3. set servo')
     new_duty = servo.current_duty
