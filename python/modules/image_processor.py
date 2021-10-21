@@ -24,7 +24,9 @@ except ModuleNotFoundError:
 IS_TEST = False
 if 'IS_TEST' in os.environ:
     IS_TEST = True
-SAVE_PLOT_OF_PROCESSING_TIMES = True
+
+
+SAVE_PLOT_OF_PROCESSING_TIMES = False
 
 servo_url = get_servo_url(IS_TEST)
 
