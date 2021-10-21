@@ -7,6 +7,7 @@ import cv2
 from flask import Flask
 from flask_cors import CORS
 import imagezmq
+import numpy as np
 
 # This must be done before we bring in our modules because they depend on the correct directory
 def cd_to_this_directory():
@@ -21,12 +22,12 @@ from modules.image_processor import Image_Processor
 app = Flask(__name__)
 CORS(app)
 
-IS_TEST = False
-if 'IS_TEST' in os.environ:
-    IS_TEST = True
+IS_TEST = 'IS_TEST' in os.environ
 
 # If false, we will use pub/sub; the two patterns behave completely differently https://github.com/jeffbass/imagezmq/blob/48614483298b782b37dffdddd6b75b9ae0ee525c/docs/req-vs-pub.rst
 REQ_REP = True
+# Setting this assumes that camera head is running locally
+LOCAL_PUB_SUB = REQ_REP and 'LOCAL_PUB_SUB' in os.environ
 
 CACHE_FILE_NAME = 'camera_server_info.json'
 
@@ -47,7 +48,22 @@ def get_image_hub():
         return imagezmq.ImageHub(open_port='tcp://*:6666', REQ_REP=True)
     else:
         # This connects to another machine's port
-        return imagezmq.ImageHub(open_port='tcp://pirobot:6666', REQ_REP=False)
+        hostname = 'kj-macbook.lan' if LOCAL_PUB_SUB else 'pirobot'
+        return imagezmq.ImageHub(open_port='tcp://{}:6666'.format(hostname), REQ_REP=False)
+
+# When we use PUB/SUB, the process is async and the images stack, we want to clear the old images
+def get_image_for_pub_sub_from_image_hub(image_hub):
+    time_start = time.time()
+    while True:
+        rpi_name, image_found = image_hub.recv_image()
+        time_passed = time.time() - time_start
+        if time_passed > 0.01:
+            return rpi_name, image_found
+
+def get_image_from_image_hub(image_hub):
+    if REQ_REP:
+        return image_hub.recv_image()
+    return get_image_for_pub_sub_from_image_hub(image_hub)
 
 ## ASYNC OPERATIONS ##
 def continuously_find_and_process_images():
@@ -58,7 +74,7 @@ def continuously_find_and_process_images():
     while True:
         time_start = time.time()
         time_to_pull = None
-        rpi_name, image = image_hub.recv_image()
+        rpi_name, image = get_image_from_image_hub(image_hub)
         time_end = time.time()
         time_to_pull = time_end - time_start
         cv2.imshow(rpi_name, image) # 1 window for each RPi

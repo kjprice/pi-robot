@@ -1,4 +1,6 @@
 #!/bin/sh
+
+# To run locally: nodemon -e py,sh -x 'IS_TEST=true sh bin/run_camera_head_server.sh'
 cd "$(dirname "$0")"
 cd ../python
 
