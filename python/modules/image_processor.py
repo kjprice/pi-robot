@@ -4,17 +4,18 @@ import time
 import shutil
 
 import numpy as np
+import pandas as pd
 import requests
 
 
 try:
-    from modules.config import get_servo_url, ensure_directory_exists, SAVE_IMAGE_DIR, delete_log_info, append_log_info, write_log_info
+    from modules.config import append_log_info, LOGS_DIR, ensure_directory_exists, get_servo_url, SAVE_IMAGE_DIR, save_plot, write_log_info
     from modules.image_module import process_image, save_image
     from modules.process_image_for_servo import calculate_image_clarity, extend_image, find_person, get_face_position_x_from_image
     from modules.server_module import handle_default_server_response
     from modules.servo_module import calculate_duty_from_image_position
 except ModuleNotFoundError:
-    from config import get_servo_url, ensure_directory_exists, SAVE_IMAGE_DIR, delete_log_info, append_log_info, write_log_info
+    from config import append_log_info, LOGS_DIR, ensure_directory_exists, get_servo_url, SAVE_IMAGE_DIR, save_plot, write_log_info
     from image_module import process_image, save_image
     from process_image_for_servo import calculate_image_clarity, extend_image, find_person, get_face_position_x_from_image
     from server_module import handle_default_server_response
@@ -29,8 +30,27 @@ servo_url = get_servo_url(IS_TEST)
 MAX_ITEMS_FOR_TOTAL_TIMES = 10
 SAVE_IMAGES_CONTINUOUS_DIR = os.path.join(SAVE_IMAGE_DIR, 'images_continous')
 
-TIME_LOG_FILENAME = 'processing_time_log.tcv'
+PLOT_FILEPATH = 'image_processor_time'
 
+def get_log_filename():
+    time_log_filename_base = 'processing_time_log'
+    timestamp = str(datetime.datetime.now())
+    return '{}_{}.csv'.format(time_log_filename_base, timestamp)
+TIME_LOG_FILENAME = get_log_filename()
+
+def get_stats_df():
+    return pd.read_csv(os.path.join(LOGS_DIR, TIME_LOG_FILENAME), sep='\t')
+
+def save_plot_of_times(df=None):
+    if df is None:
+        df = get_stats_df()
+    plot = df.drop('faces_count_found', axis=1).plot.line()
+    save_plot(PLOT_FILEPATH, plot)
+    # fig.savefig('test.jpg')
+    # print(df)
+
+
+print('TIME_LOG_FILENAME', TIME_LOG_FILENAME)
 def setup_continous_photos_directory():
     try:
         shutil.rmtree(SAVE_IMAGES_CONTINUOUS_DIR)
@@ -183,6 +203,7 @@ class Image_Processor:
     total_time_list_faces = []
     total_time_list_no_faces = []
     last_image_run_time = None
+    images_processed_count = 0
     
     def add_stat(self, field, value, index=-1):
         if index == -1:
@@ -277,6 +298,13 @@ class Image_Processor:
     def save_image_with_faces(self, img, faces, face_position_x, duty_change, clarity):
         _, total_time = call_and_get_time(save_image_with_faces, (img, faces, face_position_x, duty_change, clarity))
         self.add_stat('save_images', total_time, index=1)
+    
+    def save_plot_of_times(self):
+        if self.images_processed_count > 0:
+            _, total_time = call_and_get_time(save_plot_of_times, [])
+        else:
+            total_time = 0
+        self.add_stat('save_plot_of_times', total_time, index=1)
 
     def process_message_immediately(self, img, time_passed_for_image, time_all_start):
         self.set_initial_time(time_passed_for_image)        
@@ -294,13 +322,16 @@ class Image_Processor:
 
         self.save_image_with_faces(img, faces, face_position_x, duty_change, clarity)
 
+        self.save_plot_of_times()
+
         self.set_time_to_run_all_stat(time_all_start, faces)
-        
         self.limit_total_time_stored()
 
         self.log_processing_time(faces)
         self.print_processing_time_all()
         self.stats_info = []
+
+        self.images_processed_count += 1
         
         # Give time for the servo server to change before getting a new image
         # TODO: Make this smarter

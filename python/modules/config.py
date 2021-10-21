@@ -10,6 +10,7 @@ TEST_IMAGE_DIR = os.path.join(DATA_DIR, 'test-images')
 SAVE_IMAGE_DIR = os.path.join(DATA_DIR, 'images')
 CACHE_DIR = os.path.join(DATA_DIR, 'cache')
 LOGS_DIR = os.path.join(DATA_DIR, 'logs')
+FIGURES_DIR = os.path.join(DATA_DIR, 'figures')
 
 MODELS_DIR = os.path.join('..', 'models')
 
@@ -29,6 +30,11 @@ SERVO_ENV_KEY = 'SERVO_HOST'
 POSSIBLE_PROCESSING_SERVER_HOSTNAMES = [
     'kj-macbook.lan' # KJ's Macbook
 ]
+
+def save_plot(filename, plot):
+    fig = plot.get_figure()
+    filepath = os.path.join(FIGURES_DIR, filename)
+    fig.savefig(filepath)
 
 def get_hostname():
     return socket.gethostname()
@@ -54,6 +60,7 @@ def ensure_directory_exists(directory):
 ensure_directory_exists(SAVE_IMAGE_DIR)
 ensure_directory_exists(CACHE_DIR)
 ensure_directory_exists(LOGS_DIR)
+ensure_directory_exists(FIGURES_DIR)
 
 def get_classifier_path(filename):
     directory = cv2.data.haarcascades
