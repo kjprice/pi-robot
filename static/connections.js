@@ -1,12 +1,18 @@
+const ROOM_NAME = 'browsers'
+
 window.addEventListener('load', () => {
   socketLoaded();
   window.socket = io(window.location.host);
 
-  socket.on("connect", () => {
+  socket.on('connect', () => {
     console.log(socket.id);
-
-    socket.emit("my_message", "world");
+    socket.emit('set_browser_room');
   });
+
+  socket.on('image', (arrayBuffer) => {
+    const bytes = new Uint8Array(arrayBuffer);
+    document.querySelector('#image-processed').src = 'data:image/jpg;base64,' + encodeImage(bytes);
+  })
 });
 
 function loadAllServers(statusCallback) {

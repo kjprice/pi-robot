@@ -13,7 +13,9 @@ def cd_to_this_directory():
     os.chdir(dname)
 cd_to_this_directory()
 
+from modules.image_module import get_file_path_for_save
 from modules.image_processor import Image_Processor
+from modules.socket_commmunications import SocketCommunications
 from modules.workers.image_stream_worker import get_perpetual_list_of_images_from_worker
 
 IS_TEST = 'IS_TEST' in os.environ
@@ -72,6 +74,8 @@ def get_image_from_image_hub(image_hub):
 
 ## ASYNC OPERATIONS ##
 def continuously_find_and_process_images(env=None):
+    socket_communication = SocketCommunications('image_processing_server')
+
     if env is not None:
         os.environ = env
     image_processor = Image_Processor()
@@ -85,12 +89,15 @@ def continuously_find_and_process_images(env=None):
         time_end = time.time()
         time_to_pull = time_end - time_start
         # TODO: Use a new thread to display image
-        cv2.imshow(rpi_name, image) # 1 window for each RPi
+        cv2.imshow('img', image) # 1 window for each RPi
         cv2.waitKey(1)
         images_count += 1
 
         if image is not None:
             image_processor.process_message_immediately(image, time_to_pull, time_start)
+            # TODO: This is inneficiant - maybe even just send the path of the image and let the browser handle the image path
+            with open(get_file_path_for_save('test-face-image.jpg'), 'rb') as f:
+                socket_communication.emit('processed_image', f.read())
         
         if REQ_REP:
             image_hub.send_reply(b'OK')

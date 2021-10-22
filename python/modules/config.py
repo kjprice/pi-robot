@@ -14,6 +14,12 @@ FIGURES_DIR = os.path.join(DATA_DIR, 'figures')
 
 MODELS_DIR = os.path.join('..', 'models')
 
+SOCKET_IO_SERVER_HOSTNAME = 'kj-macbook.lan'
+SOCKET_IO_SERVER_PORT = 9898
+SOCKET_IO_HOST_URI = 'http://{}:{}'.format(SOCKET_IO_SERVER_HOSTNAME, SOCKET_IO_SERVER_PORT)
+
+SOCKET_ROOMS = ['image_processing_server', 'browsers']
+
 IMG_FACE_CLASSIFIER_FILENAMES = [
     'haarcascade_frontalface_default.xml',
     'haarcascade_frontalface_alt.xml',

@@ -11,6 +11,7 @@
     <script src="https://cdn.socket.io/4.3.2/socket.io.min.js" integrity="sha384-KAZ4DtjNhLChOB/hxXuKqhMLYvx3b5MlT55xPEiNmREKRzeEm+RVPlTnAn0ajQNs" crossorigin="anonymous"></script>
     <script src="/static/connections.js"></script>
     <script src="/static/controller.js"></script>
+    <script src="/static/misc.js"></script>
 
     <title>Web App For Robot Stuff</title>
   </head>
@@ -25,6 +26,9 @@
           <button id="stop-all-servers-btn" type="button" class="btn btn-warning disabled">Stop All Servers</button>
         </div>
         <div class="d-none" id="start-all-servers-output"></div>
+      </div>
+      <div id="image-processed-container">
+        <img id="image-processed" />
       </div>
     </div>
   </body>

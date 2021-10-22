@@ -18,7 +18,7 @@ def cd_to_this_directory():
     os.chdir(dname)
 cd_to_this_directory()
 
-from modules.config import get_hostname
+from modules.config import get_hostname, SOCKET_IO_SERVER_PORT, TEST_IMAGE_DIR
 
 from run_image_processing_server import continuously_find_and_process_images
 from run_camera_head import start_camera_process
@@ -71,10 +71,8 @@ app = socketio.WSGIApp(sio, static_files={
     '/static': '../static/'
 })
 
-PORT = 9898
-
 def create_homepage_url():
-  return 'http://{}:{}/'.format(get_hostname(), PORT)
+  return 'http://{}:{}/'.format(get_hostname(), SOCKET_IO_SERVER_PORT)
 
 print()
 print('**********')
@@ -86,11 +84,14 @@ print()
 
 @sio.event
 def connect(sid, environ):
-    print('connect ', sid)
+  print('connect ', sid)
+
+BROWSERS_ROOM_NAME = 'browsers'
 
 @sio.event
-def my_message(sid, data):
-    print('message ', data)
+def set_browser_room(sid):
+  sio.enter_room(sid, BROWSERS_ROOM_NAME)
+  print('setting client "{}" to room "{}"'.format(sid, BROWSERS_ROOM_NAME))
 
 @sio.event
 def load_all_servers(sid):
@@ -105,9 +106,13 @@ def stop_all_servers(sid):
   stop_all_server_processes()
   sio.emit('all_servers_stopped_status', to=sid)
 
+@sio.event(namespace='/image_processing_server')
+def processed_image(sid, message):
+  sio.emit('image', message, room=BROWSERS_ROOM_NAME)
+
 @sio.event
 def disconnect(sid):
     print('disconnect ', sid)
 
 if __name__ == '__main__':
-    eventlet.wsgi.server(eventlet.listen((get_hostname(), PORT)), app)
+  eventlet.wsgi.server(eventlet.listen((get_hostname(), SOCKET_IO_SERVER_PORT)), app)
