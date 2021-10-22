@@ -30,6 +30,13 @@ def stop_job_if_exists_by_fn_name(fn_name):
     jobs_running_by_fn_name[fn_name].terminate()
     del jobs_running_by_fn_name[fn_name]
 
+def stop_all_server_processes():
+  fn_names = list(jobs_running_by_fn_name.keys())
+  for fn_name in fn_names:
+    stop_job_if_exists_by_fn_name(fn_name)
+  
+  print('Shut off {} servers'.format(len(fn_names)))
+
 def create_job(fn_name, fn_reference, env_vars = {}):
   stop_job_if_exists_by_fn_name(fn_name)
 
@@ -83,6 +90,11 @@ def load_all_servers(sid):
   sio.emit('all_servers_loading_status', { 'step': 2, 'details': 'create camera head server job' }, sid)
   create_camera_head_server_job()
   sio.emit('all_servers_loading_status', { 'step': 3, 'details': 'complete' }, sid)
+
+@sio.event
+def stop_all_servers(sid):
+  stop_all_server_processes()
+  sio.emit('all_servers_stopped_status', to=sid)
 
 @sio.event
 def disconnect(sid):
