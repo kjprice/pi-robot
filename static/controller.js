@@ -7,11 +7,11 @@ function loadAllServersClick() {
     const itemElement = document.createElement("li");
     const { step, details } = statusMessage;
     itemElement.innerHTML = `<b>Step ${step}</b> ${details}`;
-    outputList.appendChild(itemElement)
+    outputList.appendChild(itemElement);
   }).then(() => {
     window.loadAllServersBtn.classList.add('disabled');
     window.stopAllServersBtn.classList.remove('disabled');
-  })
+  });
 }
 
 async function stopAllServersClick() {
@@ -19,7 +19,7 @@ async function stopAllServersClick() {
   window.stopAllServersBtn.classList.add('disabled');
   window.loadAllServersBtn.classList.remove('disabled');
   const outputDiv = window.startAllServersOutput;
-  outputDiv.innerHTML = 'All servers shutdown successfully'
+  outputDiv.innerHTML = 'All servers shutdown successfully';
 }
 
 function socketLoaded() {

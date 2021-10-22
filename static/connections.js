@@ -28,6 +28,6 @@ function stopAllServers() {
     window.socket.on('all_servers_stopped_status', () => {
       window.socket.off('all_servers_stopped_status');
       res();
-    }) ; 
+    }); 
   });
 }
