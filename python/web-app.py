@@ -23,6 +23,20 @@ from modules.config import get_hostname
 from run_image_processing_server import continuously_find_and_process_images
 from run_camera_head import start_camera_process
 
+class JobProcess:
+  job = None
+  def __init__(self, fn_reference, env_vars):
+    env_vars = {**os.environ, **env_vars}
+    job = multiprocessing.Process(
+      target=fn_reference,
+      kwargs={'env': env_vars}
+    )
+    job.start()
+
+    self.job = job
+  def terminate(self):
+    self.job.terminate()
+
 jobs_running_by_fn_name = {}
 
 def stop_job_if_exists_by_fn_name(fn_name):
@@ -40,13 +54,8 @@ def stop_all_server_processes():
 def create_job(fn_name, fn_reference, env_vars = {}):
   stop_job_if_exists_by_fn_name(fn_name)
 
-  env_vars = {**os.environ, **env_vars}
+  job = JobProcess(fn_reference, env_vars)
 
-  job = multiprocessing.Process(
-    target=fn_reference,
-    kwargs={'env': env_vars}
-  )
-  job.start()
   jobs_running_by_fn_name[fn_name] = job
 
 def create_image_processing_server_job():
