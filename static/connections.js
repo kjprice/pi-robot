@@ -16,7 +16,7 @@ function loadAllServers(statusCallback) {
       if (statusMessage.details == 'complete') {
         return res();
       }
-      statusCallback(statusMessage)
+      statusCallback(statusMessage);
     })
   });
 }

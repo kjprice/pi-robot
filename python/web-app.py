@@ -82,6 +82,7 @@ def load_all_servers(sid):
   create_image_processing_server_job()
   sio.emit('all_servers_loading_status', { 'step': 2, 'details': 'create camera head server job' }, sid)
   create_camera_head_server_job()
+  sio.emit('all_servers_loading_status', { 'step': 3, 'details': 'complete' }, sid)
 
 @sio.event
 def disconnect(sid):

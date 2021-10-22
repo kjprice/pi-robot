@@ -1,12 +1,16 @@
 function loadAllServersClick() {
-  outputDiv = document.querySelector('#start-all-servers-output')
-  outputDiv.innerHTML = '<ul></ul>'
-  outputList = outputDiv.querySelector('ul')
+  const originalButtonclass = window.loadAllServersBtn.className;
+  window.loadAllServersBtn.className='btn btn-warning';
+  outputDiv = document.querySelector('#start-all-servers-output');
+  outputDiv.innerHTML = '<ul></ul>';
+  outputList = outputDiv.querySelector('ul');
   loadAllServers((statusMessage) => {
-    itemElement = document.createElement("li");
-    const { step, details } =statusMessage
-    itemElement.innerHTML = `<b>Step ${step}</b> ${details}`
+    const itemElement = document.createElement("li");
+    const { step, details } = statusMessage;
+    itemElement.innerHTML = `<b>Step ${step}</b> ${details}`;
     outputList.appendChild(itemElement)
+  }).then(() => {
+    window.loadAllServersBtn.className = originalButtonclass;
   })
 }
 
@@ -16,6 +20,6 @@ function socketLoaded() {
 }
 
 window.addEventListener('load', () => {
-  loadAllServersBtn = document.querySelector('#start-all-servers-btn');
+  window.loadAllServersBtn = document.querySelector('#start-all-servers-btn');
   loadAllServersBtn.onclick = loadAllServersClick;
 })
