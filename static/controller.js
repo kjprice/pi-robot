@@ -1,7 +1,7 @@
 function loadAllServersClick() {
-  const originalButtonclass = window.loadAllServersBtn.className;
+  const outputDiv = window.startAllServersOutput;
+  outputDiv.classList.remove('d-none');
   window.loadAllServersBtn.className='btn btn-warning';
-  outputDiv = document.querySelector('#start-all-servers-output');
   outputDiv.innerHTML = '<ul></ul>';
   outputList = outputDiv.querySelector('ul');
   loadAllServers((statusMessage) => {
@@ -10,7 +10,8 @@ function loadAllServersClick() {
     itemElement.innerHTML = `<b>Step ${step}</b> ${details}`;
     outputList.appendChild(itemElement)
   }).then(() => {
-    window.loadAllServersBtn.className = originalButtonclass;
+    window.loadAllServersBtn.className = 'btn btn-outline-success disabled';
+    window.stopAllServersBtn.classList.remove('disabled');
   })
 }
 
@@ -22,4 +23,7 @@ function socketLoaded() {
 window.addEventListener('load', () => {
   window.loadAllServersBtn = document.querySelector('#start-all-servers-btn');
   loadAllServersBtn.onclick = loadAllServersClick;
+  window.startAllServersOutput = document.querySelector('#start-all-servers-output');
+
+  window.stopAllServersBtn = document.querySelector('#stop-all-servers-btn');
 })

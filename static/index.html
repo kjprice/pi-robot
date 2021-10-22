@@ -20,8 +20,11 @@
     </div>
     <div class="container" style="display: none;" id="main-container">
       <div class="row">
-        <button id="start-all-servers-btn" type="button" class="btn btn-info">Start All Servers</button>
-        <div id="start-all-servers-output"></div>
+        <div class="btn-group">
+          <button id="start-all-servers-btn" type="button" class="btn btn-outline-info">Start All Servers</button>
+          <button id="stop-all-servers-btn" type="button" class="btn btn-outline-info disabled">Stop All Servers</button>
+        </div>
+        <div class="d-none" id="start-all-servers-output"></div>
       </div>
     </div>
   </body>
