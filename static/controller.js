@@ -27,6 +27,13 @@ function socketLoaded() {
   document.querySelector('#main-container').style.display = '';
 }
 
+function loadNewImage(arrayBuffer) {
+  const imageElement = document.querySelector('#image-processed');
+  // Instead of passing around all the bytes for the iamge, we can just display the image immedaitely, but there are glitches
+  // imageElement.src = imageElement.dataset.src + "?" + new Date().getTime();
+  imageElement.src = getImageSourceFromArrayBuffer(arrayBuffer);
+}
+
 window.addEventListener('load', () => {
   window.loadAllServersBtn = document.querySelector('#start-all-servers-btn');
   window.startAllServersOutput = document.querySelector('#start-all-servers-output');
@@ -34,4 +41,4 @@ window.addEventListener('load', () => {
 
   loadAllServersBtn.onclick = loadAllServersClick;
   window.stopAllServersBtn.onclick = stopAllServersClick;
-})
+});

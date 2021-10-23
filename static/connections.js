@@ -9,12 +9,7 @@ window.addEventListener('load', () => {
     socket.emit('set_browser_room');
   });
 
-  socket.on('processed_image_finished', (arrayBuffer) => {
-    const imageElement = document.querySelector('#image-processed');
-    // Instead of passing around all the bytes for the iamge, we can just display the image immedaitely, but there are glitches
-    // imageElement.src = imageElement.dataset.src + "?" + new Date().getTime();
-    imageElement.src = getImageSourceFromArrayBuffer(arrayBuffer);
-  })
+  socket.on('processed_image_finished', loadNewImage);
 });
 
 function loadAllServers(statusCallback) {
