@@ -1,10 +1,11 @@
 #!/usr/bin/python3
 
+import concurrent.futures as cf
 import os
 import time
 
-import cv2
 import imagezmq
+import socketio
 
 # This must be done before we bring in our modules because they depend on the correct directory
 def cd_to_this_directory():
@@ -13,9 +14,9 @@ def cd_to_this_directory():
     os.chdir(dname)
 cd_to_this_directory()
 
+from modules.config import SOCKET_IO_HOST_URI
 from modules.image_module import get_file_path_for_save
 from modules.image_processor import Image_Processor
-from modules.socket_commmunications import SocketCommunications
 from modules.workers.image_stream_worker import get_perpetual_list_of_images_from_worker
 
 IS_TEST = 'IS_TEST' in os.environ
@@ -72,36 +73,68 @@ def get_image_from_image_hub(image_hub):
         return image_hub.recv_image()
     return get_image_for_pub_sub_from_image_hub(image_hub)
 
-## ASYNC OPERATIONS ##
-def continuously_find_and_process_images(env=None):
-    socket_communication = SocketCommunications('image_processing_server')
+# This runs two concurrent threads: one to handle incoming socket communication and the other to handle processing images
+class ImageProcessingServer:
+    is_socket_connected = False
+    def __init__(self, env=None):
+        if env is not None:
+            os.environ = env
+    def run(self):
+        with cf.ThreadPoolExecutor() as executor:
+            future_to_mapping = [
+                executor.submit(self.connect_to_socket,),
+                executor.submit(self.continuously_find_and_process_images,),
+            ]
+            cf.as_completed(future_to_mapping)
 
-    if env is not None:
-        os.environ = env
-    image_processor = Image_Processor()
-    images_count = 0
-    image_hub = get_image_hub()
+    # All functions in here will act as socket io message receivers - these are used
+    def connect_to_socket(self):
+        self.sio = sio = socketio.Client()
 
-    while True:
-        time_start = time.time()
-        time_to_pull = None
-        rpi_name, image = get_image_from_image_hub(image_hub)
-        time_end = time.time()
-        time_to_pull = time_end - time_start
-        # TODO: Use a new thread to display image
-        cv2.imshow('img', image) # 1 window for each RPi
-        cv2.waitKey(1)
-        images_count += 1
+        @sio.event
+        def connect():
+            self.is_socket_connected = True
+            print('connection client')
+            sio.emit('sos')
+            
+        @sio.event
+        def disconnect():
+            print('disconnected from server')
 
-        if image is not None:
-            image_processor.process_message_immediately(image, time_to_pull, time_start)
-            # TODO: This is inneficiant - maybe even just send the path of the image and let the browser handle the image path
-            with open(get_file_path_for_save('test-face-image.jpg'), 'rb') as f:
-                socket_communication.emit('processed_image', f.read())
-        
-        if REQ_REP:
-            image_hub.send_reply(b'OK')
+        sio.connect(SOCKET_IO_HOST_URI)
+        sio.wait()
+    
+    def emit(self, message, data=None):
+        if not self.is_socket_connected:
+            print('socket not connected, refusing to send')
+            return
+        self.sio.emit(message, data)
 
-# TODO: Move to multiprocessing
+
+    def continuously_find_and_process_images(self):
+        image_processor = Image_Processor()
+        images_count = 0
+        image_hub = get_image_hub()
+        while True:
+            time_start = time.time()
+            time_to_pull = None
+            rpi_name, image = get_image_from_image_hub(image_hub)
+            time_end = time.time()
+            time_to_pull = time_end - time_start
+            images_count += 1
+
+            if image is not None:
+                image_processor.process_message_immediately(image, time_to_pull, time_start)
+                # TODO: This is inneficiant - maybe even just send the path of the image and let the browser handle the image path
+                with open(get_file_path_for_save('test-face-image.jpg'), 'rb') as f:
+                    self.emit('processed_image', f.read())
+            
+            if REQ_REP:
+                image_hub.send_reply(b'OK')
+
+def run_image_processing_server(env=None):
+    image_processing_server = ImageProcessingServer(env)
+    image_processing_server.run()
+
 if __name__ == '__main__':
-    continuously_find_and_process_images()
+    run_image_processing_server()

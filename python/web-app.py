@@ -20,7 +20,7 @@ cd_to_this_directory()
 
 from modules.config import get_hostname, SOCKET_IO_SERVER_PORT, TEST_IMAGE_DIR
 
-from run_image_processing_server import continuously_find_and_process_images
+from run_image_processing_server import run_image_processing_server
 from run_camera_head import start_camera_process
 
 class JobProcess:
@@ -59,7 +59,7 @@ def create_job(fn_name, fn_reference, env_vars = {}):
   jobs_running_by_fn_name[fn_name] = job
 
 def create_image_processing_server_job():
-  create_job('continuously_find_and_process_images', continuously_find_and_process_images)
+  create_job('run_image_processing_server', run_image_processing_server)
 
 def create_camera_head_server_job():
   env_vars = {'IS_TEST': 'true'}
@@ -106,7 +106,7 @@ def stop_all_servers(sid):
   stop_all_server_processes()
   sio.emit('all_servers_stopped_status', to=sid)
 
-@sio.event(namespace='/image_processing_server')
+@sio.event
 def processed_image(sid, message):
   sio.emit('image', message, room=BROWSERS_ROOM_NAME)
 
