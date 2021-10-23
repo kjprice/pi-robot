@@ -107,8 +107,8 @@ def stop_all_servers(sid):
   sio.emit('all_servers_stopped_status', to=sid)
 
 @sio.event
-def processed_image(sid, message):
-  sio.emit('image', message, room=BROWSERS_ROOM_NAME)
+def processed_image_finished(sid, message):
+  sio.emit('processed_image_finished', message, room=BROWSERS_ROOM_NAME)
 
 @sio.event
 def disconnect(sid):

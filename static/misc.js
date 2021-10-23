@@ -27,3 +27,9 @@ function encodeImage(input) {
   }
   return output;
 }
+
+function getImageSourceFromArrayBuffer(arrayBuffer) {
+    const bytes = new Uint8Array(arrayBuffer);
+
+    return 'data:image/jpg;base64,' + encodeImage(bytes);
+}

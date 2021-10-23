@@ -9,9 +9,11 @@ window.addEventListener('load', () => {
     socket.emit('set_browser_room');
   });
 
-  socket.on('image', (arrayBuffer) => {
-    const bytes = new Uint8Array(arrayBuffer);
-    document.querySelector('#image-processed').src = 'data:image/jpg;base64,' + encodeImage(bytes);
+  socket.on('processed_image_finished', (arrayBuffer) => {
+    const imageElement = document.querySelector('#image-processed');
+    // Instead of passing around all the bytes for the iamge, we can just display the image immedaitely, but there are glitches
+    // imageElement.src = imageElement.dataset.src + "?" + new Date().getTime();
+    imageElement.src = getImageSourceFromArrayBuffer(arrayBuffer);
   })
 });
 
@@ -20,7 +22,7 @@ function loadAllServers(statusCallback) {
     window.socket.emit('load_all_servers');
     window.socket.on('all_servers_loading_status', (statusMessage) => {
       if (statusMessage.details == 'complete') {
-        window.socket.off('all_servers_loading_status')
+        window.socket.off('all_servers_loading_status');
         return res();
       }
       statusCallback(statusMessage);

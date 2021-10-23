@@ -99,6 +99,7 @@ class ImageProcessingServer:
             
         @sio.event
         def disconnect():
+            self.is_socket_connected = False
             print('disconnected from server')
 
         sio.connect(SOCKET_IO_HOST_URI)
@@ -127,7 +128,7 @@ class ImageProcessingServer:
                 image_processor.process_message_immediately(image, time_to_pull, time_start)
                 # TODO: This is inneficiant - maybe even just send the path of the image and let the browser handle the image path
                 with open(get_file_path_for_save('test-face-image.jpg'), 'rb') as f:
-                    self.emit('processed_image', f.read())
+                    self.emit('processed_image_finished', f.read())
             
             if REQ_REP:
                 image_hub.send_reply(b'OK')

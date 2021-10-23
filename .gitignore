@@ -5,3 +5,4 @@ data/downloaded-images
 data/cache
 data/logs
 data/figures
+static/images
