@@ -5,7 +5,6 @@ import os
 import time
 
 import imagezmq
-import socketio
 
 # This must be done before we bring in our modules because they depend on the correct directory
 def cd_to_this_directory():
@@ -17,6 +16,7 @@ cd_to_this_directory()
 from modules.config import SOCKET_IO_HOST_URI
 from modules.image_module import get_file_path_for_save
 from modules.image_processor import Image_Processor
+from modules.server_module import ServerModule
 from modules.workers.image_stream_worker import get_perpetual_list_of_images_from_worker
 
 IS_TEST = 'IS_TEST' in os.environ
@@ -74,60 +74,10 @@ def get_image_from_image_hub(image_hub):
     return get_image_for_pub_sub_from_image_hub(image_hub)
 
 # This runs two concurrent threads: one to handle incoming socket communication and the other to handle processing images
-class ImageProcessingServer:
-    is_socket_connected = False
+class ImageProcessingServer(ServerModule):
     def __init__(self, env=None):
-        if env is not None:
-            os.environ = env
-    def run(self):
-        with cf.ThreadPoolExecutor() as executor:
-            futures = [
-                executor.submit(self.connect_to_socket,),
-                executor.submit(self.run_image_processing_server,),
-            ]
-            cf.as_completed(futures)
-
-    # All functions in here will act as socket io message receivers - these are used
-    def connect_to_socket(self):
-        self.sio = sio = socketio.Client()
-
-        @sio.event
-        def connect():
-            self.is_socket_connected = True
-            print('connection client')
-            sio.emit('sos')
-            
-        @sio.event
-        def disconnect():
-            self.is_socket_connected = False
-            print('disconnected from server')
-
-        sio.connect(SOCKET_IO_HOST_URI)
-        sio.wait()
-    
-    def emit(self, message, data=None):
-        if not self.is_socket_connected:
-            return False
-        self.sio.emit(message, data)
-        return True
-    
-    def send_output(self, output_text):
-        if not self.emit('output_image_processing_server', output_text):
-            print(output_text)
-    
-    def run_image_processing_server(self):
-        try:
-            self.continuously_find_and_process_images()
-        except Exception as e:
-            message = '\n'.join((
-                'Found exception while trying to run image processing server:',
-                str(e)
-            ))
-            self.send_output(message)
-            print(message)
-            raise(e)
-
-    def continuously_find_and_process_images(self):
+        super().__init__(server_name='image_processing_server', env=env)
+    def run_continuously(self):
         image_processor = Image_Processor()
         images_count = 0
         image_hub = get_image_hub()
@@ -150,7 +100,7 @@ class ImageProcessingServer:
 
 def run_image_processing_server(env=None):
     image_processing_server = ImageProcessingServer(env)
-    image_processing_server.run()
+    image_processing_server.start_threads()
 
 if __name__ == '__main__':
     run_image_processing_server()
