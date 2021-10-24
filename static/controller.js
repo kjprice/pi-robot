@@ -20,17 +20,23 @@ function setServersLoadedStatus() {
   window.stopAllServersBtn.classList.remove('disabled');
 }
 
+function setServersTerminatedStatus() {
+  window.stopAllServersBtn.classList.add('disabled');
+  window.loadAllServersBtn.classList.remove('disabled');
+}
+
 function setInitialState(serverStatus) {
   const { jobs_running } = serverStatus;
   if (jobs_running.length > 0) {
     setServersLoadedStatus();
+  } else {
+    setServersTerminatedStatus();
   }
 }
 
 async function stopAllServersClick() {
   await stopAllServers();
-  window.stopAllServersBtn.classList.add('disabled');
-  window.loadAllServersBtn.classList.remove('disabled');
+  setServersTerminatedStatus();
   const outputDiv = window.startAllServersOutput;
   outputDiv.innerHTML = 'All servers shutdown successfully';
 }
