@@ -1,0 +1,13 @@
+.server-output {
+  resize: vertical;
+  max-height: 200px;
+  overflow: scroll;
+}
+
+.server-output > .col-6 {
+  overflow: scroll;
+}
+
+.server-output .row {
+  border-bottom: 1px solid #ccc;
+}

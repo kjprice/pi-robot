@@ -27,6 +27,22 @@ function socketLoaded() {
   document.querySelector('#main-container').style.display = '';
 }
 
+function getElementByProcessName(processName) {
+  switch(processName) {
+    case 'image_processing_server':
+      return document.getElementById('image-processing-server-output');
+    default:
+      throw new Error(`Unknown processing name: ${processName}`);
+  }
+}
+
+function handleServerOutput(processName, outputText) {
+  const element = getElementByProcessName(processName);
+  const outputHtml = outputText.replaceAll('\n', '<br />');
+  const dateNowString = (new Date()).toISOString();
+  element.innerHTML = `<code><div class="row"><div class="col">${dateNowString}</div><div class="col">${outputHtml}</div></div></code>` + element.innerHTML;
+}
+
 function loadNewImage(arrayBuffer) {
   const imageElement = document.querySelector('#image-processed');
   // Instead of passing around all the bytes for the iamge, we can just display the image immedaitely, but there are glitches

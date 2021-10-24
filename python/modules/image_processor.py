@@ -50,15 +50,17 @@ def save_plot_of_times(df=None):
     plot = df.drop('faces_count_found', axis=1).plot.line(ylim=(0, 0.6), figsize=(10, 6), grid=True)
     save_plot(PLOT_FILEPATH, plot)
 
-def print_aggregated_stats(df=None):
-    if df is None:
-        df = get_stats_df()
+def print_aggregated_stats(send_output):
+    df = get_stats_df()
 
     aggregated_stats = df.median().sort_values()
 
-    print('Median value of stats')
-    print(aggregated_stats)
-    print()
+    output_text = '\n'.join((
+        'Median value of stats',
+        str(aggregated_stats),
+        ''
+    ))
+    send_output(output_text)
 
 
 def setup_continous_photos_directory():
@@ -316,14 +318,14 @@ class Image_Processor:
             total_time = 0
         self.add_stat('save_plot_of_times', total_time, index=1)
     
-    def print_aggregated_stats(self):
+    def print_aggregated_stats(self, send_output):
         if self.images_processed_count > 0:
-            _, total_time = call_and_get_time(print_aggregated_stats, tuple())
+            _, total_time = call_and_get_time(print_aggregated_stats, (send_output,))
         else:
             total_time = 0
         self.add_stat('print_aggregated_stats', total_time, index=1)
 
-    def process_message_immediately(self, img, time_passed_for_image, time_all_start):
+    def process_message_immediately(self, img, time_passed_for_image, time_all_start, send_output=print):
         self.set_initial_time(time_passed_for_image)        
 
         img = self.process_image(img)
@@ -341,8 +343,8 @@ class Image_Processor:
 
         if SAVE_PLOT_OF_PROCESSING_TIMES:
             self.save_plot_of_times()
-        
-        self.print_aggregated_stats()
+
+        self.print_aggregated_stats(send_output)
         self.set_time_to_run_all_stat(time_all_start, faces)
         self.limit_total_time_stored()
 

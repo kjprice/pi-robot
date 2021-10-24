@@ -111,6 +111,10 @@ def processed_image_finished(sid, message):
   sio.emit('processed_image_finished', message, room=BROWSERS_ROOM_NAME)
 
 @sio.event
+def output_image_processing_server(sid, message):
+  sio.emit('output_image_processing_server', message, room=BROWSERS_ROOM_NAME)
+
+@sio.event
 def disconnect(sid):
     print('disconnect ', sid)
 

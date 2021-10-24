@@ -10,6 +10,9 @@ window.addEventListener('load', () => {
   });
 
   socket.on('processed_image_finished', loadNewImage);
+  socket.on('output_image_processing_server', (message) => {
+    handleServerOutput('image_processing_server', message);
+  })
 });
 
 function loadAllServers(statusCallback) {

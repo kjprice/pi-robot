@@ -81,6 +81,7 @@ class ImageProcessingServer:
             os.environ = env
     def run(self):
         with cf.ThreadPoolExecutor() as executor:
+            # TODO: Errors are hidden when using executor for some reason
             future_to_mapping = [
                 executor.submit(self.connect_to_socket,),
                 executor.submit(self.continuously_find_and_process_images,),
@@ -107,9 +108,13 @@ class ImageProcessingServer:
     
     def emit(self, message, data=None):
         if not self.is_socket_connected:
-            print('socket not connected, refusing to send')
-            return
+            return False
         self.sio.emit(message, data)
+        return True
+    
+    def send_output(self, output_text):
+        if not self.emit('output_image_processing_server', output_text):
+            print(output_text)
 
 
     def continuously_find_and_process_images(self):
@@ -125,7 +130,7 @@ class ImageProcessingServer:
             images_count += 1
 
             if image is not None:
-                image_processor.process_message_immediately(image, time_to_pull, time_start)
+                image_processor.process_message_immediately(image, time_to_pull, time_start, self.send_output)
                 # TODO: This is inneficiant - maybe even just send the path of the image and let the browser handle the image path
                 with open(get_file_path_for_save('test-face-image.jpg'), 'rb') as f:
                     self.emit('processed_image_finished', f.read())
