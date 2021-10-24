@@ -18,7 +18,7 @@ def cd_to_this_directory():
     os.chdir(dname)
 cd_to_this_directory()
 
-from modules.config import get_hostname, SOCKET_IO_SERVER_PORT, TEST_IMAGE_DIR
+from modules.config import get_hostname, SERVER_NAMES, SOCKET_IO_SERVER_PORT
 
 from run_image_processing_server import run_image_processing_server
 from run_camera_head import start_camera_process
@@ -59,11 +59,13 @@ def create_job(fn_name, fn_reference, env_vars = {}):
   jobs_running_by_fn_name[fn_name] = job
 
 def create_image_processing_server_job():
-  create_job('image_processing_server', run_image_processing_server)
+  server_name = SERVER_NAMES.IMAGE_PROCESSING.value
+  create_job(server_name, run_image_processing_server)
 
 def create_camera_head_server_job():
   env_vars = {'IS_TEST': 'true'}
-  create_job('camera_head', start_camera_process, env_vars=env_vars)
+  server_name = SERVER_NAMES.CAMERA_HEAD.value
+  create_job(server_name, start_camera_process, env_vars=env_vars)
 
 sio = socketio.Server(cors_allowed_origins='*')
 app = socketio.WSGIApp(sio, static_files={

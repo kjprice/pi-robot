@@ -13,7 +13,7 @@ def cd_to_this_directory():
     os.chdir(dname)
 cd_to_this_directory()
 
-from modules.config import SOCKET_IO_HOST_URI
+from modules.config import SERVER_NAMES
 from modules.image_module import get_file_path_for_save
 from modules.image_processor import Image_Processor
 from modules.server_module import ServerModule
@@ -76,7 +76,8 @@ def get_image_from_image_hub(image_hub):
 # This runs two concurrent threads: one to handle incoming socket communication and the other to handle processing images
 class ImageProcessingServer(ServerModule):
     def __init__(self, env=None):
-        super().__init__(server_name='image_processing_server', env=env)
+        server_name = SERVER_NAMES.IMAGE_PROCESSING
+        super().__init__(server_name=server_name, env=env)
     def run_continuously(self):
         image_processor = Image_Processor()
         images_count = 0

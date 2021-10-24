@@ -14,7 +14,7 @@ def cd_to_this_directory():
 cd_to_this_directory()
 
 from modules.camera_module import image_generator, camera_setup
-from modules.config import get_bin_folder, get_hostname, get_servo_url
+from modules.config import get_servo_url, SERVER_NAMES
 from modules.image_processor import Image_Processor
 from modules.server_module import handle_default_server_response, ServerModule
 
@@ -74,7 +74,9 @@ class CameraHead(ServerModule):
         self.is_processing_server_online = False
         self.time_started = time.time()
         self.time_needed_between_images = 1 / MAX_IMAGES_TO_PROCESS_PER_SECOND
-        super().__init__(server_name='camera_head', env=env)
+
+        server_name = SERVER_NAMES.CAMERA_HEAD
+        super().__init__(server_name=server_name, env=env)
     
     def should_throttle_image(self):
         if self.last_image_sent_time is not None:

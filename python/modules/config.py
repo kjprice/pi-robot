@@ -1,3 +1,4 @@
+from enum import Enum
 import json
 import os
 
@@ -18,7 +19,11 @@ SOCKET_IO_SERVER_HOSTNAME = 'kj-macbook.lan'
 SOCKET_IO_SERVER_PORT = 9898
 SOCKET_IO_HOST_URI = 'http://{}:{}'.format(SOCKET_IO_SERVER_HOSTNAME, SOCKET_IO_SERVER_PORT)
 
-SOCKET_ROOMS = ['image_processing_server', 'browsers']
+SOCKET_ROOMS = ('image_processing_server', 'browsers')
+
+class SERVER_NAMES(Enum):
+    CAMERA_HEAD = 'camera_head'
+    IMAGE_PROCESSING = 'image_processing_server'
 
 IMG_FACE_CLASSIFIER_FILENAMES = [
     'haarcascade_frontalface_default.xml',

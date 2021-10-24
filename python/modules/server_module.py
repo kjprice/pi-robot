@@ -4,9 +4,9 @@ import os
 import socketio
 
 try:
-    from modules.config import SOCKET_IO_HOST_URI
+    from modules.config import SOCKET_IO_HOST_URI, SERVER_NAMES
 except ModuleNotFoundError:
-    from config import SOCKET_IO_HOST_URI
+    from config import SOCKET_IO_HOST_URI, SERVER_NAMES
 
 def handle_default_server_response(response):
     text = response.text
@@ -19,7 +19,10 @@ def handle_default_server_response(response):
 class ServerModule:
     is_socket_connected = False
     def __init__(self, server_name, env=None):
+        if not server_name in SERVER_NAMES:
+            raise AssertionError('Expected server name "{}" to be one of: {}'.format(server_name, SERVER_NAMES))
         self.server_name = server_name
+        self.server_name_str = server_name.value
         if env is not None:
             os.environ = env
     def start_threads(self):
@@ -54,7 +57,7 @@ class ServerModule:
         return True
     
     def send_output(self, output_text):
-        if not self.emit('output_{}'.format(self.server_name), output_text):
+        if not self.emit('output_{}'.format(self.server_name_str), output_text):
             print(output_text)
 
     def run_with_exception_catch(self):
@@ -62,7 +65,7 @@ class ServerModule:
             self.run_continuously()
         except Exception as e:
             message = '\n'.join((
-                'Found exception while trying to run {}:'.format(self.server_name),
+                'Found exception while trying to run {}:'.format(self.server_name_str),
                 str(e)
             ))
             self.send_output(message)
