@@ -13,6 +13,8 @@ CACHE_DIR = os.path.join(DATA_DIR, 'cache')
 LOGS_DIR = os.path.join(DATA_DIR, 'logs')
 FIGURES_DIR = os.path.join(DATA_DIR, 'figures')
 
+STATIC_DIR = os.path.join('..', 'static')
+
 MODELS_DIR = os.path.join('..', 'models')
 
 SOCKET_IO_SERVER_HOSTNAME = 'kj-macbook.lan'

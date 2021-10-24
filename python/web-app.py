@@ -3,7 +3,6 @@
 #  - ssh or local camera head
 #  - image processing-server
 #  - servo server
-# - Display images directly in browser
 
 import multiprocessing
 import os
@@ -18,7 +17,7 @@ def cd_to_this_directory():
     os.chdir(dname)
 cd_to_this_directory()
 
-from modules.config import get_hostname, SERVER_NAMES, SOCKET_IO_SERVER_PORT
+from modules.config import get_hostname, SERVER_NAMES, SOCKET_IO_SERVER_PORT, STATIC_DIR
 
 from run_image_processing_server import run_image_processing_server
 from run_camera_head import start_camera_process
@@ -69,8 +68,8 @@ def create_camera_head_server_job():
 
 sio = socketio.Server(cors_allowed_origins='*')
 app = socketio.WSGIApp(sio, static_files={
-    '/': '../static/index.html',
-    '/static': '../static/'
+    '/': os.path.join(STATIC_DIR, 'index.html'),
+    '/static': STATIC_DIR
 })
 
 def create_homepage_url():
