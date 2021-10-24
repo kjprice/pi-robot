@@ -81,12 +81,11 @@ class ImageProcessingServer:
             os.environ = env
     def run(self):
         with cf.ThreadPoolExecutor() as executor:
-            # TODO: Errors are hidden when using executor for some reason
-            future_to_mapping = [
+            futures = [
                 executor.submit(self.connect_to_socket,),
-                executor.submit(self.continuously_find_and_process_images,),
+                executor.submit(self.run_image_processing_server,),
             ]
-            cf.as_completed(future_to_mapping)
+            cf.as_completed(futures)
 
     # All functions in here will act as socket io message receivers - these are used
     def connect_to_socket(self):
@@ -115,7 +114,18 @@ class ImageProcessingServer:
     def send_output(self, output_text):
         if not self.emit('output_image_processing_server', output_text):
             print(output_text)
-
+    
+    def run_image_processing_server(self):
+        try:
+            self.continuously_find_and_process_images()
+        except Exception as e:
+            message = '\n'.join((
+                'Found exception while trying to run image processing server:',
+                str(e)
+            ))
+            self.send_output(message)
+            print(message)
+            raise(e)
 
     def continuously_find_and_process_images(self):
         image_processor = Image_Processor()
