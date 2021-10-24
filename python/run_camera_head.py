@@ -113,10 +113,8 @@ class CameraHead():
 def start_camera_process(env=None):
     if env is not None:
         os.environ = env
-    async_process = None
     camera_head = CameraHead()
-    async_process = multiprocessing.Process(target=camera_head.run, name="Process_Images")
-    async_process.start()
+    camera_head.run()
 
 if __name__ == '__main__':
     start_camera_process()
