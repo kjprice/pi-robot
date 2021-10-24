@@ -16,7 +16,7 @@ cd_to_this_directory()
 from modules.camera_module import image_generator, camera_setup
 from modules.config import get_bin_folder, get_hostname, get_servo_url
 from modules.image_processor import Image_Processor
-from modules.server_module import handle_default_server_response
+from modules.server_module import handle_default_server_response, ServerModule
 
 # We do not need too many images - it is ok to throw away some
 # TODO: Decide which images to throw away based on if they are more blurry than others
@@ -61,7 +61,7 @@ def get_image_sender():
     else:
         return imagezmq.ImageSender(connect_to='tcp://*:6666', REQ_REP=False)
 
-class CameraHead():
+class CameraHead(ServerModule):
     is_processing_server_online = None
     image_processor = None
     count_images_discarded = 0
@@ -69,11 +69,12 @@ class CameraHead():
     time_started = None
     last_image_sent_time = None
 
-    def __init__(self) -> None:
+    def __init__(self, env=None) -> None:
         self.image_processor = Image_Processor()
         self.is_processing_server_online = False
         self.time_started = time.time()
         self.time_needed_between_images = 1 / MAX_IMAGES_TO_PROCESS_PER_SECOND
+        super().__init__(server_name='camera_head', env=env)
     
     def should_throttle_image(self):
         if self.last_image_sent_time is not None:
@@ -83,7 +84,7 @@ class CameraHead():
         self.last_image_sent_time = time.time()
         return True
 
-    def run(self):
+    def run_continuously(self):
         camera_setup(is_test(), grayscale=True)
 
         time.sleep(1) # Give time for camera to warm up
@@ -111,10 +112,8 @@ class CameraHead():
                 self.image_processor.process_message_immediately(img, time_passed_for_image, time_start)
 
 def start_camera_process(env=None):
-    if env is not None:
-        os.environ = env
-    camera_head = CameraHead()
-    camera_head.run()
+    camera_head = CameraHead(env)
+    camera_head.start_threads()
 
 if __name__ == '__main__':
     start_camera_process()
