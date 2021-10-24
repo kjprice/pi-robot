@@ -10,15 +10,21 @@ window.addEventListener('load', () => {
     socket.emit('get_server_statuses')
   });
 
+  socket.on('reconnect', () => {
+    console.log('socket reconnect');
+  });
+
+  socket.on('disconnect', () => {
+    console.log('socket disconnect');
+  });
+
   socket.on('browser_init_status', (data) => {
     setInitialState(data);
     console.log('browser_init_status', {data})
   });
 
   socket.on('processed_image_finished', loadNewImage);
-  socket.on('output_image_processing_server', (message) => {
-    handleServerOutput('image_processing_server', message);
-  })
+  socket.on('send_output', handleServerOutput);
 });
 
 function loadAllServers(statusCallback) {

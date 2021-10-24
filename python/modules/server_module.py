@@ -57,7 +57,11 @@ class ServerModule:
         return True
     
     def send_output(self, output_text):
-        if not self.emit('output_{}'.format(self.server_name_str), output_text):
+        data = {
+            'message': output_text,
+            'server_name': self.server_name_str
+        }
+        if not self.emit('send_output', data):
             print(output_text)
 
     def run_with_exception_catch(self):

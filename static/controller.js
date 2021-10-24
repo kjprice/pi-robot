@@ -56,9 +56,11 @@ function getElementByProcessName(processName) {
   }
 }
 
-function handleServerOutput(processName, outputText) {
-  const element = getElementByProcessName(processName);
-  const outputHtml = outputText.replaceAll('\n', '<br />');
+function handleServerOutput(data) {
+  const { message, server_name } = data;
+
+  const element = getElementByProcessName(server_name);
+  const outputHtml = message.replaceAll('\n', '<br />');
   const dateNowString = (new Date()).toISOString();
   element.innerHTML = `<code><div class="row"><div class="col">${dateNowString}</div><div class="col">${outputHtml}</div></div></code>` + element.innerHTML;
 }
