@@ -51,6 +51,8 @@ function getElementByProcessName(processName) {
   switch(processName) {
     case serverNames.IMAGE_PROCESSING:
       return document.getElementById('image-processing-server-output');
+    case serverNames.CAMERA_HEAD:
+      return document.getElementById('camera-head-server-output');
     default:
       throw new Error(`Unknown processing name: ${processName}`);
   }

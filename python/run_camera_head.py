@@ -109,7 +109,7 @@ class CameraHead(ServerModule):
                     sender.send_image(str(time.time()), img)
                 else:
                     self.count_images_discarded += 1
-                print('Found {} image(s) and dropped {} image(s)'.format(self.count_images_used, self.count_images_discarded), end='\r')
+                self.send_output('Found {} image(s) and dropped {} image(s)'.format(self.count_images_used, self.count_images_discarded))
             else:
                 self.image_processor.process_message_immediately(img, time_passed_for_image, time_start)
 
