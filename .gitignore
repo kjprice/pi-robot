@@ -6,3 +6,4 @@ data/cache
 data/logs
 data/figures
 static/images
+static/server_config.json

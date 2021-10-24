@@ -33,3 +33,31 @@ function getImageSourceFromArrayBuffer(arrayBuffer) {
 
     return 'data:image/jpg;base64,' + encodeImage(bytes);
 }
+
+// https://stackoverflow.com/questions/19706046/how-to-read-an-external-local-json-file-in-javascript
+function readTextFile(file) {
+    return new Promise((res, rej) => {
+        let fileAlreadyFound = false;
+        const rawFile = new XMLHttpRequest();
+        rawFile.overrideMimeType("application/json");
+        rawFile.open("GET", file, true);
+        rawFile.onreadystatechange = () => {
+            window.rawFile = rawFile;
+            if (rawFile.readyState === 4 && rawFile.status == "200") {
+                res(rawFile.responseText);
+                fileAlreadyFound = true;
+            }
+        }
+        setTimeout(() => {
+            if (!fileAlreadyFound) {
+                rej('Timeout');
+            }
+        }, 2000);
+        rawFile.send(null);
+    });
+}
+
+async function readJson(filepath) {
+    const rawFileText = await readTextFile(filepath);
+    return JSON.parse(rawFileText);
+}

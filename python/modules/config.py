@@ -23,9 +23,15 @@ SOCKET_IO_HOST_URI = 'http://{}:{}'.format(SOCKET_IO_SERVER_HOSTNAME, SOCKET_IO_
 
 SOCKET_ROOMS = ('image_processing_server', 'browsers')
 
-class SERVER_NAMES(Enum):
+class SERVER_NAMES(str, Enum):
     CAMERA_HEAD = 'camera_head'
     IMAGE_PROCESSING = 'image_processing_server'
+    @classmethod
+    def to_dict(cls):
+        obj = {}
+        for item in cls:
+            obj[item.name] = item.value
+        return obj
 
 IMG_FACE_CLASSIFIER_FILENAMES = [
     'haarcascade_frontalface_default.xml',
@@ -146,3 +152,9 @@ def get_cache_info(file_name):
 
     with open(cache_filepath, 'r') as f:
         return json.load(f)
+
+def write_static_config(content_obj):
+    filename = 'server_config.json'
+    filepath = os.path.join(STATIC_DIR, filename)
+    with open (filepath, 'w') as f:
+        json.dump(content_obj, f)

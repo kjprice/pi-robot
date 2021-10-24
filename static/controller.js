@@ -47,8 +47,9 @@ function socketLoaded() {
 }
 
 function getElementByProcessName(processName) {
+  const { serverNames } = window.serverConfig;
   switch(processName) {
-    case 'image_processing_server':
+    case serverNames.IMAGE_PROCESSING:
       return document.getElementById('image-processing-server-output');
     default:
       throw new Error(`Unknown processing name: ${processName}`);
@@ -69,11 +70,13 @@ function loadNewImage(arrayBuffer) {
   imageElement.src = getImageSourceFromArrayBuffer(arrayBuffer);
 }
 
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
   window.loadAllServersBtn = document.querySelector('#start-all-servers-btn');
   window.startAllServersOutput = document.querySelector('#start-all-servers-output');
   window.stopAllServersBtn = document.querySelector('#stop-all-servers-btn');
 
   loadAllServersBtn.onclick = loadAllServersClick;
   window.stopAllServersBtn.onclick = stopAllServersClick;
+
+  window.serverConfig = await readJson('/static/server_config.json');
 });

@@ -17,7 +17,7 @@ def cd_to_this_directory():
     os.chdir(dname)
 cd_to_this_directory()
 
-from modules.config import get_hostname, SERVER_NAMES, SOCKET_IO_SERVER_PORT, STATIC_DIR
+from modules.config import get_hostname, SERVER_NAMES, SOCKET_IO_SERVER_PORT, STATIC_DIR, write_static_config
 
 from run_image_processing_server import run_image_processing_server
 from run_camera_head import start_camera_process
@@ -124,5 +124,13 @@ def output_image_processing_server(sid, message):
 def disconnect(sid):
     print('disconnect ', sid)
 
+def create_config_object():
+  server_names = SERVER_NAMES.to_dict()
+
+  return {
+    'serverNames': server_names
+  }
+
 if __name__ == '__main__':
+  write_static_config(create_config_object())
   eventlet.wsgi.server(eventlet.listen((get_hostname(), SOCKET_IO_SERVER_PORT)), app)
