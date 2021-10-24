@@ -1,17 +1,30 @@
-function loadAllServersClick() {
+function onServerStatusReceived(statusMessage) {
+  const itemElement = document.createElement("li");
+  const { step, details } = statusMessage;
+  itemElement.innerHTML = `<b>Step ${step}</b> ${details}`;
+  outputList.appendChild(itemElement);
+
+}
+
+async function loadAllServersClick() {
   const outputDiv = window.startAllServersOutput;
   outputDiv.classList.remove('d-none');
   outputDiv.innerHTML = '<ul></ul>';
   outputList = outputDiv.querySelector('ul');
-  loadAllServers((statusMessage) => {
-    const itemElement = document.createElement("li");
-    const { step, details } = statusMessage;
-    itemElement.innerHTML = `<b>Step ${step}</b> ${details}`;
-    outputList.appendChild(itemElement);
-  }).then(() => {
-    window.loadAllServersBtn.classList.add('disabled');
-    window.stopAllServersBtn.classList.remove('disabled');
-  });
+  await loadAllServers(onServerStatusReceived)
+  setServersLoadedStatus();
+}
+
+function setServersLoadedStatus() {
+  window.loadAllServersBtn.classList.add('disabled');
+  window.stopAllServersBtn.classList.remove('disabled');
+}
+
+function setInitialState(serverStatus) {
+  const { jobs_running } = serverStatus;
+  if (jobs_running.length > 0) {
+    setServersLoadedStatus();
+  }
 }
 
 async function stopAllServersClick() {

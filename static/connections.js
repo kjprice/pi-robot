@@ -7,6 +7,12 @@ window.addEventListener('load', () => {
   socket.on('connect', () => {
     console.log(socket.id);
     socket.emit('set_browser_room');
+    socket.emit('get_server_statuses')
+  });
+
+  socket.on('browser_init_status', (data) => {
+    setInitialState(data);
+    console.log('browser_init_status', {data})
   });
 
   socket.on('processed_image_finished', loadNewImage);

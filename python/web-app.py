@@ -59,11 +59,11 @@ def create_job(fn_name, fn_reference, env_vars = {}):
   jobs_running_by_fn_name[fn_name] = job
 
 def create_image_processing_server_job():
-  create_job('run_image_processing_server', run_image_processing_server)
+  create_job('image_processing_server', run_image_processing_server)
 
 def create_camera_head_server_job():
   env_vars = {'IS_TEST': 'true'}
-  create_job('start_camera_process', start_camera_process, env_vars=env_vars)
+  create_job('camera_head', start_camera_process, env_vars=env_vars)
 
 sio = socketio.Server(cors_allowed_origins='*')
 app = socketio.WSGIApp(sio, static_files={
@@ -105,6 +105,11 @@ def load_all_servers(sid):
 def stop_all_servers(sid):
   stop_all_server_processes()
   sio.emit('all_servers_stopped_status', to=sid)
+
+@sio.event
+def get_server_statuses(sid):
+  jobs_running = jobs_running_by_fn_name.keys()
+  sio.emit('browser_init_status', {'jobs_running': list(jobs_running)}, to=sid)
 
 @sio.event
 def processed_image_finished(sid, message):
