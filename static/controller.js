@@ -11,7 +11,7 @@ async function loadAllServersClick() {
   outputDiv.classList.remove('d-none');
   outputDiv.innerHTML = '<ul></ul>';
   outputList = outputDiv.querySelector('ul');
-  await loadAllServers(onServerStatusReceived)
+  await loadAllServers(onServerStatusReceived, getDelay())
   setServersLoadedStatus();
 }
 
@@ -74,10 +74,15 @@ function loadNewImage(arrayBuffer) {
   imageElement.src = getImageSourceFromArrayBuffer(arrayBuffer);
 }
 
+function getDelay() {
+  return Number(window.waitBetweenImagesInput.value);
+}
+
 window.addEventListener('load', async () => {
   window.loadAllServersBtn = document.querySelector('#start-all-servers-btn');
   window.startAllServersOutput = document.querySelector('#start-all-servers-output');
   window.stopAllServersBtn = document.querySelector('#stop-all-servers-btn');
+  window.waitBetweenImagesInput = document.getElementById('wait-time-between-images');
 
   loadAllServersBtn.onclick = loadAllServersClick;
   window.stopAllServersBtn.onclick = stopAllServersClick;

@@ -64,8 +64,11 @@ class CameraHead(ServerModule):
     count_images_used = 0
     time_started = None
     last_image_sent_time = None
+    seconds_between_images = 2
 
-    def __init__(self, env=None) -> None:
+    def __init__(self, env=None, seconds_between_images=None) -> None:
+        if seconds_between_images is not None:
+            self.seconds_between_images = seconds_between_images
         self.image_processor = Image_Processor()
         self.is_processing_server_online = False
         self.time_started = time.time()
@@ -84,7 +87,10 @@ class CameraHead(ServerModule):
     
     def socket_init(self):
         self.sio.emit('set_socket_room', 'camera_head')
-        self.sio.emit('is_processing_server_online')
+    
+    def check_if_processing_server_online(self):
+        if not self.is_processing_server_online:
+            self.sio.emit('is_processing_server_online')
 
     def should_throttle_image(self):
         if self.last_image_sent_time is not None:
@@ -106,6 +112,8 @@ class CameraHead(ServerModule):
         sender = get_image_sender()
 
         for img, time_passed_for_image in image_generator(is_test()):
+            self.check_if_processing_server_online()
+            time.sleep(self.seconds_between_images)
             time_start = time.time() - time_passed_for_image
             images_count += 1
             # TODO: Periodically check to make sure that server is still online (every 10 seconds)
@@ -120,8 +128,8 @@ class CameraHead(ServerModule):
             else:
                 self.image_processor.process_message_immediately(img, time_passed_for_image, time_start)
 
-def start_camera_process(env=None):
-    camera_head = CameraHead(env)
+def start_camera_process(env=None, seconds_between_images=None):
+    camera_head = CameraHead(env, seconds_between_images=seconds_between_images)
     camera_head.start_threads()
 
 if __name__ == '__main__':

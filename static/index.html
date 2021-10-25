@@ -22,9 +22,19 @@
     </div>
     <div class="container" style="display: none;" id="main-container">
       <div class="row">
-        <div class="btn-group">
-          <button id="start-all-servers-btn" type="button" class="btn btn-success">Start All Servers</button>
-          <button id="stop-all-servers-btn" type="button" class="btn btn-warning disabled">Stop All Servers</button>
+        <div class="col-8">
+          <div class="row">
+            <div class="btn-group">
+              <button id="start-all-servers-btn" type="button" class="btn btn-success">Start All Servers</button>
+              <button id="stop-all-servers-btn" type="button" class="btn btn-warning disabled">Stop All Servers</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="input-group mb-3">
+            <label for="wait-time-between-images" class="input-group-text" id="basic-addon1">Delay</label>
+            <input id="wait-time-between-images" type="number" class="form-control" placeholder="Delay (in seconds) between images" aria-label="Delay (in seconds) between images" aria-describedby="basic-addon1" value="1">
+          </div>
         </div>
         <div class="d-none" id="start-all-servers-output"></div>
       </div>

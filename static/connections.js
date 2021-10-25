@@ -27,9 +27,9 @@ window.addEventListener('load', () => {
   socket.on('send_output', handleServerOutput);
 });
 
-function loadAllServers(statusCallback) {
+function loadAllServers(statusCallback, delay) {
   return new Promise((res, rej) => {
-    window.socket.emit('load_all_servers');
+    window.socket.emit('load_all_servers', { delay });
     window.socket.on('all_servers_loading_status', (statusMessage) => {
       if (statusMessage.details == 'complete') {
         window.socket.off('all_servers_loading_status');

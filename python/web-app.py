@@ -24,11 +24,11 @@ from run_camera_head import start_camera_process
 
 class JobProcess:
   job = None
-  def __init__(self, fn_reference, env_vars):
+  def __init__(self, fn_reference, env_vars, **kwargs):
     env_vars = {**os.environ, **env_vars}
     job = multiprocessing.Process(
       target=fn_reference,
-      kwargs={'env': env_vars}
+      kwargs={'env': env_vars, **kwargs}
     )
     job.start()
 
@@ -50,10 +50,10 @@ def stop_all_server_processes():
   
   print('Shut off {} servers'.format(len(fn_names)))
 
-def create_job(fn_name, fn_reference, env_vars = {}):
+def create_job(fn_name, fn_reference, env_vars = {}, **kwargs):
   stop_job_if_exists_by_fn_name(fn_name)
 
-  job = JobProcess(fn_reference, env_vars)
+  job = JobProcess(fn_reference, env_vars, **kwargs)
 
   jobs_running_by_fn_name[fn_name] = job
 
@@ -61,10 +61,10 @@ def create_image_processing_server_job():
   server_name = SERVER_NAMES.IMAGE_PROCESSING.value
   create_job(server_name, run_image_processing_server)
 
-def create_camera_head_server_job():
+def create_camera_head_server_job(**kwargs):
   env_vars = {'IS_TEST': 'true'}
   server_name = SERVER_NAMES.CAMERA_HEAD.value
-  create_job(server_name, start_camera_process, env_vars=env_vars)
+  create_job(server_name, start_camera_process, env_vars=env_vars, **kwargs)
 
 sio = socketio.Server(cors_allowed_origins='*')
 app = socketio.WSGIApp(sio, static_files={
@@ -98,11 +98,12 @@ def set_socket_room(sid, room_name):
   print('setting client "{}" to room "{}"'.format(sid, room_name))
 
 @sio.event
-def load_all_servers(sid):
+def load_all_servers(sid, data):
+  seconds_between_images = data['delay']
   sio.emit('all_servers_loading_status', { 'step': 1, 'details': 'create image processing server job' }, sid)
   create_image_processing_server_job()
   sio.emit('all_servers_loading_status', { 'step': 2, 'details': 'create camera head server job' }, sid)
-  create_camera_head_server_job()
+  create_camera_head_server_job(seconds_between_images=seconds_between_images)
   sio.emit('all_servers_loading_status', { 'step': 3, 'details': 'complete' }, sid)
 
 @sio.event
