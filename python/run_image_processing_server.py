@@ -78,6 +78,20 @@ class ImageProcessingServer(ServerModule):
     def __init__(self, env=None):
         server_name = SERVER_NAMES.IMAGE_PROCESSING
         super().__init__(server_name=server_name, env=env)
+
+    def socket_init(self):
+        self.sio.emit('set_socket_room', 'image_processing_server')
+
+    def other_socket_events(self):
+        sio = self.sio
+
+        @sio.event
+        def is_processing_server_online():
+            self.send_output('Confirming image processing server is online')
+            self.emit('confirm_image_processing_server_online')
+            self.is_processing_server_online = True
+
+
     def run_continuously(self):
         image_processor = Image_Processor()
         images_count = 0

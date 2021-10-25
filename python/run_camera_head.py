@@ -51,10 +51,6 @@ def test_connection_with_image_processing_server(url):
         return True
     return False
 
-def check_if_processing_server_is_online():
-    # TODO: We probably want to bring this logic back in the future
-    return True
-
 def get_image_sender():
     if REQ_REP:
         return imagezmq.ImageSender(connect_to='tcp://kj-macbook.lan:6666', REQ_REP=True)
@@ -78,6 +74,18 @@ class CameraHead(ServerModule):
         server_name = SERVER_NAMES.CAMERA_HEAD
         super().__init__(server_name=server_name, env=env)
     
+    def other_socket_events(self):
+        sio = self.sio
+
+        @sio.event
+        def confirm_image_processing_server_online():
+            self.send_output('Confirmed image processing server is online')
+            self.is_processing_server_online = True
+    
+    def socket_init(self):
+        self.sio.emit('set_socket_room', 'camera_head')
+        self.sio.emit('is_processing_server_online')
+
     def should_throttle_image(self):
         if self.last_image_sent_time is not None:
             now = time.time()
@@ -90,7 +98,6 @@ class CameraHead(ServerModule):
         camera_setup(is_test(), grayscale=True)
 
         time.sleep(1) # Give time for camera to warm up
-        self.is_processing_server_online = check_if_processing_server_is_online()
 
         # if not self.is_processing_server_online and not IS_TEST:
         #     test_connection_with_servo_server()

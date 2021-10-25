@@ -41,14 +41,22 @@ class ServerModule:
         def connect():
             self.is_socket_connected = True
             print('connection client')
+            self.socket_init()
             
         @sio.event
         def disconnect():
             self.is_socket_connected = False
             print('disconnected from server')
 
+        self.other_socket_events()
         sio.connect(SOCKET_IO_HOST_URI)
         sio.wait()
+    
+    def other_socket_events(self):
+        pass
+
+    def socket_init(self):
+        pass
     
     def emit(self, message, data=None):
         if not self.is_socket_connected:

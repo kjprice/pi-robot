@@ -17,7 +17,7 @@ def cd_to_this_directory():
     os.chdir(dname)
 cd_to_this_directory()
 
-from modules.config import get_hostname, SERVER_NAMES, SOCKET_IO_SERVER_PORT, STATIC_DIR, write_static_config
+from modules.config import get_hostname, SERVER_NAMES, SOCKET_IO_SERVER_PORT, SOCKET_ROOMS, STATIC_DIR, write_static_config
 
 from run_image_processing_server import run_image_processing_server
 from run_camera_head import start_camera_process
@@ -90,9 +90,12 @@ def connect(sid, environ):
 BROWSERS_ROOM_NAME = 'browsers'
 
 @sio.event
-def set_browser_room(sid):
-  sio.enter_room(sid, BROWSERS_ROOM_NAME)
-  print('setting client "{}" to room "{}"'.format(sid, BROWSERS_ROOM_NAME))
+def set_socket_room(sid, room_name):
+  if not room_name in SOCKET_ROOMS:
+    raise AssertionError('Expected room_name "{}" to be one of: {}'.format(room_name, SOCKET_ROOMS))
+
+  sio.enter_room(sid, room_name)
+  print('setting client "{}" to room "{}"'.format(sid, room_name))
 
 @sio.event
 def load_all_servers(sid):
@@ -119,6 +122,14 @@ def processed_image_finished(sid, message):
 @sio.event
 def send_output(sid, data):
   sio.emit('send_output', data, room=BROWSERS_ROOM_NAME)
+
+@sio.event
+def is_processing_server_online(sid):
+  sio.emit('is_processing_server_online', room='image_processing_server')
+
+@sio.event
+def confirm_image_processing_server_online(sid):
+  sio.emit('confirm_image_processing_server_online', room='camera_head')
 
 @sio.event
 def disconnect(sid):

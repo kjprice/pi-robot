@@ -6,7 +6,7 @@ window.addEventListener('load', () => {
 
   socket.on('connect', () => {
     console.log(socket.id);
-    socket.emit('set_browser_room');
+    socket.emit('set_socket_room', ROOM_NAME);
     socket.emit('get_server_statuses')
   });
 
