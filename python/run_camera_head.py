@@ -84,6 +84,11 @@ class CameraHead(ServerModule):
         def confirm_image_processing_server_online():
             self.send_output('Confirmed image processing server is online')
             self.is_processing_server_online = True
+        
+        @sio.event
+        def chnage_seconds_between_images(seconds_between_images):
+            self.send_output('Setting new seconds_between_images: {}'.format(seconds_between_images))
+            self.seconds_between_images = seconds_between_images
     
     def socket_init(self):
         self.sio.emit('set_socket_room', 'camera_head')

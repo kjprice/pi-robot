@@ -78,6 +78,12 @@ function getDelay() {
   return Number(window.waitBetweenImagesInput.value);
 }
 
+function onDelayChange() {
+  const delay = getDelay();
+
+  sendDelayChange(delay);
+}
+
 window.addEventListener('load', async () => {
   window.loadAllServersBtn = document.querySelector('#start-all-servers-btn');
   window.startAllServersOutput = document.querySelector('#start-all-servers-output');
@@ -86,6 +92,7 @@ window.addEventListener('load', async () => {
 
   loadAllServersBtn.onclick = loadAllServersClick;
   window.stopAllServersBtn.onclick = stopAllServersClick;
+  window.waitBetweenImagesInput.onchange = onDelayChange;
 
   window.serverConfig = await readJson('/static/server_config.json');
 });

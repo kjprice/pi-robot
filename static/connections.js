@@ -40,6 +40,10 @@ function loadAllServers(statusCallback, delay) {
   });
 }
 
+function sendDelayChange(delay) {
+  window.socket.emit('delay_change', delay)
+}
+
 function stopAllServers() {
   return new Promise((res, rej) => {
     window.socket.emit('stop_all_servers');

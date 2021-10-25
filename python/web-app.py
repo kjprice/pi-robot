@@ -129,6 +129,11 @@ def is_processing_server_online(sid):
   sio.emit('is_processing_server_online', room='image_processing_server')
 
 @sio.event
+def delay_change(sid, delay_change):
+  sio.emit('chnage_seconds_between_images', delay_change, room='camera_head')
+
+
+@sio.event
 def confirm_image_processing_server_online(sid):
   sio.emit('confirm_image_processing_server_online', room='camera_head')
 
