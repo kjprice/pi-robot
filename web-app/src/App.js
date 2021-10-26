@@ -1,24 +1,12 @@
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-
 import './App.css';
-import { setServerLoaded } from './redux/actions/server-actions';
+import './api/setup-socket-connections';
 import ServerControls from './components/ServerControls';
 import ImageContainer from './components/ImageContainer';
 import ServerOutput from './components/ServerOutput';
 
 
-const mapStateToProps = (props) => {
-  console.log('mapStateToProps', props);
-  return props;
-}
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ setServerLoaded }, dispatch)
-}
-
-
-function App(props) {
+export default function App() {
   return (
     <div className="container" id="main-container">
       <ServerControls />
@@ -27,5 +15,3 @@ function App(props) {
     </div>
   );
 }
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);
