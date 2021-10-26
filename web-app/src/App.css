@@ -6,6 +6,7 @@
 
 .server-output > .col-6 {
   overflow: scroll;
+  height: 100%;
 }
 
 .server-output .row {
