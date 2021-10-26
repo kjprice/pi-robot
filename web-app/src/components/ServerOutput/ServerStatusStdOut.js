@@ -31,11 +31,11 @@ function ServerStatusStdOut({serverOutputByProcessName}) {
               const { timestamp, message } = stuatusMessage;
               return (
                 <code key={timestamp}>
-                  <div class="row">
-                    <div class="col">
+                  <div className="row">
+                    <div className="col">
                       {timestamp}
                     </div>
-                    <div class="col">
+                    <div className="col">
                       {message}
                     </div>
                   </div>
