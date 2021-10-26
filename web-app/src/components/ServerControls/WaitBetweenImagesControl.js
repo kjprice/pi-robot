@@ -19,7 +19,7 @@ function mapDispatchToProps(dispatch) {
 
 function waitTimeBetweenImagesInputChange(event, setWaitBetweenImages) {
   const newDelay = event.value;
-  sendDelayChange(newDelay);
+  sendDelayChange(newDelay || 0);
   setWaitBetweenImages(newDelay);
 }
 

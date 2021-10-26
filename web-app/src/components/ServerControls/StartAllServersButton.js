@@ -33,7 +33,7 @@ function getClassName(serversStatus) {
 
 function loadAllServersClick(setServerStartInit, waitTimeBetweenImages) {
   setServerStartInit();
-  loadAllServers(waitTimeBetweenImages);
+  loadAllServers(waitTimeBetweenImages || 0);
 }
 
 function StartAllServersButton(props) {
