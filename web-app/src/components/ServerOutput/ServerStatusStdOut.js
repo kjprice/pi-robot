@@ -36,7 +36,8 @@ function ServerOutputContainer(props) {
   return (
     <div key={serverName} className={containerClass}>
       {statuses.map(statusMessage => {
-        return <Message statusMessage={statusMessage} />
+        const { timestamp } = statusMessage;
+        return <Message key={timestamp} statusMessage={statusMessage} />
       })}
     </div>
   )
@@ -54,6 +55,7 @@ function ServerStatusStdOut({serverOutputByProcessName}) {
         const statuses = serverOutputByProcessName[serverName];
 
         return <ServerOutputContainer
+          key={serverName}
           serverName={serverName}
           containerClass={containerClass}
           statuses={statuses}
