@@ -25,6 +25,8 @@ SOCKET_ROOMS = ('image_processing_server', 'camera_head', 'browsers')
 
 class LOG_DIR_BASES(str, Enum):
     IMAGE_PROCESSING_TIME = 'image_processing_time'
+    CAMERA_HEAD_SERVER = 'camera_head_server'
+    IMAGE_PROCESSING_SERVER = 'image_processing_server'
 
 class SERVER_NAMES(str, Enum):
     CAMERA_HEAD = 'camera_head'
@@ -92,6 +94,15 @@ def setup_log_directories():
         directory_path = os.path.join(LOGS_DIR, log_base_dir.value)
         ensure_directory_exists(directory_path)
 setup_log_directories()
+
+def get_log_dir_by_server_name(server_name: SERVER_NAMES):
+    if server_name == SERVER_NAMES.CAMERA_HEAD:
+        return LOG_DIR_BASES.CAMERA_HEAD_SERVER
+    if server_name == SERVER_NAMES.IMAGE_PROCESSING:
+        return LOG_DIR_BASES.IMAGE_PROCESSING_SERVER
+    
+    raise ValueError('Unknown server_name: {}'.format(server_name))
+        
 
 def get_classifier_path(filename):
     directory = cv2.data.haarcascades
