@@ -9,13 +9,13 @@ import requests
 
 
 try:
-    from modules.config import append_log_info, LOGS_DIR, ensure_directory_exists, get_servo_url, SAVE_IMAGE_DIR, save_plot, write_log_info
+    from modules.config import append_log_info, ensure_directory_exists, get_log_filepath, get_servo_url, save_plot, write_log_info, LOG_DIR_BASES, SAVE_IMAGE_DIR
     from modules.image_module import process_image, save_image
     from modules.process_image_for_servo import calculate_image_clarity, extend_image, find_person, get_face_position_x_from_image
     from modules.server_module import handle_default_server_response
     from modules.servo_module import calculate_duty_from_image_position
 except ModuleNotFoundError:
-    from config import append_log_info, LOGS_DIR, ensure_directory_exists, get_servo_url, SAVE_IMAGE_DIR, save_plot, write_log_info
+    from config import append_log_info, ensure_directory_exists, get_log_filepath, get_servo_url, save_plot, write_log_info, LOG_DIR_BASES, SAVE_IMAGE_DIR
     from image_module import process_image, save_image
     from process_image_for_servo import calculate_image_clarity, extend_image, find_person, get_face_position_x_from_image
     from server_module import handle_default_server_response
@@ -41,8 +41,14 @@ def get_log_filename():
     return '{}_{}.csv'.format(time_log_filename_base, timestamp)
 TIME_LOG_FILENAME = get_log_filename()
 
+def get_stats_filepath():
+    return get_log_filepath(LOG_DIR_BASES.IMAGE_PROCESSING_TIME, TIME_LOG_FILENAME)
+
 def get_stats_df():
-    return pd.read_csv(os.path.join(LOGS_DIR, TIME_LOG_FILENAME), sep='\t')
+    filepath = get_stats_filepath()
+    if not os.path.isfile(filepath):
+        return pd.DataFrame()
+    return pd.read_csv(filepath, sep='\t')
 
 def save_plot_of_times(df=None):
     if df is None:
@@ -251,9 +257,9 @@ class Image_Processor:
 
         cells, headers = get_stats_text(self.stats_info)
         if is_first_image:
-            write_log_info(TIME_LOG_FILENAME, '\t'.join(headers))
+            write_log_info(LOG_DIR_BASES.IMAGE_PROCESSING_TIME, TIME_LOG_FILENAME, '\t'.join(headers))
 
-        append_log_info(TIME_LOG_FILENAME, '\t'.join(cells))
+        append_log_info(LOG_DIR_BASES.IMAGE_PROCESSING_TIME, TIME_LOG_FILENAME, '\t'.join(cells))
 
     
     def set_initial_time(self, time_passed_for_image):

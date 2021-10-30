@@ -23,6 +23,9 @@ SOCKET_IO_HOST_URI = 'http://{}:{}'.format(SOCKET_IO_SERVER_HOSTNAME, SOCKET_IO_
 
 SOCKET_ROOMS = ('image_processing_server', 'camera_head', 'browsers')
 
+class LOG_DIR_BASES(str, Enum):
+    IMAGE_PROCESSING_TIME = 'image_processing_time'
+
 class SERVER_NAMES(str, Enum):
     CAMERA_HEAD = 'camera_head'
     IMAGE_PROCESSING = 'image_processing_server'
@@ -84,6 +87,12 @@ ensure_directory_exists(CACHE_DIR)
 ensure_directory_exists(LOGS_DIR)
 ensure_directory_exists(FIGURES_DIR)
 
+def setup_log_directories():
+    for log_base_dir in LOG_DIR_BASES:
+        directory_path = os.path.join(LOGS_DIR, log_base_dir.value)
+        ensure_directory_exists(directory_path)
+setup_log_directories()
+
 def get_classifier_path(filename):
     directory = cv2.data.haarcascades
     return os.path.join(directory, filename)
@@ -129,21 +138,16 @@ def set_cache_info(file_name, cache_info):
     with open(cache_filepath, 'w') as f:
         json.dump(cache_info, f)
 
-def get_log_filepath(file_name):
-    return os.path.join(LOGS_DIR, file_name)
+def get_log_filepath(base_dir: LOG_DIR_BASES, file_name: str):
+    return os.path.join(LOGS_DIR, base_dir.value, file_name)
 
-def delete_log_info(file_name):
-    filepath = get_log_filepath(file_name)
-    if os.path.isfile(filepath):
-        os.remove(filepath)
-
-def write_log_info(file_name, text, mode='w'):
-    filepath = get_log_filepath(file_name)
+def write_log_info(base_dir: LOG_DIR_BASES, file_name: str, text, mode='w'):
+    filepath = get_log_filepath(base_dir, file_name)
     with open(filepath, mode) as f:
         f.write(text + '\n')
 
-def append_log_info(file_name, text):
-    write_log_info(file_name, text, mode='a')
+def append_log_info(base_dir: LOG_DIR_BASES, file_name: str, text: str):
+    write_log_info(base_dir, file_name, text, mode='a')
 
 def get_cache_info(file_name):
     cache_filepath = get_cache_filepath(file_name)
