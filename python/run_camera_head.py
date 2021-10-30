@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import multiprocessing
+import argparse
 import os
 import requests
 import time
@@ -27,8 +27,20 @@ FOLDER_TO_SAVE_TO = 'images-captured'
 # If false, we will use pub/sub; the two patterns behave completely differently https://github.com/jeffbass/imagezmq/blob/48614483298b782b37dffdddd6b75b9ae0ee525c/docs/req-vs-pub.rst
 REQ_REP = True
 
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    '--is_test',
+    action='store_true',
+    help='Set to true if this is running locally, otherwise it will try to use PiCamera'
+)
+
+args = parser.parse_args()
+
 def is_test():
-    return 'IS_TEST' in os.environ
+    if 'IS_TEST' in os.environ:
+        return True
+    
+    return args.is_test
 
 def get_servo_url_path(path):
     servo_url = get_servo_url(is_test())
