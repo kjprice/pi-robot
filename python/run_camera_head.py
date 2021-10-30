@@ -95,7 +95,7 @@ class CameraHead(ServerModule):
     
     def check_if_processing_server_online(self):
         if not self.is_processing_server_online:
-            self.sio.emit('is_processing_server_online')
+            self.emit('is_processing_server_online')
 
     def should_throttle_image(self):
         if self.last_image_sent_time is not None:
