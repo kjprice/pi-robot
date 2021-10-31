@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-import argparse
 import os
 import requests
 import time
@@ -79,7 +78,6 @@ class CameraHead(ServerModule):
             default=2
         )
 
-
     def other_socket_events(self):
         sio = self.sio
 
@@ -111,7 +109,7 @@ class CameraHead(ServerModule):
     def run_continuously(self):
         camera_setup(self.is_test, grayscale=True)
 
-        time.sleep(1) # Give time for camera to warm up
+        self.sleep(1) # Give time for camera to warm up
 
         # if not self.is_processing_server_online and not IS_TEST:
         #     test_connection_with_servo_server(self.is_test)
@@ -121,7 +119,10 @@ class CameraHead(ServerModule):
 
         for img, time_passed_for_image in image_generator(self.is_test):
             self.check_if_processing_server_online()
-            time.sleep(self.seconds_between_images)
+            self.sleep(self.seconds_between_images)
+            if self.abort_signal_received:
+                self.send_output('aborting')
+                return
             time_start = time.time() - time_passed_for_image
             images_count += 1
             # TODO: Periodically check to make sure that server is still online (every 10 seconds)

@@ -1,6 +1,7 @@
 import argparse
 import concurrent.futures as cf
 import datetime
+import time
 
 import socketio
 
@@ -8,6 +9,8 @@ try:
     from modules.config import append_log_info, get_log_dir_by_server_name, write_log_info, SOCKET_IO_HOST_URI, SERVER_NAMES
 except ModuleNotFoundError:
     from config import append_log_info, get_log_dir_by_server_name, write_log_info, SOCKET_IO_HOST_URI, SERVER_NAMES
+
+TIME_IN_SECONDS_BETWEEN_CHECKING_STATUS = 0.001
 
 def handle_default_server_response(response):
     text = response.text
@@ -25,6 +28,9 @@ def get_log_filename(server_name: SERVER_NAMES):
 class ServerModule:
     is_socket_connected = False
     server_name = None
+    futures = []
+    abort_signal_received = False
+    other_thread_functions = []
     flags = None
     def __init__(self, server_name: SERVER_NAMES, arg_flags):
         if not server_name in SERVER_NAMES:
@@ -38,9 +44,9 @@ class ServerModule:
 
     def start_threads(self):
         with cf.ThreadPoolExecutor() as executor:
-            futures = [
-                executor.submit(self.connect_to_socket,),
-                executor.submit(self.run_with_exception_catch,),
+            thread_functions = [self.connect_to_socket, self.run_with_exception_catch, *self.other_thread_functions]
+            self.futures = futures = [
+                executor.submit(fn) for fn in thread_functions
             ]
             cf.as_completed(futures)
     
@@ -63,17 +69,35 @@ class ServerModule:
         @sio.event
         def connect():
             self.is_socket_connected = True
-            print('connection client')
+            self.send_output('connection client')
             self.socket_init()
             
         @sio.event
         def disconnect():
             self.is_socket_connected = False
-            print('disconnected from server')
+            self.send_output('disconnected from server')
+        
+        @sio.event
+        def shutdown_now():
+            self.send_output('Abort signal received')
+            self.abort_signal_received = True
+            for future in self.futures:
+                self.send_output(future.cancel())
 
         self.other_socket_events()
         sio.connect(SOCKET_IO_HOST_URI)
         sio.wait()
+    
+    # Run time.sleep() while continuously checking to make sure we shouldn't abort
+    def sleep(self, delay: float):
+        start = time.time()
+        while True:
+            end = time.time()
+            if self.abort_signal_received:
+                return
+            if delay <= end - start:
+                return
+            time.sleep(TIME_IN_SECONDS_BETWEEN_CHECKING_STATUS)
 
     def other_socket_events(self):
         pass

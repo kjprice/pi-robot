@@ -9,4 +9,9 @@ if test -f "/Users/kjprice/anaconda3/envs/python3.6/bin/python3.6"; then
   alias python3=/Users/kjprice/anaconda3/envs/python3.6/bin/python3.6
 fi
 
+
+filename=$(basename "$0")
+
+./kill_process_by_name.sh $filename
+
 python3 run_camera_head_server.py

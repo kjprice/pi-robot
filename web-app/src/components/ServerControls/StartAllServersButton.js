@@ -31,18 +31,25 @@ function getClassName(serversStatus) {
   return buttonClassesByServerStatus[serversStatus].join(' ');
 }
 
-function loadAllServersClick(setServerStartInit, waitTimeBetweenImages) {
+function loadAllServersClick(setServerStartInit, waitTimeBetweenImages, remote) {
   setServerStartInit();
-  loadAllServers(waitTimeBetweenImages || 0);
+  loadAllServers(waitTimeBetweenImages || 0, remote);
+}
+
+function getButtonText(remote) {
+  if (remote) {
+    return 'Start Remote Servers';
+  }
+  return 'Start Local Servers';
 }
 
 function StartAllServersButton(props) {
-  const { setServerStartInit, serversStatus, waitTimeBetweenImages } = props;
+  const { setServerStartInit, serversStatus, waitTimeBetweenImages, remote=false } = props;
   return (<button
-    onClick={() => loadAllServersClick(setServerStartInit, waitTimeBetweenImages)}
+    onClick={() => loadAllServersClick(setServerStartInit, waitTimeBetweenImages, remote)}
     type="button"
     className={getClassName(serversStatus)}>
-      Start All Servers
+      {getButtonText(remote)}
     </button>);
 }
 

@@ -5,6 +5,7 @@
 #  - servo server
 
 import os
+import time
 
 import eventlet
 import socketio
@@ -18,6 +19,7 @@ cd_to_this_directory()
 
 from modules.config import get_hostname, SERVER_NAMES, SOCKET_IO_SERVER_PORT, SOCKET_ROOMS, STATIC_DIR, write_static_config
 from modules.workers.job_process.job_process import JobProcess
+from modules.workers.job_process.ssh_process import SSH_Process
 
 from run_image_processing_server import run_image_processing_server
 from run_camera_head_server import start_camera_process
@@ -43,15 +45,28 @@ def create_job(fn_name, fn_reference, arg_flags=None):
 
   jobs_running_by_fn_name[fn_name] = job
 
+def get_fn_for_ssh_job(hostname: str, script_str: str):
+  return '{}|{}'.format(hostname, script_str)
+
+def create_job_ssh(hostname: str, process_name: str, flags: str = ''):
+  fn_name = get_fn_for_ssh_job(hostname, process_name)
+  stop_job_if_exists_by_fn_name(fn_name)
+  job = SSH_Process(hostname, process_name, flags)
+  jobs_running_by_fn_name[fn_name] = job
+
 def create_image_processing_server_job():
   server_name = SERVER_NAMES.IMAGE_PROCESSING.value
   create_job(server_name, run_image_processing_server)
 
-def create_camera_head_server_job(seconds_between_images: int):
+def create_camera_head_server_job(use_remote_servers: bool, seconds_between_images: int):
   server_name = SERVER_NAMES.CAMERA_HEAD.value
   arg_flags = '--delay {}'.format(seconds_between_images)
-  arg_flags += ' --is_test'
-  create_job(server_name, start_camera_process, arg_flags)
+  if use_remote_servers:
+    # TODO: Move to config
+    create_job_ssh('pirobot', 'run_camera_head_server', arg_flags)
+  else:
+    arg_flags += ' --is_test'
+    create_job(server_name, start_camera_process, arg_flags)
 
 sio = socketio.Server(cors_allowed_origins='*')
 app = socketio.WSGIApp(sio, static_files={
@@ -87,14 +102,19 @@ def set_socket_room(sid, room_name):
 @sio.event
 def load_all_servers(sid, data):
   seconds_between_images = data['delay']
+  use_remote_servers = data['remote']
   sio.emit('all_servers_loading_status', { 'step': 1, 'details': 'create image processing server job' }, sid)
   create_image_processing_server_job()
   sio.emit('all_servers_loading_status', { 'step': 2, 'details': 'create camera head server job' }, sid)
-  create_camera_head_server_job(seconds_between_images=seconds_between_images)
+  create_camera_head_server_job(use_remote_servers=use_remote_servers, seconds_between_images=seconds_between_images)
   sio.emit('all_servers_loading_status', { 'step': 3, 'details': 'complete' }, sid)
 
 @sio.event
 def stop_all_servers(sid):
+  sio.emit('shutdown_now', room='image_processing_server')
+  sio.emit('shutdown_now', room='camera_head')
+  # TODO: This should be put on a different thread
+  time.sleep(1)
   stop_all_server_processes()
   sio.emit('all_servers_stopped_status', to=sid)
 

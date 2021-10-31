@@ -20,9 +20,9 @@ function mapDispatchToProps(dispatch) {
 
 const actions = mapDispatchToProps(store.dispatch);
 
-export function loadAllServers(delay) {
+export function loadAllServers(delay, remote) {
   return new Promise((res, rej) => {
-    socket.emit('load_all_servers', { delay });
+    socket.emit('load_all_servers', { delay, remote });
     socket.on('all_servers_loading_status', (statusMessage) => {
       if (statusMessage.details === 'complete') {
         actions.setServerStartComplete();

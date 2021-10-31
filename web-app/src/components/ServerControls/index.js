@@ -7,8 +7,9 @@ export default function ServerControls() {
     <div className="row">
     <div className="col-8">
       <div className="row">
-        <div className="btn-group">
+      <div className="btn-group">
           <StartAllServersButton/>
+          <StartAllServersButton remote/>
           <StopAllServersButton/>
         </div>
       </div>
