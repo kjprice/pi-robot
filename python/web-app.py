@@ -4,7 +4,6 @@
 #  - image processing-server
 #  - servo server
 
-import multiprocessing
 import os
 
 import eventlet
@@ -18,23 +17,11 @@ def cd_to_this_directory():
 cd_to_this_directory()
 
 from modules.config import get_hostname, SERVER_NAMES, SOCKET_IO_SERVER_PORT, SOCKET_ROOMS, STATIC_DIR, write_static_config
+from modules.workers.job_process.job_process import JobProcess
 
 from run_image_processing_server import run_image_processing_server
 from run_camera_head import start_camera_process
 
-class JobProcess:
-  job = None
-  def __init__(self, fn_reference, env_vars, **kwargs):
-    env_vars = {**os.environ, **env_vars}
-    job = multiprocessing.Process(
-      target=fn_reference,
-      kwargs={'env': env_vars, **kwargs}
-    )
-    job.start()
-
-    self.job = job
-  def terminate(self):
-    self.job.terminate()
 
 jobs_running_by_fn_name = {}
 
