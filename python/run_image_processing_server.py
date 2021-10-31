@@ -75,9 +75,9 @@ def get_image_from_image_hub(image_hub):
 
 # This runs two concurrent threads: one to handle incoming socket communication and the other to handle processing images
 class ImageProcessingServer(ServerModule):
-    def __init__(self, env=None):
+    def __init__(self, arg_flags):
         server_name = SERVER_NAMES.IMAGE_PROCESSING
-        super().__init__(server_name=server_name, env=env)
+        super().__init__(server_name, arg_flags)
 
     def socket_init(self):
         self.sio.emit('set_socket_room', 'image_processing_server')
@@ -113,8 +113,8 @@ class ImageProcessingServer(ServerModule):
             if REQ_REP:
                 image_hub.send_reply(b'OK')
 
-def run_image_processing_server(env=None):
-    image_processing_server = ImageProcessingServer(env)
+def run_image_processing_server(arg_flags=None):
+    image_processing_server = ImageProcessingServer(arg_flags)
     image_processing_server.start_threads()
 
 if __name__ == '__main__':

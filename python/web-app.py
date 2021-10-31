@@ -22,7 +22,6 @@ from modules.workers.job_process.job_process import JobProcess
 from run_image_processing_server import run_image_processing_server
 from run_camera_head import start_camera_process
 
-
 jobs_running_by_fn_name = {}
 
 def stop_job_if_exists_by_fn_name(fn_name):
@@ -37,10 +36,10 @@ def stop_all_server_processes():
   
   print('Shut off {} servers'.format(len(fn_names)))
 
-def create_job(fn_name, fn_reference, env_vars = {}, **kwargs):
+def create_job(fn_name, fn_reference, arg_flags=None):
   stop_job_if_exists_by_fn_name(fn_name)
 
-  job = JobProcess(fn_reference, env_vars, **kwargs)
+  job = JobProcess(fn_reference, arg_flags)
 
   jobs_running_by_fn_name[fn_name] = job
 
@@ -48,10 +47,11 @@ def create_image_processing_server_job():
   server_name = SERVER_NAMES.IMAGE_PROCESSING.value
   create_job(server_name, run_image_processing_server)
 
-def create_camera_head_server_job(**kwargs):
-  env_vars = {'IS_TEST': 'true'}
+def create_camera_head_server_job(seconds_between_images: int):
   server_name = SERVER_NAMES.CAMERA_HEAD.value
-  create_job(server_name, start_camera_process, env_vars=env_vars, **kwargs)
+  arg_flags = '--delay {}'.format(seconds_between_images)
+  arg_flags += ' --is_test'
+  create_job(server_name, start_camera_process, arg_flags)
 
 sio = socketio.Server(cors_allowed_origins='*')
 app = socketio.WSGIApp(sio, static_files={
@@ -117,7 +117,7 @@ def is_processing_server_online(sid):
 
 @sio.event
 def delay_change(sid, delay_change):
-  sio.emit('chnage_seconds_between_images', delay_change, room='camera_head')
+  sio.emit('change_seconds_between_images', delay_change, room='camera_head')
 
 
 @sio.event

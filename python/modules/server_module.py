@@ -1,6 +1,6 @@
+import argparse
 import concurrent.futures as cf
 import datetime
-import os
 
 import socketio
 
@@ -25,15 +25,17 @@ def get_log_filename(server_name: SERVER_NAMES):
 class ServerModule:
     is_socket_connected = False
     server_name = None
-    def __init__(self, server_name: SERVER_NAMES, env=None):
+    flags = None
+    def __init__(self, server_name: SERVER_NAMES, arg_flags):
         if not server_name in SERVER_NAMES:
             raise AssertionError('Expected server name "{}" to be one of: {}'.format(server_name, SERVER_NAMES))
         self.server_name = server_name
         self.server_name_str = server_name.value
-        if env is not None:
-            os.environ = env
         
         self.init_log_info()
+        self.setup_args()
+        self.set_flags(arg_flags)
+
     def start_threads(self):
         with cf.ThreadPoolExecutor() as executor:
             futures = [
@@ -78,6 +80,34 @@ class ServerModule:
 
     def socket_init(self):
         pass
+
+    def set_flags(self, flags):
+        if flags is None:
+            return
+        
+        self.flags = flags.split(' ')
+
+    def setup_args(self):
+        self.parser = parser = argparse.ArgumentParser()
+        parser.add_argument(
+            '--is_test',
+            action='store_true',
+            help='Set to true if this is running locally, otherwise it will try to use PiCamera'
+        )
+
+        self.other_args()
+    
+    def other_args(self):
+        pass
+
+    def get_args(self):
+        if self.flags is not None:
+            return self.parser.parse_args(self.flags)
+        return self.parser.parse_args()
+    
+    @property
+    def is_test(self):
+        return self.get_args().is_test
     
     def emit(self, message, data=None):
         if not self.is_socket_connected:
