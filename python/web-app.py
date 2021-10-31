@@ -20,7 +20,7 @@ from modules.config import get_hostname, SERVER_NAMES, SOCKET_IO_SERVER_PORT, SO
 from modules.workers.job_process.job_process import JobProcess
 
 from run_image_processing_server import run_image_processing_server
-from run_camera_head import start_camera_process
+from run_camera_head_server import start_camera_process
 
 jobs_running_by_fn_name = {}
 
