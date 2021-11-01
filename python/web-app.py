@@ -68,6 +68,9 @@ def create_camera_head_server_job(use_remote_servers: bool, seconds_between_imag
     arg_flags += ' --is_test'
     create_job(server_name, start_camera_process, arg_flags)
 
+def create_servo_server_job():
+    create_job_ssh('pi3misc', 'run_servo_server')
+
 sio = socketio.Server(cors_allowed_origins='*')
 app = socketio.WSGIApp(sio, static_files={
     '/': os.path.join(STATIC_DIR, 'index.html'),
@@ -103,11 +106,19 @@ def set_socket_room(sid, room_name):
 def load_all_servers(sid, data):
   seconds_between_images = data['delay']
   use_remote_servers = data['remote']
-  sio.emit('all_servers_loading_status', { 'step': 1, 'details': 'create image processing server job' }, sid)
+  step = 1
+  sio.emit('all_servers_loading_status', { 'step': step, 'details': 'create image processing server job' }, sid)
+  step += 1
   create_image_processing_server_job()
-  sio.emit('all_servers_loading_status', { 'step': 2, 'details': 'create camera head server job' }, sid)
+  sio.emit('all_servers_loading_status', { 'step': step, 'details': 'create camera head server job' }, sid)
+  step += 1
   create_camera_head_server_job(use_remote_servers=use_remote_servers, seconds_between_images=seconds_between_images)
-  sio.emit('all_servers_loading_status', { 'step': 3, 'details': 'complete' }, sid)
+  if use_remote_servers:
+    create_servo_server_job()
+    sio.emit('all_servers_loading_status', { 'step': step, 'details': 'create servo server job' }, sid)
+    step += 1
+
+  sio.emit('all_servers_loading_status', { 'step': step, 'details': 'complete' }, sid)
 
 @sio.event
 def stop_all_servers(sid):

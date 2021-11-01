@@ -4,7 +4,7 @@ import os
 from flask import Flask, request
 from flask_cors import CORS
 
-from modules.servo_module import Servo
+from .modules.servo_module import Servo
 
 app = Flask(__name__)
 CORS(app)

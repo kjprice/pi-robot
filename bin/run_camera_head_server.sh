@@ -11,7 +11,6 @@ fi
 
 
 filename=$(basename "$0")
-
 ./kill_process_by_name.sh $filename
 
 python3 run_camera_head_server.py
