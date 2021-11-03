@@ -18,9 +18,13 @@ function mapDispatchToProps(dispatch) {
 }
 
 function waitTimeBetweenImagesInputChange(event, setWaitBetweenImages) {
-  const newDelay = event.value;
-  sendDelayChange(newDelay || 0);
+  const newDelay = event.target.value;
+
   setWaitBetweenImages(newDelay);
+  const newDelayNumber = Number(newDelay);
+  if (!Number.isNaN(newDelayNumber)) {
+    sendDelayChange(newDelayNumber);
+  }
 }
 
 function WaitBetweenImagesControl(props) {
