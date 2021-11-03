@@ -11,14 +11,14 @@ import requests
 try:
     from modules.config import append_log_info, ensure_directory_exists, get_log_filepath, get_servo_url, save_plot, write_log_info, LOG_DIR_BASES, SAVE_IMAGE_DIR
     from modules.image_module import process_image, save_image
-    from modules.process_image_for_servo import calculate_image_clarity, extend_image, get_face_position_x_from_image
+    from modules.process_image_for_servo import calculate_image_clarity, extend_image, get_person_position_x_from_image
     from modules.server_module import handle_default_server_response
     from modules.servo_module import calculate_duty_from_image_position
     from modules.image_classification.faces_classification import Faces_Classification
 except ModuleNotFoundError:
     from config import append_log_info, ensure_directory_exists, get_log_filepath, get_servo_url, save_plot, write_log_info, LOG_DIR_BASES, SAVE_IMAGE_DIR
     from image_module import process_image, save_image
-    from process_image_for_servo import calculate_image_clarity, extend_image, get_face_position_x_from_image
+    from process_image_for_servo import calculate_image_clarity, extend_image, get_person_position_x_from_image
     from server_module import handle_default_server_response
     from servo_module import calculate_duty_from_image_position
     from image_classification.faces_classification import Faces_Classification
@@ -55,7 +55,7 @@ def get_stats_df():
 def save_plot_of_times(df=None):
     if df is None:
         df = get_stats_df()
-    plot = df.drop('faces_count_found', axis=1).plot.line(ylim=(0, 0.6), figsize=(10, 6), grid=True)
+    plot = df.drop('objects_detected_count_found', axis=1).plot.line(ylim=(0, 0.6), figsize=(10, 6), grid=True)
     save_plot(PLOT_FILEPATH, plot)
 
 def print_aggregated_stats(send_output):
@@ -80,19 +80,19 @@ def setup_continous_photos_directory():
     ensure_directory_exists(SAVE_IMAGES_CONTINUOUS_DIR)
 setup_continous_photos_directory()
 
-def save_image_with_faces(img, faces, face_position_x, duty_change, clarity):
+def save_image_with_objects_detected(img, objects_detected, person_position_x, duty_change, clarity):
     texts = [
-        'Face Position: {}'.format(face_position_x),
+        'Person Position: {}'.format(person_position_x),
         'Clarity (anti-blur): {}'.format(int(clarity))
     ]
     if duty_change is not None:
         texts.append('Duty Change: {}'.format(duty_change))
-    img_with_faces = extend_image(img, show_faces=True, show_vertical_lines=True, texts=texts, faces=faces)
+    img_with_objects_detected = extend_image(img, show_objects_detected=True, show_vertical_lines=True, texts=texts, objects_detected=objects_detected)
 
     # save_image(img, 'image-raw.jpg')
-    save_image(img_with_faces, 'test-face-image.jpg')
+    save_image(img_with_objects_detected, 'test-objects-detected-image.jpg')
     filepath = os.path.join('images_continous', 'img-{}.jpg'.format(str(datetime.datetime.now())))
-    save_image(img_with_faces, filepath)
+    save_image(img_with_objects_detected, filepath)
 
 
 def call_and_get_time(function, args):
@@ -135,26 +135,26 @@ def get_stats_text(stats_info):
     return text, headers
 
 # TODO: Move global variable to class
-time_without_face = None
-def set_time_with_out_face():
-    global time_without_face
-    time_without_face = time.time()
+time_without_object_detected = None
+def set_time_with_out_object_detected():
+    global time_without_object_detected
+    time_without_object_detected = time.time()
 
-def reset_time_with_out_face():
-    global time_without_face
-    time_without_face = None
+def reset_time_with_out_object_detected():
+    global time_without_object_detected
+    time_without_object_detected = None
 
-def has_too_much_time_passed_without_face():
-    global time_without_face
-    if time_without_face is None:
-        set_time_with_out_face()
+def has_too_much_time_passed_without_object_detected():
+    global time_without_object_detected
+    if time_without_object_detected is None:
+        set_time_with_out_object_detected()
         return False
 
     new_time = time.time()
-    time_diff = new_time - time_without_face
+    time_diff = new_time - time_without_object_detected
 
     if time_diff > 3:
-        set_time_with_out_face()
+        set_time_with_out_object_detected()
         return True
 
     return False
@@ -188,21 +188,21 @@ def send_servo_duty(duty_change):
     except requests.exceptions.ConnectionError:
         print('Could not send duty to servo server')
 
-def move_servo_based_on_face_position_x(face_position_x):
+def move_servo_based_on_person_position_x(person_position_x):
     # TODO: Make this available from a config
     center_position = [-0.1, 0.1]
-    # No face
-    if face_position_x is None:
-        if has_too_much_time_passed_without_face():
+    # No object_detected
+    if person_position_x is None:
+        if has_too_much_time_passed_without_object_detected():
             send_reset_servo()
         return
     
-    reset_time_with_out_face()
+    reset_time_with_out_object_detected()
     # if dead center, then stay there
-    if face_position_x >= center_position[0] and face_position_x <= center_position[1]:
+    if person_position_x >= center_position[0] and person_position_x <= center_position[1]:
         return
     
-    duty_change = calculate_duty_from_image_position(face_position_x)
+    duty_change = calculate_duty_from_image_position(person_position_x)
     
     send_servo_duty(duty_change)
     
@@ -220,13 +220,14 @@ def get_time_delta(time1, time2):
 # This class performs processing on an image and will output various metrics of performance
 class Image_Processor:
     stats_info = []
-    total_time_list_faces = []
-    total_time_list_no_faces = []
+    total_time_list_objects_detected = []
+    total_time_list_no_objects_detected = []
     last_image_run_time = None
     images_processed_count = 0
     classification_model = None
 
     def __init__(self) -> None:
+        # self.classification_model2 = Resnet_Classification()
         self.classification_model = Faces_Classification()
     
     def add_stat(self, field, value, index=-1):
@@ -235,29 +236,29 @@ class Image_Processor:
         self.stats_info.insert(index, (field, value))
 
     def limit_total_time_stored(self):
-        if len(self.total_time_list_faces) > MAX_ITEMS_FOR_TOTAL_TIMES:
-            del self.total_time_list_faces[0] # Delete oldest item
-        if len(self.total_time_list_no_faces) > MAX_ITEMS_FOR_TOTAL_TIMES:
-            del self.total_time_list_no_faces[0] # Delete oldest item
+        if len(self.total_time_list_objects_detected) > MAX_ITEMS_FOR_TOTAL_TIMES:
+            del self.total_time_list_objects_detected[0] # Delete oldest item
+        if len(self.total_time_list_no_objects_detected) > MAX_ITEMS_FOR_TOTAL_TIMES:
+            del self.total_time_list_no_objects_detected[0] # Delete oldest item
 
     def print_processing_time_all(self):
-        mean_time_faces = calculate_time_spent_average(self.total_time_list_faces)
-        mean_time_no_faces = calculate_time_spent_average(self.total_time_list_no_faces)
+        mean_time_objects_detected = calculate_time_spent_average(self.total_time_list_objects_detected)
+        mean_time_no_objects_detected = calculate_time_spent_average(self.total_time_list_no_objects_detected)
 
-        fps_faces = fps(self.total_time_list_faces)
+        fps_objects_detected = fps(self.total_time_list_objects_detected)
 
-        sum_total_time_faces = np.round(np.sum(self.total_time_list_faces), 2)
+        sum_total_time_objects_detected = np.round(np.sum(self.total_time_list_objects_detected), 2)
 
-        print('Takes {} seconds total (average  of {} seconds) to run {} images with faces ({} fps) and {} to run {} imags WITHOUT faces'.format(sum_total_time_faces, mean_time_faces, len(self.total_time_list_faces), fps_faces, mean_time_no_faces, len(self.total_time_list_no_faces)))
+        print('Takes {} seconds total (average  of {} seconds) to run {} images with objects_detected ({} fps) and {} to run {} imags WITHOUT objects_detected'.format(sum_total_time_objects_detected, mean_time_objects_detected, len(self.total_time_list_objects_detected), fps_objects_detected, mean_time_no_objects_detected, len(self.total_time_list_no_objects_detected)))
     
-    def log_processing_time(self, faces):
+    def log_processing_time(self, objects_detected):
         last_image_run_time = self.last_image_run_time
         is_first_image = self.last_image_run_time is None
         self.last_image_run_time = datetime.datetime.now()
 
         time_passed = get_time_delta(last_image_run_time, self.last_image_run_time)
 
-        self.add_stat('faces_count_found', len([] if faces is None else faces))
+        self.add_stat('objects_detected_count_found', len([] if objects_detected is None else objects_detected))
         self.add_stat('time_passed', time_passed, index=0)
         self.add_stat('ended_at', self.last_image_run_time)
 
@@ -283,46 +284,46 @@ class Image_Processor:
 
         return clarity
 
-    def find_person(self, img):
-        faces, total_time = call_and_get_time(self.classification_model.predict, (img,))
-        print('faces', faces)
+    def find_objects_in_image(self, img):
+        objects_detected, total_time = call_and_get_time(self.classification_model.predict, (img,))
+        print('objects_detected', objects_detected)
         print()
-        self.add_stat('find_person', total_time, index=0)
+        self.add_stat('find_objects_in_image', total_time, index=0)
 
-        return faces
+        return objects_detected
 
     # TODO: Draw line in box based on duty change position
-    def get_face_position(self, img, faces):
-        # TODO: Clean image (make sharper perhaps) to better find faces
+    def get_person_position(self, img, objects_detected):
+        # TODO: Clean image (make sharper perhaps) to better find objects_detected
         # TODO: Try to find pedestrians as well
         # TODO: Why do we need to pass img in here?
-        face_position_x, total_time = call_and_get_time(get_face_position_x_from_image, (img, faces))
-        self.add_stat('get_faces', total_time)
+        person_position_x, total_time = call_and_get_time(get_person_position_x_from_image, (img, objects_detected))
+        self.add_stat('get_objects_detected', total_time)
 
-        return face_position_x
+        return person_position_x
     
-    def move_servo(self, face_position_x):
+    def move_servo(self, person_position_x):
         if IS_TEST:
             return None
 
         # TODO: Get duty from a seperate method
-        duty_change, total_time = call_and_get_time(move_servo_based_on_face_position_x, (face_position_x,))
+        duty_change, total_time = call_and_get_time(move_servo_based_on_person_position_x, (person_position_x,))
         self.add_stat('turn_servo', total_time)
 
         return duty_change
     
-    def set_time_to_run_all_stat(self, time_start, faces):
+    def set_time_to_run_all_stat(self, time_start, objects_detected):
         time_all_end = time.time()
         time_all_total = (time_all_end - time_start)
-        if faces is not None and len(faces) > 0:
-            self.total_time_list_faces.append(time_all_total)
+        if objects_detected is not None and len(objects_detected) > 0:
+            self.total_time_list_objects_detected.append(time_all_total)
         else:
-            self.total_time_list_no_faces.append(time_all_total)
+            self.total_time_list_no_objects_detected.append(time_all_total)
 
         self.add_stat('time_total', time_all_total, index=0)
     
-    def save_image_with_faces(self, img, faces, face_position_x, duty_change, clarity):
-        _, total_time = call_and_get_time(save_image_with_faces, (img, faces, face_position_x, duty_change, clarity))
+    def save_image_with_objects_detected(self, img, objects_detected, person_position_x, duty_change, clarity):
+        _, total_time = call_and_get_time(save_image_with_objects_detected, (img, objects_detected, person_position_x, duty_change, clarity))
         self.add_stat('save_images', total_time, index=1)
     
     def save_plot_of_times(self):
@@ -347,22 +348,22 @@ class Image_Processor:
         # TODO: Use this to determine if we should keep the image or get a new image - if the image is too blurry, that means the servo is probably moving
         clarity = self.calculate_image_clarity(img)
 
-        faces = self.find_person(img)
+        objects_detected = self.find_objects_in_image(img)
 
-        face_position_x = self.get_face_position(img, faces)
+        person_position_x = self.get_person_position(img, objects_detected)
 
-        duty_change = self.move_servo(face_position_x)
+        duty_change = self.move_servo(person_position_x)
 
-        self.save_image_with_faces(img, faces, face_position_x, duty_change, clarity)
+        self.save_image_with_objects_detected(img, objects_detected, person_position_x, duty_change, clarity)
 
         if SAVE_PLOT_OF_PROCESSING_TIMES:
             self.save_plot_of_times()
 
         self.print_aggregated_stats(send_output)
-        self.set_time_to_run_all_stat(time_all_start, faces)
+        self.set_time_to_run_all_stat(time_all_start, objects_detected)
         self.limit_total_time_stored()
 
-        self.log_processing_time(faces)
+        self.log_processing_time(objects_detected)
         # self.print_processing_time_all()
         self.stats_info = []
 
