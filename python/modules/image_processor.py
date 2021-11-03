@@ -11,15 +11,17 @@ import requests
 try:
     from modules.config import append_log_info, ensure_directory_exists, get_log_filepath, get_servo_url, save_plot, write_log_info, LOG_DIR_BASES, SAVE_IMAGE_DIR
     from modules.image_module import process_image, save_image
-    from modules.process_image_for_servo import calculate_image_clarity, extend_image, find_person, get_face_position_x_from_image
+    from modules.process_image_for_servo import calculate_image_clarity, extend_image, get_face_position_x_from_image
     from modules.server_module import handle_default_server_response
     from modules.servo_module import calculate_duty_from_image_position
+    from modules.image_classification.faces_classification import Faces_Classification
 except ModuleNotFoundError:
     from config import append_log_info, ensure_directory_exists, get_log_filepath, get_servo_url, save_plot, write_log_info, LOG_DIR_BASES, SAVE_IMAGE_DIR
     from image_module import process_image, save_image
-    from process_image_for_servo import calculate_image_clarity, extend_image, find_person, get_face_position_x_from_image
+    from process_image_for_servo import calculate_image_clarity, extend_image, get_face_position_x_from_image
     from server_module import handle_default_server_response
     from servo_module import calculate_duty_from_image_position
+    from image_classification.faces_classification import Faces_Classification
 
 IS_TEST = False
 if 'IS_TEST' in os.environ:
@@ -222,6 +224,10 @@ class Image_Processor:
     total_time_list_no_faces = []
     last_image_run_time = None
     images_processed_count = 0
+    classification_model = None
+
+    def __init__(self) -> None:
+        self.classification_model = Faces_Classification()
     
     def add_stat(self, field, value, index=-1):
         if index == -1:
@@ -278,7 +284,9 @@ class Image_Processor:
         return clarity
 
     def find_person(self, img):
-        faces, total_time = call_and_get_time(find_person, (img,))
+        faces, total_time = call_and_get_time(self.classification_model.predict, (img,))
+        print('faces', faces)
+        print()
         self.add_stat('find_person', total_time, index=0)
 
         return faces

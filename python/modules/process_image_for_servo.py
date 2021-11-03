@@ -5,15 +5,10 @@ import cv2
 import numpy as np
 
 try:
-    from modules.image_module import load_test_image
-    from modules.config import get_face_classifiers
+    from modules.image_module import is_image_grayscale, load_test_image
 except ModuleNotFoundError:
-    from image_module import load_test_image
-    from config import get_face_classifiers
+    from image_module import is_image_grayscale, load_test_image
 
-
-# TODO: Add all of the models
-face_cascades = get_face_classifiers()
 
 IS_TEST = False
 if __name__ == '__main__':
@@ -32,29 +27,11 @@ def x_positions_in_image(img):
     return x_positions
 
 # TODO: IMPORTANT - we may want to run all of these in parallel and find the optimal face
-def find_faces_in_any_classifier(img):
-    for classifier in face_cascades:
-        faces = classifier.detectMultiScale(img, 1.1, 4)
-        if len(faces) > 0:
-            return faces
-    
-    return None
 
 # https://www.pyimagesearch.com/2015/09/07/blur-detection-with-opencv/
 def calculate_image_clarity(img):
     return cv2.Laplacian(img, cv2.CV_64F).var()
     
-def get_faces(img):
-    faces = find_faces_in_any_classifier(img)
-    return faces
-
-def find_person(img):
-    faces = get_faces(img)
-    if faces is not None and len(faces) > 0:
-        return faces
-    
-    return None
-
 def get_face_x_midpoint(face):
     x1, y1, width, height = face
 
@@ -92,7 +69,10 @@ def draw_box(img, box, color=(0,0,255), line_width=1):
     cv2.rectangle(img, (x, y), (x+w, y+h), color, line_width)
 
 def get_image_with_face_boxes(img, faces):
-    color_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+    if is_image_grayscale(img):
+        color_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+    else:
+        color_image = img
     if faces is None or len(faces) == 0:
         return color_image
 
@@ -152,8 +132,6 @@ def draw_texts(img, texts):
 
 # Can be used for debugging purposes
 def extend_image(img, show_faces=False, show_vertical_lines=False, texts=None, faces=None):
-    if faces is None:
-        faces = find_person(img)
     if show_faces:
         img = get_image_with_face_boxes(img, faces)
     if show_vertical_lines:

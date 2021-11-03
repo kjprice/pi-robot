@@ -117,7 +117,7 @@ class CameraHead(ServerModule):
         images_count = 0
         sender = get_image_sender()
 
-        for img, time_passed_for_image in image_generator(self.is_test):
+        for img, time_passed_for_image in image_generator(self.is_test, grayscale=False):
             self.check_if_processing_server_online()
             self.sleep(self.seconds_between_images)
             if self.abort_signal_received:

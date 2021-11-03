@@ -107,6 +107,7 @@ class ImageProcessingServer(ServerModule):
             if image is not None:
                 image_processor.process_message_immediately(image, time_to_pull, time_start, self.send_output)
                 # TODO: This is inneficiant - maybe even just send the path of the image and let the browser handle the image path
+                # TODO: Pull this from memory
                 with open(get_file_path_for_save('test-face-image.jpg'), 'rb') as f:
                     self.emit('processed_image_finished', f.read())
             
