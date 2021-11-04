@@ -25,6 +25,12 @@ def get_log_filename(server_name: SERVER_NAMES):
     timestamp = str(datetime.datetime.now())
     return '{}_{}.txt'.format(log_base_name, timestamp)
 
+def output_text_from_args(*args):
+    output_text = []
+    for _arg in args:
+        output_text.append(str(_arg))
+    return ' '.join(output_text)
+
 class ServerModule:
     is_socket_connected = False
     server_name = None
@@ -136,7 +142,8 @@ class ServerModule:
         self.sio.emit(message, data)
         return True
     
-    def send_output(self, output_text: str):
+    def send_output(self, *args):
+        output_text = output_text_from_args(*args)
         data = {
             'message': output_text,
             'server_name': self.server_name_str
