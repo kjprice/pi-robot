@@ -28,7 +28,6 @@ def get_log_filename(server_name: SERVER_NAMES):
 class ServerModule:
     is_socket_connected = False
     server_name = None
-    futures = []
     abort_signal_received = False
     other_thread_functions = []
     flags = None
@@ -45,7 +44,7 @@ class ServerModule:
     def start_threads(self):
         with cf.ThreadPoolExecutor() as executor:
             thread_functions = [self.connect_to_socket, self.run_with_exception_catch, *self.other_thread_functions]
-            self.futures = futures = [
+            futures = [
                 executor.submit(fn) for fn in thread_functions
             ]
             cf.as_completed(futures)
@@ -81,8 +80,6 @@ class ServerModule:
         def shutdown_now():
             self.send_output('Abort signal received')
             self.abort_signal_received = True
-            for future in self.futures:
-                self.send_output(future.cancel())
 
         self.other_socket_events()
         sio.connect(SOCKET_IO_HOST_URI)
