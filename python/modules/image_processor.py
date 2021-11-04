@@ -226,8 +226,14 @@ class Image_Processor:
     images_processed_count = 0
     classification_model = None
     loaded_classification_models = {}
+    send_output=print
+
+    def __init__(self, send_output=None) -> None:
+        if send_output is not None:
+            self.send_output = send_output
     
     def use_classification_model(self, model_name: CLASSIFICATION_MODELS):
+        self.send_output('Using model: "{}"'.format(model_name.name))
         if model_name not in self.loaded_classification_models:
             self.loaded_classification_models[model_name] = load_classification_model_by_name(model_name)
         
@@ -350,14 +356,14 @@ class Image_Processor:
             total_time = 0
         self.add_stat('save_plot_of_times', total_time, index=1)
     
-    def print_aggregated_stats(self, send_output):
+    def print_aggregated_stats(self):
         if self.images_processed_count > 0:
-            _, total_time = call_and_get_time(print_aggregated_stats, (send_output,))
+            _, total_time = call_and_get_time(print_aggregated_stats, (self.send_output,))
         else:
             total_time = 0
         self.add_stat('print_aggregated_stats', total_time, index=1)
 
-    def process_message_immediately(self, img, time_passed_for_image, time_all_start, send_output=print):
+    def process_message_immediately(self, img, time_passed_for_image, time_all_start):
         self.set_initial_time(time_passed_for_image)        
 
         img = self.process_image(img)
@@ -376,7 +382,7 @@ class Image_Processor:
         if SAVE_PLOT_OF_PROCESSING_TIMES:
             self.save_plot_of_times()
 
-        self.print_aggregated_stats(send_output)
+        self.print_aggregated_stats()
         self.set_time_to_run_all_stat(time_all_start, objects_detected)
         self.limit_total_time_stored()
 

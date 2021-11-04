@@ -63,7 +63,7 @@ class CameraHead(ServerModule):
     _seconds_between_images = None
 
     def __init__(self, arg_flags=None) -> None:
-        self.image_processor = Image_Processor()
+        self.image_processor = Image_Processor(send_output=self.send_output)
         self.is_processing_server_online = False
         self.time_started = time.time()
         self.time_needed_between_images = 1 / MAX_IMAGES_TO_PROCESS_PER_SECOND

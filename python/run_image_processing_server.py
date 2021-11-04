@@ -93,7 +93,7 @@ class ImageProcessingServer(ServerModule):
 
 
     def run_continuously(self):
-        image_processor = Image_Processor()
+        image_processor = Image_Processor(send_output=self.send_output)
         images_count = 0
         image_hub = get_image_hub()
         while True:
@@ -105,7 +105,7 @@ class ImageProcessingServer(ServerModule):
             images_count += 1
 
             if image is not None:
-                image_processor.process_message_immediately(image, time_to_pull, time_start, self.send_output)
+                image_processor.process_message_immediately(image, time_to_pull, time_start)
                 # TODO: This is inneficiant - maybe even just send the path of the image and let the browser handle the image path
                 # TODO: Pull this from memory
                 with open(get_file_path_for_save('test-objects-detected-image.jpg'), 'rb') as f:
