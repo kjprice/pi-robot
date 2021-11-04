@@ -24,11 +24,11 @@ def is_image_grayscale(img):
     channels_count = img.shape[2]
     return channels_count == 1
 
-
+# Currently this does nothing, we should change this to allow for various image processing based on arguments
 def process_image(img):
     # TODO: Try bluring image
-    if not is_image_grayscale(img):
-        img = grayscale(img)
+    # if not is_image_grayscale(img):
+    #     img = grayscale(img)
     # img = blur_image(img)
     # img = increase_contrast(img)
     return img

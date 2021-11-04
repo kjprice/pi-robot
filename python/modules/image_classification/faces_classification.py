@@ -9,7 +9,19 @@ class Faces_Classification(Image_Classification):
           faces = classifier.detectMultiScale(img, 1.1, 4)
           if len(faces) > 0:
               return faces
-      return None
+      return []
+  
+  def format_predictions(self, faces):
+    predictions = []
+    for face_position in faces:
+      predictions.append({
+        'name': 'face',
+        'box_points': face_position
+      })
+
+    return predictions
 
   def predict(self, img):
-      return self.find_faces_in_any_classifier(img)
+      faces = self.find_faces_in_any_classifier(img)
+
+      return self.format_predictions(faces)

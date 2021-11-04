@@ -23,6 +23,7 @@ SOCKET_IO_HOST_URI = 'http://{}:{}'.format(SOCKET_IO_SERVER_HOSTNAME, SOCKET_IO_
 
 SOCKET_ROOMS = ('image_processing_server', 'camera_head', 'browsers')
 
+RESNET_MODEL_FILEPATH = os.path.join(MODELS_DIR, 'resnet50_coco_best_v2.1.0.h5')
 class LOG_DIR_BASES(str, Enum):
     IMAGE_PROCESSING_TIME = 'image_processing_time'
     CAMERA_HEAD_SERVER = 'camera_head_server'
@@ -37,6 +38,12 @@ class SERVER_NAMES(str, Enum):
         for item in cls:
             obj[item.name] = item.value
         return obj
+
+class CLASSIFICATION_MODELS(str, Enum):
+    RESNET_COCO = 'resnet50_coco_best'
+    FACES_ONLY = 'haarcascade_frontalface'
+
+DEFAULT_CLASSIFICATION_MODEL = CLASSIFICATION_MODELS.FACES_ONLY
 
 IMG_FACE_CLASSIFIER_FILENAMES = [
     'haarcascade_frontalface_default.xml',

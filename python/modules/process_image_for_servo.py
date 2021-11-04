@@ -33,7 +33,7 @@ def calculate_image_clarity(img):
     return cv2.Laplacian(img, cv2.CV_64F).var()
     
 def get_person_x_midpoint(person):
-    x1, y1, width, height = person
+    x1, y1, width, height = person['box_points']
 
     return x1 + (width // 2)
 
@@ -47,25 +47,27 @@ def get_person_person_position_x(img_width, person_box):
     return np.round(ratio_person_center_on_image * 2 - 1, 2)
 
 def width(person):
-    return person[2]
+    return person['box_points'][2]
 
-def get_widest_person(persons):
-    return reduce(lambda a, b: a if width(a) > width(b) else b, persons)
+def get_widest_person(people_detected):
+    if len(people_detected) == 0:
+        return None
+    return reduce(lambda a, b: a if width(a) > width(b) else b, people_detected)
 
     
-def get_primary_person(persons):
-    return get_widest_person(persons)
+def get_primary_person(people_detected):
+    return get_widest_person(people_detected)
 
-def get_person_position_x_from_image(img, persons):
-    if persons is None or len(persons) == 0:
+def get_person_position_x_from_image(img, people_detected):
+    if people_detected is None or len(people_detected) == 0:
         return None
 
-    primary_person = get_primary_person(persons)
+    primary_person = get_primary_person(people_detected)
 
     return get_person_person_position_x(img.shape[1], primary_person)
 
-def draw_box(img, box, color=(0,0,255), line_width=1):
-    x, y, w, h = box
+def draw_box(img, object_detected, color=(0,0,255), line_width=1):
+    x, y, w, h = object_detected['box_points']
     cv2.rectangle(img, (x, y), (x+w, y+h), color, line_width)
 
 def get_image_with_person_boxes(img, persons):
@@ -99,27 +101,15 @@ def image_with_vertical_lines(img, line_x_list):
     return img
 
 def draw_primary_person_line(img, persons):
-    if persons is None:
+    if persons is None or len(persons) == 0:
         return img
 
     primary_person = get_primary_person(persons)
 
-    x, y, w, h = primary_person
+    x, y, w, h = primary_person['box_points']
     line_x = int(x + (w /2))
 
     return image_with_vertical_line(img, line_x)
-
-def draw_opaque_rectange(img, box):
-    x1, y1, width, height = box
-    x2 = x1 + width
-    y2 = y1 + height
-    sub_img = img[y1:y2, x1:x2]
-
-    # White box
-    white_rect = np.ones(sub_img.shape, dtype=np.uint8) * 255
-    box_with_opaque_color = cv2.addWeighted(sub_img, 0.5, white_rect, 0.5, 1.0)
-
-    img[y1:y2, x1:x2] = box_with_opaque_color
 
 def draw_texts(img, texts):
     img_height = img.shape[0]

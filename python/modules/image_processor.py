@@ -9,19 +9,19 @@ import requests
 
 
 try:
-    from modules.config import append_log_info, ensure_directory_exists, get_log_filepath, get_servo_url, save_plot, write_log_info, LOG_DIR_BASES, SAVE_IMAGE_DIR
+    from modules.config import append_log_info, CLASSIFICATION_MODELS, DEFAULT_CLASSIFICATION_MODEL, ensure_directory_exists, get_log_filepath, get_servo_url, save_plot, write_log_info, LOG_DIR_BASES, SAVE_IMAGE_DIR
     from modules.image_module import process_image, save_image
     from modules.process_image_for_servo import calculate_image_clarity, extend_image, get_person_position_x_from_image
     from modules.server_module import handle_default_server_response
     from modules.servo_module import calculate_duty_from_image_position
-    from modules.image_classification.faces_classification import Faces_Classification
+    from modules.image_classification import load_classification_model_by_name
 except ModuleNotFoundError:
-    from config import append_log_info, ensure_directory_exists, get_log_filepath, get_servo_url, save_plot, write_log_info, LOG_DIR_BASES, SAVE_IMAGE_DIR
+    from config import append_log_info, CLASSIFICATION_MODELS, DEFAULT_CLASSIFICATION_MODEL, ensure_directory_exists, get_log_filepath, get_servo_url, save_plot, write_log_info, LOG_DIR_BASES, SAVE_IMAGE_DIR
     from image_module import process_image, save_image
     from process_image_for_servo import calculate_image_clarity, extend_image, get_person_position_x_from_image
     from server_module import handle_default_server_response
     from servo_module import calculate_duty_from_image_position
-    from image_classification.faces_classification import Faces_Classification
+    from image_classification import load_classification_model_by_name
 
 IS_TEST = False
 if 'IS_TEST' in os.environ:
@@ -225,10 +225,16 @@ class Image_Processor:
     last_image_run_time = None
     images_processed_count = 0
     classification_model = None
-
-    def __init__(self) -> None:
-        # self.classification_model2 = Resnet_Classification()
-        self.classification_model = Faces_Classification()
+    loaded_classification_models = {}
+    
+    def use_classification_model(self, model_name: CLASSIFICATION_MODELS):
+        if model_name not in self.loaded_classification_models:
+            self.loaded_classification_models[model_name] = load_classification_model_by_name(model_name)
+        
+        self.classification_model = self.loaded_classification_models[model_name]
+    
+    def use_default_classification_model(self):
+        self.use_classification_model(DEFAULT_CLASSIFICATION_MODEL)
     
     def add_stat(self, field, value, index=-1):
         if index == -1:
@@ -285,19 +291,30 @@ class Image_Processor:
         return clarity
 
     def find_objects_in_image(self, img):
+        if self.classification_model is None:
+            self.use_default_classification_model()
+
         objects_detected, total_time = call_and_get_time(self.classification_model.predict, (img,))
         print('objects_detected', objects_detected)
         print()
         self.add_stat('find_objects_in_image', total_time, index=0)
 
         return objects_detected
+    
+    def get_people_from_objects_detected(self, objects_detected):
+        people = []
+        for object_detected in objects_detected:
+            if object_detected['name'] in ('person', 'face'):
+                people.append(object_detected)
+        return people
 
     # TODO: Draw line in box based on duty change position
     def get_person_position(self, img, objects_detected):
         # TODO: Clean image (make sharper perhaps) to better find objects_detected
         # TODO: Try to find pedestrians as well
         # TODO: Why do we need to pass img in here?
-        person_position_x, total_time = call_and_get_time(get_person_position_x_from_image, (img, objects_detected))
+        people_detected = self.get_people_from_objects_detected(objects_detected)
+        person_position_x, total_time = call_and_get_time(get_person_position_x_from_image, (img, people_detected))
         self.add_stat('get_objects_detected', total_time)
 
         return person_position_x
