@@ -43,6 +43,11 @@ function ServerOutputContainer(props) {
   )
 }
 
+function ServerOutputHeader(props) {
+  const { serverName, containerClass } = props;
+  return (<div className={containerClass}><h4>{serverName.replaceAll('_', ' ')}</h4></div>)
+}
+
 function ServerStatusStdOut({serverOutputByProcessName}) {
   const serverNames = Object.keys(serverOutputByProcessName);
   const serverNamesCount = serverNames.length;
@@ -51,6 +56,9 @@ function ServerStatusStdOut({serverOutputByProcessName}) {
 
   return (
     <div className="row server-output">
+      <div className="row">
+        {serverNames.map(serverName => <ServerOutputHeader serverName={serverName} containerClass={containerClass}/>)}
+      </div>
       {serverNames.map(serverName => {
         const statuses = serverOutputByProcessName[serverName];
 
