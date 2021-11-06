@@ -5,9 +5,9 @@ import { stopAllServers } from '../../api/handle-socket-connections';
 
 const mapStateToProps = (props) => {
   const { serverReducers } = props;
-  const { serversStatus } = serverReducers;
+  const { serversStatuses } = serverReducers;
   return {
-    serversStatus
+    serversStatuses
   };
 }
 
@@ -21,14 +21,14 @@ const buttonClassesByServerStatus = {
   [SERVER_STATUSES.ONLINE]: buttonClassesBase,
 };
 
-function getClassName(serversStatus) {
-  return buttonClassesByServerStatus[serversStatus].join(' ');
+function getClassName(serversStatuses) {
+  return buttonClassesByServerStatus[serversStatuses.allServersStatus].join(' ');
 }
 
 
 function StopAllServersButton(props) {
-  const { serversStatus } = props;
-  return (<button onClick={stopAllServers} type="button" className={getClassName(serversStatus)}>Stop All Servers</button>);
+  const { serversStatuses } = props;
+  return (<button onClick={stopAllServers} type="button" className={getClassName(serversStatuses)}>Stop All Servers</button>);
 }
 
 export default connect(mapStateToProps)(StopAllServersButton);

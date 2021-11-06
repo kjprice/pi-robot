@@ -7,9 +7,9 @@ import { loadAllServers } from '../../api/handle-socket-connections';
 
 const mapStateToProps = (props) => {
   const { serverReducers } = props;
-  const { serversStatus, waitTimeBetweenImages, classificationModel } = serverReducers;
+  const { serversStatuses, waitTimeBetweenImages, classificationModel } = serverReducers;
   return {
-    serversStatus, waitTimeBetweenImages, classificationModel
+    serversStatuses, waitTimeBetweenImages, classificationModel
   };
 }
 
@@ -27,8 +27,8 @@ const buttonClassesByServerStatus = {
   [SERVER_STATUSES.ONLINE]: buttonClassesDisabled,
 };
 
-function getClassName(serversStatus) {
-  return buttonClassesByServerStatus[serversStatus].join(' ');
+function getClassName(serversStatuses) {
+  return buttonClassesByServerStatus[serversStatuses.allServersStatus].join(' ');
 }
 
 function loadAllServersClick(setServerStartInit, waitTimeBetweenImages, classificationModel, remote) {
@@ -44,11 +44,11 @@ function getButtonText(remote) {
 }
 
 function StartAllServersButton(props) {
-  const { setServerStartInit, serversStatus, waitTimeBetweenImages, classificationModel, remote=false } = props;
+  const { setServerStartInit, serversStatuses, waitTimeBetweenImages, classificationModel, remote=false } = props;
   return (<button
     onClick={() => loadAllServersClick(setServerStartInit, waitTimeBetweenImages, classificationModel, remote)}
     type="button"
-    className={getClassName(serversStatus)}>
+    className={getClassName(serversStatuses)}>
       {getButtonText(remote)}
     </button>);
 }

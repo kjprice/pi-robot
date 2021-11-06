@@ -7,17 +7,17 @@ import { SERVER_STATUSES } from '../../redux/constants/server-constants';
 
 const mapStateToProps = (props) => {
   const { serverReducers } = props;
-  const { serversStatus } = serverReducers;
+  const { serversStatuses } = serverReducers;
   return {
-    serversStatus
+    serversStatuses
   };
 }
 
 
 function ServerStatus(props) {
-  const { serversStatus } = props;
+  const { serversStatuses } = props;
 
-  switch(serversStatus) {
+  switch(serversStatuses.allServersStatus) {
     case SERVER_STATUSES.OFFLINE:
       return <OfflineIcon />;
     case SERVER_STATUSES.STARTING:

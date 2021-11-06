@@ -14,7 +14,9 @@ import {
 } from '../constants/server-constants';
 
 const getDefaultState = () => ({
-  serversStatus: SERVER_STATUSES.OFFLINE,
+  serversStatuses: {
+    allServersStatus: SERVER_STATUSES.OFFLINE
+  },
   serverStatusInitMessages: [],
   waitTimeBetweenImages: 1, // Time in seconds
   serverOutputByProcessName: {},
@@ -23,17 +25,21 @@ const getDefaultState = () => ({
 });
 
 const setServerInitialState = (state, payload) => {
-
   const { jobs_running: jobsRunning } = payload;
 
-  let serversStatus = SERVER_STATUSES.OFFLINE;
+  let allServersStatus = SERVER_STATUSES.OFFLINE;
   if (jobsRunning.length > 0) {
-    serversStatus = SERVER_STATUSES.ONLINE;
+    allServersStatus = SERVER_STATUSES.ONLINE;
   }
+
+  const { serversStatuses } = state;
 
   return {
     ...state,
-    serversStatus
+    serversStatuses: {
+      ...serversStatuses,
+      allServersStatus
+    }
   }
 }
 
@@ -51,10 +57,25 @@ const setServerInitUpdates = (state, statusMessage) => {
     serverStatusInitMessages
   }}
 
-function setServerStartComplete(state) {
+function setServerStartInit(state) {
+  const { serversStatuses } = state;
   return {
     ...state,
-    serversStatus: SERVER_STATUSES.ONLINE
+    serversStatuses: {
+      ...serversStatuses,
+      allServersStatus: SERVER_STATUSES.STARTING
+    }
+  }
+}
+
+function setServerStartComplete(state) {
+  const { serversStatuses } = state;
+  return {
+    ...state,
+    serversStatuses: {
+      ...serversStatuses,
+      allServersStatus: SERVER_STATUSES.ONLINE
+    }
   }
 }
 
@@ -66,17 +87,24 @@ function setWaitBetweenImages(state, waitTimeBetweenImages) {
 }
 
 function setServerStopInit(state) {
+  const { serversStatuses } = state;
   return {
     ...state,
-    serversStatus: SERVER_STATUSES.STOPPING
+    serversStatuses: {
+      ...serversStatuses,
+      allServersStatus: SERVER_STATUSES.STOPPING
+    }
   }
 }
 
 function setServerStopComplete(state) {
+  const { serversStatuses } = state;
   return {
     ...state,
-    serversStatus: SERVER_STATUSES.OFFLINE,
-    serverStatusInitMessages: []
+    serversStatuses: {
+      ...serversStatuses,
+      allServersStatus: SERVER_STATUSES.OFFLINE
+    }
   }
 }
 
@@ -122,10 +150,7 @@ export default function serverReducer(state = getDefaultState(), data) {
 
   switch (type) {
     case SERVER_START_INIT:
-      return {
-        ...state,
-        serversStatus: SERVER_STATUSES.STARTING
-      };
+      return setServerStartInit(state);
     case SERVER_START_UPDATE:
       return setServerInitUpdates(state, data.payload);
     case SERVER_START_COMPLETE:
