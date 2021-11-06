@@ -20,9 +20,9 @@ function mapDispatchToProps(dispatch) {
 
 const actions = mapDispatchToProps(store.dispatch);
 
-export function loadAllServers(delay, remote) {
+export function loadAllServers(delay, remote, classificationModel) {
   return new Promise((res, rej) => {
-    socket.emit('load_all_servers', { delay, remote });
+    socket.emit('load_all_servers', { delay, remote, classification_model: classificationModel });
     socket.on('all_servers_loading_status', (statusMessage) => {
       if (statusMessage.details === 'complete') {
         actions.setServerStartComplete();
@@ -36,6 +36,10 @@ export function loadAllServers(delay, remote) {
 
 export function sendDelayChange(delay) {
   socket.emit('delay_change', delay);
+}
+
+export function sendNewClassificationModel(modelName) {
+  socket.emit('change_classification_model', modelName)
 }
 
 export function stopAllServers() {
