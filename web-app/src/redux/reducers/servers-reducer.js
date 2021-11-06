@@ -10,12 +10,15 @@ import {
   SET_WAIT_BETWEEN_IMAGES,
   SERVER_SET_CLASSIFICATION_MODEL,
   SERVER_PROCESSED_IMAGE_RECEIVED,
-  CLASSIFICATION_MODELS
+  CLASSIFICATION_MODELS,
+  SET_SERVER_WEBSERVER_OFFLINE,
+  SET_SERVER_WEBSERVER_CONNECTED,
 } from '../constants/server-constants';
 
 const getDefaultState = () => ({
   serversStatuses: {
-    allServersStatus: SERVER_STATUSES.OFFLINE
+    webAppStatus: SERVER_STATUSES.OFFLINE,
+    allServersStatus: SERVER_STATUSES.OFFLINE,
   },
   serverStatusInitMessages: [],
   waitTimeBetweenImages: 1, // Time in seconds
@@ -38,7 +41,8 @@ const setServerInitialState = (state, payload) => {
     ...state,
     serversStatuses: {
       ...serversStatuses,
-      allServersStatus
+      allServersStatus,
+      webAppStatus: SERVER_STATUSES.ONLINE,
     }
   }
 }
@@ -57,24 +61,24 @@ const setServerInitUpdates = (state, statusMessage) => {
     serverStatusInitMessages
   }}
 
-function setServerStartInit(state) {
+function setServerStartInit(state, serverName) {
   const { serversStatuses } = state;
   return {
     ...state,
     serversStatuses: {
       ...serversStatuses,
-      allServersStatus: SERVER_STATUSES.STARTING
+      [serverName]: SERVER_STATUSES.STARTING
     }
   }
 }
 
-function setServerStartComplete(state) {
+function setServerStartComplete(state, serverName) {
   const { serversStatuses } = state;
   return {
     ...state,
     serversStatuses: {
       ...serversStatuses,
-      allServersStatus: SERVER_STATUSES.ONLINE
+      [serverName]: SERVER_STATUSES.ONLINE
     }
   }
 }
@@ -86,24 +90,24 @@ function setWaitBetweenImages(state, waitTimeBetweenImages) {
   };
 }
 
-function setServerStopInit(state) {
+function setServerStopInit(state, serverName) {
   const { serversStatuses } = state;
   return {
     ...state,
     serversStatuses: {
       ...serversStatuses,
-      allServersStatus: SERVER_STATUSES.STOPPING
+      [serverName]: SERVER_STATUSES.STOPPING
     }
   }
 }
 
-function setServerStopComplete(state) {
+function setServerStopComplete(state, serverName) {
   const { serversStatuses } = state;
   return {
     ...state,
     serversStatuses: {
       ...serversStatuses,
-      allServersStatus: SERVER_STATUSES.OFFLINE
+      [serverName]: SERVER_STATUSES.OFFLINE
     }
   }
 }
@@ -150,25 +154,29 @@ export default function serverReducer(state = getDefaultState(), data) {
 
   switch (type) {
     case SERVER_START_INIT:
-      return setServerStartInit(state);
+      return setServerStartInit(state, 'allServersStatus');
     case SERVER_START_UPDATE:
       return setServerInitUpdates(state, data.payload);
     case SERVER_START_COMPLETE:
-      return setServerStartComplete(state);
+      return setServerStartComplete(state, 'allServersStatus');
     case SET_SERVER_INITIAL_STATE:
       return setServerInitialState(state, data.payload);
     case SET_WAIT_BETWEEN_IMAGES:
       return setWaitBetweenImages(state, data.payload);
     case SERVER_STOP_INIT:
-      return setServerStopInit(state);
+      return setServerStopInit(state, 'allServersStatus');
     case SERVER_STOP_COMPLETE:
-      return setServerStopComplete(state);
+      return setServerStopComplete(state, 'allServersStatus');
     case SERVER_OUTPUT_RECEIVED:
       return setServerOutputReceived(state, data.payload);
     case SERVER_PROCESSED_IMAGE_RECEIVED:
       return setServerProcessedImageReceived(state, data.payload);
     case SERVER_SET_CLASSIFICATION_MODEL:
       return setServerProcessedClassificationModel(state, data.payload);
+    case SET_SERVER_WEBSERVER_OFFLINE:
+      return setServerStopComplete(state, 'webAppStatus');
+    case SET_SERVER_WEBSERVER_CONNECTED:
+      return setServerStartInit(state, 'webAppStatus');
     default:
       return state;
   }

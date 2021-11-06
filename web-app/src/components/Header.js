@@ -1,11 +1,11 @@
 import ServerControls from './ServerControls';
-import ServerStatus from './ServerStatus';
+import ServerStatuses from './ServerStatuses';
 
 function Header() {
   return (
     <div className="row">
       <div className="col-1">
-        <ServerStatus />
+        <ServerStatuses />
       </div>
       <div className="col-11">
         <ServerControls />

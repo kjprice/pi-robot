@@ -10,6 +10,8 @@ const {
   SERVER_OUTPUT_RECEIVED,
   SET_WAIT_BETWEEN_IMAGES,
   SERVER_SET_CLASSIFICATION_MODEL,
+  SET_SERVER_WEBSERVER_OFFLINE,
+  SET_SERVER_WEBSERVER_CONNECTED,
 } = serverConstants;
 
 export const setServerStartInit = () => ({ type:SERVER_START_INIT });
@@ -22,3 +24,5 @@ export const setServerStopComplete = () => ({ type: SERVER_STOP_COMPLETE })
 export const setServerOutputReceived = (payload) => ({ type: SERVER_OUTPUT_RECEIVED, payload})
 export const setServerProcessedImageReceived = (payload) => ({ type: SERVER_PROCESSED_IMAGE_RECEIVED, payload})
 export const setServerProcessedClassificationModel = (payload) => ({ type: SERVER_SET_CLASSIFICATION_MODEL, payload})
+export const setWebServerOffline = () => ({ type: SET_SERVER_WEBSERVER_OFFLINE });
+export const setWebServerConnected = () => ({ type: SET_SERVER_WEBSERVER_CONNECTED });

@@ -3,7 +3,9 @@ import { bindActionCreators } from 'redux';
 import {
   setServerInitialStatus,
   setServerOutputReceived,
-  setServerProcessedImageReceived
+  setServerProcessedImageReceived,
+  setWebServerOffline,
+  setWebServerConnected,
 } from '../redux/actions/server-actions';
 
 import { getImageSourceFromArrayBuffer } from '../utilities/image-utilities';
@@ -16,8 +18,10 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({
     setServerInitialStatus,
     setServerOutputReceived,
-    setServerProcessedImageReceived
-  }, dispatch);
+    setServerProcessedImageReceived,
+    setWebServerOffline,
+    setWebServerConnected,
+    }, dispatch);
 }
 
 const actions = mapDispatchToProps(store.dispatch);
@@ -25,16 +29,19 @@ const actions = mapDispatchToProps(store.dispatch);
 
 socket.on('connect', () => {
   console.log(socket.id);
+  actions.setWebServerConnected();
   socket.emit('set_socket_room', SOCKET_ROOM_NAME);
   socket.emit('get_server_statuses');
 });
 
 socket.on('reconnect', () => {
   console.log('socket reconnect');
+  actions.setWebServerConnected();
 });
 
 socket.on('disconnect', () => {
   console.log('socket disconnect');
+  actions.setWebServerOffline();
 });
 
 socket.on('browser_init_status', (data) => {
