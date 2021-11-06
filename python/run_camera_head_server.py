@@ -14,8 +14,7 @@ cd_to_this_directory()
 
 from modules.camera_module import image_generator, camera_setup
 from modules.config import get_servo_url, SERVER_NAMES
-from modules.image_processor import Image_Processor
-from modules.server_module import handle_default_server_response, ServerModule
+from modules.server_module.server_classification_module import Server_Classification_Module
 
 # We do not need too many images - it is ok to throw away some
 # TODO: Decide which images to throw away based on if they are more blurry than others
@@ -53,7 +52,7 @@ def get_image_sender():
     else:
         return imagezmq.ImageSender(connect_to='tcp://*:6666', REQ_REP=False)
 
-class CameraHead(ServerModule):
+class CameraHead(Server_Classification_Module):
     is_processing_server_online = None
     image_processor = None
     count_images_discarded = 0
@@ -63,7 +62,6 @@ class CameraHead(ServerModule):
     _seconds_between_images = None
 
     def __init__(self, arg_flags=None) -> None:
-        self.image_processor = Image_Processor(send_output=self.send_output)
         self.is_processing_server_online = False
         self.time_started = time.time()
         self.time_needed_between_images = 1 / MAX_IMAGES_TO_PROCESS_PER_SECOND
@@ -72,6 +70,7 @@ class CameraHead(ServerModule):
         super().__init__(server_name, arg_flags)
     
     def other_args(self):
+        super().other_args()
         self.parser.add_argument(
             '--delay',
             type=int,
@@ -79,6 +78,7 @@ class CameraHead(ServerModule):
         )
 
     def other_socket_events(self):
+        super().other_socket_events()
         sio = self.sio
 
         @sio.event

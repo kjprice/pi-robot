@@ -1,6 +1,8 @@
 import StartAllServersButton from './StartAllServersButton';
 import StopAllServersButton from './StopAllServersButton';
 import WaitBetweenImagesControl from './WaitBetweenImagesControl';
+import ImageRecognitionDropdown from './ImageRecognitionDropdown';
+
 
 export default function ServerControls() {
   return (
@@ -11,6 +13,7 @@ export default function ServerControls() {
           <StartAllServersButton/>
           <StartAllServersButton remote/>
           <StopAllServersButton/>
+          <ImageRecognitionDropdown />
         </div>
       </div>
     </div>

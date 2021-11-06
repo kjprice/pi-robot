@@ -9,6 +9,7 @@ const {
   SET_SERVER_INITIAL_STATE,
   SERVER_OUTPUT_RECEIVED,
   SET_WAIT_BETWEEN_IMAGES,
+  SERVER_SET_CLASSIFICATION_MODEL,
 } = serverConstants;
 
 export const setServerStartInit = () => ({ type:SERVER_START_INIT });
@@ -20,3 +21,4 @@ export const setServerStopInit = () => ({ type: SERVER_STOP_INIT })
 export const setServerStopComplete = () => ({ type: SERVER_STOP_COMPLETE })
 export const setServerOutputReceived = (payload) => ({ type: SERVER_OUTPUT_RECEIVED, payload})
 export const setServerProcessedImageReceived = (payload) => ({ type: SERVER_PROCESSED_IMAGE_RECEIVED, payload})
+export const setServerProcessedClassificationModel = (payload) => ({ type: SERVER_SET_CLASSIFICATION_MODEL, payload})

@@ -224,24 +224,28 @@ class Image_Processor:
     total_time_list_no_objects_detected = []
     last_image_run_time = None
     images_processed_count = 0
-    classification_model = None
+    classification_model_obj = None
+    classification_model_name = DEFAULT_CLASSIFICATION_MODEL
     loaded_classification_models = {}
     send_output=print
+    model_started=False
 
     def __init__(self, send_output=None) -> None:
         if send_output is not None:
             self.send_output = send_output
+    
+    def set_preferred_classification_model_name(self, classification_model_name: CLASSIFICATION_MODELS):
+        self.classification_model_name = classification_model_name
+        if self.model_started:
+            self.use_classification_model(classification_model_name)
     
     def use_classification_model(self, model_name: CLASSIFICATION_MODELS):
         self.send_output('Using model: "{}"'.format(model_name.name))
         if model_name not in self.loaded_classification_models:
             self.loaded_classification_models[model_name] = load_classification_model_by_name(model_name)
         
-        self.classification_model = self.loaded_classification_models[model_name]
-    
-    def use_default_classification_model(self):
-        self.use_classification_model(DEFAULT_CLASSIFICATION_MODEL)
-    
+        self.classification_model_obj = self.loaded_classification_models[model_name]
+
     def add_stat(self, field, value, index=-1):
         if index == -1:
             index = len(self.stats_info)
@@ -297,10 +301,10 @@ class Image_Processor:
         return clarity
 
     def find_objects_in_image(self, img):
-        if self.classification_model is None:
-            self.use_default_classification_model()
+        if self.classification_model_obj is None:
+            self.use_classification_model(self.classification_model_name)
 
-        objects_detected, total_time = call_and_get_time(self.classification_model.predict, (img,))
+        objects_detected, total_time = call_and_get_time(self.classification_model_obj.predict, (img,))
         print('objects_detected', objects_detected)
         print()
         self.add_stat('find_objects_in_image', total_time, index=0)
@@ -364,6 +368,8 @@ class Image_Processor:
         self.add_stat('print_aggregated_stats', total_time, index=1)
 
     def process_message_immediately(self, img, time_passed_for_image, time_all_start):
+        self.model_started = True
+
         self.set_initial_time(time_passed_for_image)        
 
         img = self.process_image(img)

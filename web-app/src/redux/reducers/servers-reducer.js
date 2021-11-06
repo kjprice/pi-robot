@@ -8,7 +8,9 @@ import {
   SET_SERVER_INITIAL_STATE,
   SERVER_OUTPUT_RECEIVED,
   SET_WAIT_BETWEEN_IMAGES,
-  SERVER_PROCESSED_IMAGE_RECEIVED
+  SERVER_SET_CLASSIFICATION_MODEL,
+  SERVER_PROCESSED_IMAGE_RECEIVED,
+  CLASSIFICATION_MODELS
 } from '../constants/server-constants';
 
 const getDefaultState = () => ({
@@ -16,7 +18,8 @@ const getDefaultState = () => ({
   serverStatusInitMessages: [],
   waitTimeBetweenImages: 1, // Time in seconds
   serverOutputByProcessName: {},
-  processedImage: null
+  processedImage: null,
+  classificationModel: CLASSIFICATION_MODELS.FACES_ONLY
 });
 
 const setServerInitialState = (state, payload) => {
@@ -107,6 +110,13 @@ function setServerProcessedImageReceived(state, processedImage) {
   }
 }
 
+function setServerProcessedClassificationModel(state, classificationModel) {
+  return {
+    ...state,
+    classificationModel
+  }
+}
+
 export default function serverReducer(state = getDefaultState(), data) {
   const { type } = data;
 
@@ -132,6 +142,8 @@ export default function serverReducer(state = getDefaultState(), data) {
       return setServerOutputReceived(state, data.payload);
     case SERVER_PROCESSED_IMAGE_RECEIVED:
       return setServerProcessedImageReceived(state, data.payload);
+    case SERVER_SET_CLASSIFICATION_MODEL:
+      return setServerProcessedClassificationModel(state, data.payload);
     default:
       return state;
   }

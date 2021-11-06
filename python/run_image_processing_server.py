@@ -15,8 +15,7 @@ cd_to_this_directory()
 
 from modules.config import SERVER_NAMES
 from modules.image_module import get_file_path_for_save
-from modules.image_processor import Image_Processor
-from modules.server_module import ServerModule
+from modules.server_module.server_classification_module import Server_Classification_Module
 from modules.workers.image_stream_worker import get_perpetual_list_of_images_from_worker
 
 IS_TEST = 'IS_TEST' in os.environ
@@ -74,7 +73,7 @@ def get_image_from_image_hub(image_hub):
     return get_image_for_pub_sub_from_image_hub(image_hub)
 
 # This runs two concurrent threads: one to handle incoming socket communication and the other to handle processing images
-class ImageProcessingServer(ServerModule):
+class ImageProcessingServer(Server_Classification_Module):
     def __init__(self, arg_flags):
         server_name = SERVER_NAMES.IMAGE_PROCESSING
         super().__init__(server_name, arg_flags)
@@ -83,6 +82,7 @@ class ImageProcessingServer(ServerModule):
         self.sio.emit('set_socket_room', 'image_processing_server')
 
     def other_socket_events(self):
+        super().other_socket_events()
         sio = self.sio
 
         @sio.event
@@ -93,7 +93,6 @@ class ImageProcessingServer(ServerModule):
 
 
     def run_continuously(self):
-        image_processor = Image_Processor(send_output=self.send_output)
         images_count = 0
         image_hub = get_image_hub()
         while True:
@@ -105,7 +104,7 @@ class ImageProcessingServer(ServerModule):
             images_count += 1
 
             if image is not None:
-                image_processor.process_message_immediately(image, time_to_pull, time_start)
+                self.image_processor.process_message_immediately(image, time_to_pull, time_start)
                 # TODO: This is inneficiant - maybe even just send the path of the image and let the browser handle the image path
                 # TODO: Pull this from memory
                 with open(get_file_path_for_save('test-objects-detected-image.jpg'), 'rb') as f:

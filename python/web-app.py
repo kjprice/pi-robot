@@ -54,13 +54,17 @@ def create_job_ssh(hostname: str, process_name: str, flags: str = ''):
   job = SSH_Process(hostname, process_name, flags)
   jobs_running_by_fn_name[fn_name] = job
 
-def create_image_processing_server_job():
+def create_image_processing_server_job(classification_model: str):
+  arg_flags = ''
+  if classification_model is not None:
+    arg_flags = '--classification_model {}'.format(classification_model)
   server_name = SERVER_NAMES.IMAGE_PROCESSING.value
-  create_job(server_name, run_image_processing_server)
+  create_job(server_name, run_image_processing_server, arg_flags)
 
-def create_camera_head_server_job(use_remote_servers: bool, seconds_between_images: int):
+def create_camera_head_server_job(use_remote_servers: bool, seconds_between_images: int, classification_model: str):
   server_name = SERVER_NAMES.CAMERA_HEAD.value
   arg_flags = '--delay {}'.format(seconds_between_images)
+  arg_flags += ' --classification_model {}'.format(classification_model)
   if use_remote_servers:
     # TODO: Move to config
     create_job_ssh('pirobot', 'run_camera_head_server', arg_flags)
@@ -106,13 +110,14 @@ def set_socket_room(sid, room_name):
 def load_all_servers(sid, data):
   seconds_between_images = data['delay']
   use_remote_servers = data['remote']
+  classification_model = data['classification_model']
   step = 1
   sio.emit('all_servers_loading_status', { 'step': step, 'details': 'create image processing server job' }, sid)
   step += 1
-  create_image_processing_server_job()
+  create_image_processing_server_job(classification_model=classification_model)
   sio.emit('all_servers_loading_status', { 'step': step, 'details': 'create camera head server job' }, sid)
   step += 1
-  create_camera_head_server_job(use_remote_servers=use_remote_servers, seconds_between_images=seconds_between_images)
+  create_camera_head_server_job(use_remote_servers=use_remote_servers, seconds_between_images=seconds_between_images, classification_model=classification_model)
   if use_remote_servers:
     create_servo_server_job()
     sio.emit('all_servers_loading_status', { 'step': step, 'details': 'create servo server job' }, sid)
@@ -147,9 +152,13 @@ def is_processing_server_online(sid):
   sio.emit('is_processing_server_online', room='image_processing_server')
 
 @sio.event
-def delay_change(sid, delay_change):
-  sio.emit('change_seconds_between_images', delay_change, room='camera_head')
+def delay_change(sid, _delay_change):
+  sio.emit('change_seconds_between_images', _delay_change, room='camera_head')
 
+@sio.event
+def change_classification_model(sid, classification_model):
+  print('classification_model from browser', classification_model)
+  sio.emit('set_new_classification_model', classification_model)
 
 @sio.event
 def confirm_image_processing_server_online(sid):
