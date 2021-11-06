@@ -1,12 +1,13 @@
-const ROOM_NAME = 'browsers'
+const SOCKET_ROOM_NAME = 'browsers'
+const SOCKET_URI = 'kj-macbook.lan:9898/';
 
 window.addEventListener('load', () => {
   socketLoaded();
-  window.socket = io(window.location.host);
+  window.socket = io(SOCKET_URI);
 
   socket.on('connect', () => {
     console.log(socket.id);
-    socket.emit('set_socket_room', ROOM_NAME);
+    socket.emit('set_socket_room', SOCKET_ROOM_NAME);
     socket.emit('get_server_statuses')
   });
 
