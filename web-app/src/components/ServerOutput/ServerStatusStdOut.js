@@ -54,6 +54,10 @@ function ServerStatusStdOut({serverOutputByProcessName}) {
 
   const containerClass = getServerContainerColumnClass(serverNamesCount);
 
+  if (serverNames.length === 0) {
+    return null;
+  }
+
   return (
     <div className="row server-output">
       <div className="row">
