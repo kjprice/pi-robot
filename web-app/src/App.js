@@ -1,10 +1,28 @@
+import { connect } from 'react-redux';
+
 import './App.css';
 import './api/setup-socket-connections';
 import ImageContainer from './components/ImageContainer';
 import ServerOutput from './components/ServerOutput';
+import LoadingPage from './components/LoadingPage';
 import Header from './components/Header';
+import { SERVER_STATUSES } from './redux/constants/server-constants';
 
-export default function App() {
+
+function mapStateToProps(state) {
+  const { serverReducers } = state;
+  const { serversStatuses } = serverReducers;
+  return {
+    serversStatuses
+  };
+}
+
+function App(props) {
+  const { serversStatuses } = props;
+  if (serversStatuses.webAppStatus === SERVER_STATUSES.OFFLINE) {
+    return <LoadingPage />;
+  }
+
   return (
     <div className="container" id="main-container">
       <Header />
@@ -13,3 +31,5 @@ export default function App() {
     </div>
   );
 }
+
+export default connect(mapStateToProps)(App);
