@@ -305,8 +305,6 @@ class Image_Processor:
             self.use_classification_model(self.classification_model_name)
 
         objects_detected, total_time = call_and_get_time(self.classification_model_obj.predict, (img,))
-        print('objects_detected', objects_detected)
-        print()
         self.add_stat('find_objects_in_image', total_time, index=0)
 
         return objects_detected
