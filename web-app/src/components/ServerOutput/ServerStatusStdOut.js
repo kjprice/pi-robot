@@ -57,7 +57,7 @@ function ServerStatusStdOut({serverOutputByProcessName}) {
   return (
     <div className="row server-output">
       <div className="row">
-        {serverNames.map(serverName => <ServerOutputHeader serverName={serverName} containerClass={containerClass}/>)}
+        {serverNames.map(serverName => <ServerOutputHeader key={serverName} serverName={serverName} containerClass={containerClass}/>)}
       </div>
       {serverNames.map(serverName => {
         const statuses = serverOutputByProcessName[serverName];
