@@ -16,10 +16,16 @@ export const SERVER_STATUSES = {
   ONLINE: 'online',
   STOPPING: 'stopping',
   OFFLINE: 'offline'
-}
+};
 
 // Taken from config.py: TODO: Consolidate somehow
 export const CLASSIFICATION_MODELS = {
   RESNET_COCO: 'RESNET_COCO',
   FACES_ONLY: 'FACES_ONLY'
+};
+
+// TODO: This should probably go in a config file
+export const SERVER_DESCRIPTIONS = {
+  webApp: 'Web Server: Controls everything',
+  allServers: 'Camera head, Image Processor, and Servo Server (if running remote servers)'
 }

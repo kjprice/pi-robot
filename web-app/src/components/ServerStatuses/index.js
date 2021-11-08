@@ -1,6 +1,8 @@
 import { connect } from 'react-redux';
 
 import ServerStatus from "../ServerStatus";
+import Tooltip from '../../misc/Tooltip';
+import { SERVER_DESCRIPTIONS } from '../../redux/constants/server-constants';
 
 function mapStateToProps(state) {
   const { serverReducers } = state;
@@ -15,7 +17,9 @@ function ServerStatuses(props) {
   const serverNames = Object.keys(serversStatuses);
 
   return serverNames.map(serverName => (
-    <ServerStatus key={serverName} serverStatus={serversStatuses[serverName]} />
+    <Tooltip key={serverName} message={SERVER_DESCRIPTIONS[serverName]}>
+      <ServerStatus serverStatus={serversStatuses[serverName]} />
+    </Tooltip>
   ));
 }
 
