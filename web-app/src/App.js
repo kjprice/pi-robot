@@ -19,7 +19,7 @@ function mapStateToProps(state) {
 
 function App(props) {
   const { serversStatuses } = props;
-  if (serversStatuses.webAppStatus === SERVER_STATUSES.OFFLINE) {
+  if (serversStatuses.webApp === SERVER_STATUSES.OFFLINE) {
     return <LoadingPage />;
   }
 

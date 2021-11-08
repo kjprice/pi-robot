@@ -22,7 +22,7 @@ const buttonClassesByServerStatus = {
 };
 
 function getClassName(serversStatuses) {
-  return buttonClassesByServerStatus[serversStatuses.allServersStatus].join(' ');
+  return buttonClassesByServerStatus[serversStatuses.allServers].join(' ');
 }
 
 

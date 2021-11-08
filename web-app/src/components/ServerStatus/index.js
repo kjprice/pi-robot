@@ -5,9 +5,9 @@ import OnlineIcon from './StatusIcons/OnlineIcon';
 import { SERVER_STATUSES } from '../../redux/constants/server-constants';
 
 function ServerStatus(props) {
-  const { status } = props;
+  const { serverStatus } = props;
 
-  switch(status) {
+  switch(serverStatus) {
     case SERVER_STATUSES.OFFLINE:
       return <OfflineIcon />;
     case SERVER_STATUSES.STARTING:
@@ -16,7 +16,7 @@ function ServerStatus(props) {
     case SERVER_STATUSES.ONLINE:
       return <OnlineIcon />;
     default:
-      throw new Error('Unknown Server Status')
+      throw new Error(`Unknown Server Status: ${serverStatus}`)
   }
 }
 

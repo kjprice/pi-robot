@@ -17,8 +17,8 @@ import {
 
 const getDefaultState = () => ({
   serversStatuses: {
-    webAppStatus: SERVER_STATUSES.OFFLINE,
-    allServersStatus: SERVER_STATUSES.OFFLINE,
+    webApp: SERVER_STATUSES.OFFLINE,
+    allServers: SERVER_STATUSES.OFFLINE,
   },
   serverStatusInitMessages: [],
   waitTimeBetweenImages: 1, // Time in seconds
@@ -30,9 +30,9 @@ const getDefaultState = () => ({
 const setServerInitialState = (state, payload) => {
   const { jobs_running: jobsRunning } = payload;
 
-  let allServersStatus = SERVER_STATUSES.OFFLINE;
+  let allServers = SERVER_STATUSES.OFFLINE;
   if (jobsRunning.length > 0) {
-    allServersStatus = SERVER_STATUSES.ONLINE;
+    allServers = SERVER_STATUSES.ONLINE;
   }
 
   const { serversStatuses } = state;
@@ -41,8 +41,8 @@ const setServerInitialState = (state, payload) => {
     ...state,
     serversStatuses: {
       ...serversStatuses,
-      allServersStatus,
-      webAppStatus: SERVER_STATUSES.ONLINE,
+      allServers,
+      webApp: SERVER_STATUSES.ONLINE,
     }
   }
 }
@@ -154,19 +154,19 @@ export default function serverReducer(state = getDefaultState(), data) {
 
   switch (type) {
     case SERVER_START_INIT:
-      return setServerStartInit(state, 'allServersStatus');
+      return setServerStartInit(state, 'allServers');
     case SERVER_START_UPDATE:
       return setServerInitUpdates(state, data.payload);
     case SERVER_START_COMPLETE:
-      return setServerStartComplete(state, 'allServersStatus');
+      return setServerStartComplete(state, 'allServers');
     case SET_SERVER_INITIAL_STATE:
       return setServerInitialState(state, data.payload);
     case SET_WAIT_BETWEEN_IMAGES:
       return setWaitBetweenImages(state, data.payload);
     case SERVER_STOP_INIT:
-      return setServerStopInit(state, 'allServersStatus');
+      return setServerStopInit(state, 'allServers');
     case SERVER_STOP_COMPLETE:
-      return setServerStopComplete(state, 'allServersStatus');
+      return setServerStopComplete(state, 'allServers');
     case SERVER_OUTPUT_RECEIVED:
       return setServerOutputReceived(state, data.payload);
     case SERVER_PROCESSED_IMAGE_RECEIVED:
@@ -174,9 +174,9 @@ export default function serverReducer(state = getDefaultState(), data) {
     case SERVER_SET_CLASSIFICATION_MODEL:
       return setServerProcessedClassificationModel(state, data.payload);
     case SET_SERVER_WEBSERVER_OFFLINE:
-      return setServerStopComplete(state, 'webAppStatus');
+      return setServerStopComplete(state, 'webApp');
     case SET_SERVER_WEBSERVER_CONNECTED:
-      return setServerStartInit(state, 'webAppStatus');
+      return setServerStartInit(state, 'webApp');
     default:
       return state;
   }
