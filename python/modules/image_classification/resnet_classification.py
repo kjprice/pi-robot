@@ -16,6 +16,7 @@ class Resnet_Classification(Image_Classification):
     print('it took {} seconds to load the model'.format(self.time_to_load_model))
   
   def predict(self, img):
+    # TODO: Instead of saving, just return the image
     output_image_path = os.path.join(SAVE_IMAGE_DIR, 'imagenew.jpg')
     detections = self.model.detectObjectsFromImage(input_image=img, output_image_path=output_image_path, input_type="array", output_type="file")
     return detections

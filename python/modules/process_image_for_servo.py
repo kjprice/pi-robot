@@ -70,6 +70,7 @@ def draw_box(img, object_detected, color=(0,0,255), line_width=1):
     x, y, w, h = object_detected['box_points']
     cv2.rectangle(img, (x, y), (x+w, y+h), color, line_width)
 
+# TODO: This is only needed for faces, we can already have the image "extended" when using imageai
 def get_image_with_person_boxes(img, persons):
     if is_image_grayscale(img):
         color_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)

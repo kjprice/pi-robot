@@ -23,6 +23,7 @@ class SSH_Process(JobProcess):
     ]
 
     self.job = run_ssh(hostname, commands)
+  # TODO: We will want to also kill by port number (for servo server)
   def cleanup(self):
     commands = [
       'cd {}'.format(SCRIPT_PATH),
