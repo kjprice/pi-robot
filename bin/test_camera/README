@@ -1,0 +1,5 @@
+Tests the new libcamera-apps commands for raspberry pi
+
+To continuously test, run `./bin/test_camera/develop_test_camera.sh`
+
+Data will be sent to {PROJECT_ROOT}/data/test_camera
