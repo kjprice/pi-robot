@@ -23,6 +23,12 @@ SOCKET_IO_HOST_URI = 'http://{}:{}'.format(SOCKET_IO_SERVER_HOSTNAME, SOCKET_IO_
 
 SOCKET_ROOMS = ('image_processing_server', 'camera_head', 'browsers')
 
+RESNET_MODEL_FILEPATH = os.path.join(MODELS_DIR, 'resnet50_coco_best_v2.1.0.h5')
+class LOG_DIR_BASES(str, Enum):
+    IMAGE_PROCESSING_TIME = 'image_processing_time'
+    CAMERA_HEAD_SERVER = 'camera_head_server'
+    IMAGE_PROCESSING_SERVER = 'image_processing_server'
+
 class SERVER_NAMES(str, Enum):
     CAMERA_HEAD = 'camera_head'
     IMAGE_PROCESSING = 'image_processing_server'
@@ -32,6 +38,12 @@ class SERVER_NAMES(str, Enum):
         for item in cls:
             obj[item.name] = item.value
         return obj
+
+class CLASSIFICATION_MODELS(str, Enum):
+    RESNET_COCO = 'resnet50_coco_best'
+    FACES_ONLY = 'haarcascade_frontalface'
+
+DEFAULT_CLASSIFICATION_MODEL = CLASSIFICATION_MODELS.FACES_ONLY
 
 IMG_FACE_CLASSIFIER_FILENAMES = [
     'haarcascade_frontalface_default.xml',
@@ -84,6 +96,21 @@ ensure_directory_exists(CACHE_DIR)
 ensure_directory_exists(LOGS_DIR)
 ensure_directory_exists(FIGURES_DIR)
 
+def setup_log_directories():
+    for log_base_dir in LOG_DIR_BASES:
+        directory_path = os.path.join(LOGS_DIR, log_base_dir.value)
+        ensure_directory_exists(directory_path)
+setup_log_directories()
+
+def get_log_dir_by_server_name(server_name: SERVER_NAMES):
+    if server_name == SERVER_NAMES.CAMERA_HEAD:
+        return LOG_DIR_BASES.CAMERA_HEAD_SERVER
+    if server_name == SERVER_NAMES.IMAGE_PROCESSING:
+        return LOG_DIR_BASES.IMAGE_PROCESSING_SERVER
+    
+    raise ValueError('Unknown server_name: {}'.format(server_name))
+        
+
 def get_classifier_path(filename):
     directory = cv2.data.haarcascades
     return os.path.join(directory, filename)
@@ -129,21 +156,16 @@ def set_cache_info(file_name, cache_info):
     with open(cache_filepath, 'w') as f:
         json.dump(cache_info, f)
 
-def get_log_filepath(file_name):
-    return os.path.join(LOGS_DIR, file_name)
+def get_log_filepath(base_dir: LOG_DIR_BASES, file_name: str):
+    return os.path.join(LOGS_DIR, base_dir.value, file_name)
 
-def delete_log_info(file_name):
-    filepath = get_log_filepath(file_name)
-    if os.path.isfile(filepath):
-        os.remove(filepath)
-
-def write_log_info(file_name, text, mode='w'):
-    filepath = get_log_filepath(file_name)
+def write_log_info(base_dir: LOG_DIR_BASES, file_name: str, text, mode='w'):
+    filepath = get_log_filepath(base_dir, file_name)
     with open(filepath, mode) as f:
         f.write(text + '\n')
 
-def append_log_info(file_name, text):
-    write_log_info(file_name, text, mode='a')
+def append_log_info(base_dir: LOG_DIR_BASES, file_name: str, text: str):
+    write_log_info(base_dir, file_name, text, mode='a')
 
 def get_cache_info(file_name):
     cache_filepath = get_cache_filepath(file_name)

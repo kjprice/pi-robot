@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-import multiprocessing
 import os
 import requests
 import time
@@ -15,8 +14,7 @@ cd_to_this_directory()
 
 from modules.camera_module import image_generator, camera_setup
 from modules.config import get_servo_url, SERVER_NAMES
-from modules.image_processor import Image_Processor
-from modules.server_module import handle_default_server_response, ServerModule
+from modules.server_module.server_classification_module import Server_Classification_Module
 
 # We do not need too many images - it is ok to throw away some
 # TODO: Decide which images to throw away based on if they are more blurry than others
@@ -27,17 +25,14 @@ FOLDER_TO_SAVE_TO = 'images-captured'
 # If false, we will use pub/sub; the two patterns behave completely differently https://github.com/jeffbass/imagezmq/blob/48614483298b782b37dffdddd6b75b9ae0ee525c/docs/req-vs-pub.rst
 REQ_REP = True
 
-def is_test():
-    return 'IS_TEST' in os.environ
-
-def get_servo_url_path(path):
-    servo_url = get_servo_url(is_test())
+def get_servo_url_path(path: str, is_test: bool):
+    servo_url = get_servo_url(is_test)
     url = '/'.join([servo_url, path])
 
     return url
 
-def test_connection_with_servo_server():
-    url = get_servo_url_path('testConnection')
+def test_connection_with_servo_server(is_test: bool):
+    url = get_servo_url_path('testConnection', is_test)
     print('Testing connection with servo server on url "{}"'.format(url))
     response = requests.get(url)
     handle_default_server_response(response)
@@ -57,27 +52,33 @@ def get_image_sender():
     else:
         return imagezmq.ImageSender(connect_to='tcp://*:6666', REQ_REP=False)
 
-class CameraHead(ServerModule):
+class CameraHead(Server_Classification_Module):
     is_processing_server_online = None
     image_processor = None
     count_images_discarded = 0
     count_images_used = 0
     time_started = None
     last_image_sent_time = None
-    seconds_between_images = 2
+    _seconds_between_images = None
 
-    def __init__(self, env=None, seconds_between_images=None) -> None:
-        if seconds_between_images is not None:
-            self.seconds_between_images = seconds_between_images
-        self.image_processor = Image_Processor()
+    def __init__(self, arg_flags=None) -> None:
         self.is_processing_server_online = False
         self.time_started = time.time()
         self.time_needed_between_images = 1 / MAX_IMAGES_TO_PROCESS_PER_SECOND
 
         server_name = SERVER_NAMES.CAMERA_HEAD
-        super().__init__(server_name=server_name, env=env)
+        super().__init__(server_name, arg_flags)
     
+    def other_args(self):
+        super().other_args()
+        self.parser.add_argument(
+            '--delay',
+            type=int,
+            default=2
+        )
+
     def other_socket_events(self):
+        super().other_socket_events()
         sio = self.sio
 
         @sio.event
@@ -86,16 +87,16 @@ class CameraHead(ServerModule):
             self.is_processing_server_online = True
         
         @sio.event
-        def chnage_seconds_between_images(seconds_between_images):
+        def change_seconds_between_images(seconds_between_images):
             self.send_output('Setting new seconds_between_images: {}'.format(seconds_between_images))
-            self.seconds_between_images = seconds_between_images
+            self._seconds_between_images = seconds_between_images
     
     def socket_init(self):
         self.sio.emit('set_socket_room', 'camera_head')
     
     def check_if_processing_server_online(self):
         if not self.is_processing_server_online:
-            self.sio.emit('is_processing_server_online')
+            self.emit('is_processing_server_online')
 
     def should_throttle_image(self):
         if self.last_image_sent_time is not None:
@@ -106,19 +107,22 @@ class CameraHead(ServerModule):
         return True
 
     def run_continuously(self):
-        camera_setup(is_test(), grayscale=True)
+        camera_setup(self.is_test, grayscale=True)
 
-        time.sleep(1) # Give time for camera to warm up
+        self.sleep(1) # Give time for camera to warm up
 
         # if not self.is_processing_server_online and not IS_TEST:
-        #     test_connection_with_servo_server()
+        #     test_connection_with_servo_server(self.is_test)
 
         images_count = 0
         sender = get_image_sender()
 
-        for img, time_passed_for_image in image_generator(is_test()):
+        for img, time_passed_for_image in image_generator(self.is_test, grayscale=False):
             self.check_if_processing_server_online()
-            time.sleep(self.seconds_between_images)
+            self.sleep(self.seconds_between_images)
+            if self.abort_signal_received:
+                self.send_output('aborting')
+                return
             time_start = time.time() - time_passed_for_image
             images_count += 1
             # TODO: Periodically check to make sure that server is still online (every 10 seconds)
@@ -133,8 +137,19 @@ class CameraHead(ServerModule):
             else:
                 self.image_processor.process_message_immediately(img, time_passed_for_image, time_start)
 
-def start_camera_process(env=None, seconds_between_images=None):
-    camera_head = CameraHead(env, seconds_between_images=seconds_between_images)
+    @property
+    def seconds_between_images(self):
+        if self._seconds_between_images is not None:
+            return self._seconds_between_images
+        
+        return self.get_args().delay
+
+    @seconds_between_images.setter
+    def seconds_between_images(self, value):
+        self._seconds_between_images = value
+
+def start_camera_process(arg_flags=None):
+    camera_head = CameraHead(arg_flags)
     camera_head.start_threads()
 
 if __name__ == '__main__':
