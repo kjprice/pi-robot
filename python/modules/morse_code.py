@@ -11,6 +11,9 @@ class MorseCodeUnits(Enum):
     NEW_LETTER = 4
     NEW_WORD = 5
 
+DOT = MorseCodeUnits.DOT
+DASH = MorseCodeUnits.DASH
+SPACE = MorseCodeUnits.SPACE
 
 class MorseCodeStates(Enum):
     ACTIVE = 1
@@ -21,6 +24,10 @@ class MorseCodeStates(Enum):
         if value == 0:
             return self.INACTIVE
         return self.ACTIVE
+
+MORSE_LETTERS = {
+    'A': [DOT, SPACE, DASH],
+}
 
 def data_to_states_counts(data):
     morse_states_counts = []
@@ -83,7 +90,9 @@ class MorseCode:
 
 class TestMorseCode(unittest.TestCase):
     LETTER_A_RAW = [1, 0, 1, 1, 1]
+    LETTER_B_RAW = [1, 1, 1, 0, 1, 0, 1, 0, 1]
     LETTER_A_STATE_COUNTS = None
+    LETTER_A_UNITS = [DOT, SPACE, DASH]
     def setUp(self) -> None:
         self.LETTER_A_STATE_COUNTS = self.helper_get_state_counts([
             [MorseCodeStates.ACTIVE, 1],
@@ -115,10 +124,18 @@ class TestMorseCode(unittest.TestCase):
     
     def test_state_counts_to_morse_units(self):
         state_counts = self.LETTER_A_STATE_COUNTS
-        expected_morse = [MorseCodeUnits.DOT, MorseCodeUnits.SPACE, MorseCodeUnits.DASH]
+        expected_morse = self.LETTER_A_UNITS
 
         morse_units = state_counts_to_morse_units(state_counts)
         self.assertEqual(morse_units, expected_morse)
-        
+
+# TODO:
+# - turn morse units into a letter
+# - test with a word
+# - test with two words
+# - include variance in units...round to nearest odd number
+# - include odd units - resize so smallest unit is 1
+# - include variance of values - turn 0.7 into 1 for example based on context
+
 if IS_TEST:
     unittest.main()
