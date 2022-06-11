@@ -25,9 +25,21 @@ class MorseCodeStates(Enum):
             return self.INACTIVE
         return self.ACTIVE
 
+ACTIVE = MorseCodeStates.ACTIVE
+INACTIVE = MorseCodeStates.INACTIVE
+
 MORSE_LETTERS = {
     'A': [DOT, SPACE, DASH],
+    'E': [DOT],
+    'T': [DASH],
 }
+
+def morse_units_to_letter(morse_units):
+    # TODO: Inneficient - maybe use a trie?
+    for letter in MORSE_LETTERS:
+        units = MORSE_LETTERS[letter]
+        if morse_units == units:
+            return letter
 
 def data_to_states_counts(data):
     morse_states_counts = []
@@ -90,14 +102,14 @@ class MorseCode:
 
 class TestMorseCode(unittest.TestCase):
     LETTER_A_RAW = [1, 0, 1, 1, 1]
-    LETTER_B_RAW = [1, 1, 1, 0, 1, 0, 1, 0, 1]
+    LETTER_E_RAW = [1]
+    LETTER_T_RAW = [1, 1, 1]
     LETTER_A_STATE_COUNTS = None
-    LETTER_A_UNITS = [DOT, SPACE, DASH]
     def setUp(self) -> None:
         self.LETTER_A_STATE_COUNTS = self.helper_get_state_counts([
-            [MorseCodeStates.ACTIVE, 1],
-            [MorseCodeStates.INACTIVE, 1],
-            [MorseCodeStates.ACTIVE, 3],
+            [ACTIVE, 1],
+            [INACTIVE, 1],
+            [ACTIVE, 3],
         ])
         return super().setUp()
     
@@ -124,13 +136,19 @@ class TestMorseCode(unittest.TestCase):
     
     def test_state_counts_to_morse_units(self):
         state_counts = self.LETTER_A_STATE_COUNTS
-        expected_morse = self.LETTER_A_UNITS
+        expected_morse = MORSE_LETTERS['A']
 
         morse_units = state_counts_to_morse_units(state_counts)
         self.assertEqual(morse_units, expected_morse)
+    
+    def test_morse_units_to_letter(self):
+        morse_units = MORSE_LETTERS['A']
+        expected_letter = 'A'
+
+        found_letter = morse_units_to_letter(morse_units)
+        self.assertEqual(found_letter, expected_letter)
 
 # TODO:
-# - turn morse units into a letter
 # - test with a word
 # - test with two words
 # - include variance in units...round to nearest odd number
