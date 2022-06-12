@@ -15,6 +15,7 @@ DOT = MorseCodeUnits.DOT
 DASH = MorseCodeUnits.DASH
 SPACE = MorseCodeUnits.SPACE
 NEW_LETTER = MorseCodeUnits.NEW_LETTER
+NEW_WORD = MorseCodeUnits.NEW_WORD
 
 class MorseCodeStates(Enum):
     ACTIVE = 1
@@ -63,6 +64,13 @@ def morse_units_to_word(morse_units):
     
     return ''.join(word)
 
+def morse_units_to_words(morse_units):
+    words = []
+    word_units = seperate_units_by(morse_units, NEW_WORD)
+    for unit in word_units:
+        words.append(morse_units_to_word(unit))
+    
+    return ' '.join(words)
 
 def data_to_states_counts(data):
     morse_states_counts = []
@@ -129,6 +137,7 @@ class TestMorseCode(unittest.TestCase):
     LETTER_T_RAW = [1, 1, 1]
     LETTER_A_STATE_COUNTS = None
     WORD_EAT_UNITS = None
+    WORD_TEA_UNITS = None
     def setUp(self) -> None:
         self.LETTER_A_STATE_COUNTS = self.helper_get_state_counts([
             [ACTIVE, 1],
@@ -137,6 +146,7 @@ class TestMorseCode(unittest.TestCase):
         ])
 
         self.WORD_EAT_UNITS = self.helper_create_word('EAT')
+        self.WORD_TEA_UNITS = self.helper_create_word('TEA')
 
         return super().setUp()
     
@@ -180,7 +190,7 @@ class TestMorseCode(unittest.TestCase):
         found_letter = morse_units_to_letter(morse_units)
         self.assertEqual(found_letter, expected_letter)
     
-    def test_seperate_units_by(self):
+    def test_seperate_units_by_letters(self):
         morse_units = self.WORD_EAT_UNITS
         expected_output = [
             MORSE_LETTERS['E'],
@@ -190,6 +200,19 @@ class TestMorseCode(unittest.TestCase):
 
         found_units = seperate_units_by(morse_units, NEW_LETTER)
         self.assertEqual(found_units, expected_output)
+
+    def test_seperate_units_by_words(self):
+        morse_units = MORSE_LETTERS['E'] + \
+            [NEW_WORD] + \
+            MORSE_LETTERS['T']
+        expected_output = [
+            MORSE_LETTERS['E'],
+            MORSE_LETTERS['T']
+        ]
+
+        found_units = seperate_units_by(morse_units, NEW_WORD)
+        self.assertEqual(found_units, expected_output)
+
     def test_morse_units_to_word(self):
         morse_units = self.WORD_EAT_UNITS
         expected_word = 'EAT'
@@ -197,8 +220,14 @@ class TestMorseCode(unittest.TestCase):
         found_word = morse_units_to_word(morse_units)
         self.assertEqual(found_word, expected_word)
 
+    def test_morse_units_to_words(self):
+        morse_units = self.WORD_EAT_UNITS + [NEW_WORD] + self.WORD_TEA_UNITS
+        expected_words = 'EAT TEA'
+
+        found_word = morse_units_to_words(morse_units)
+        self.assertEqual(found_word, expected_words)
+
 # TODO:
-# - test with two words
 # - include variance in units...round to nearest odd number
 # - include odd units - resize so smallest unit is 1
 # - include variance of values - turn 0.7 into 1 for example based on context
