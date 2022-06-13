@@ -80,10 +80,7 @@ def data_to_states_sizes(data):
             current_state_size['size'] += 1
         else:
             morse_states_sizes.append(current_state_size)
-            current_state_size = {
-                'state': MorseCodeStates.value_to_state(unit),
-                'size': 1
-            }
+            current_state_size = to_state_size(unit, 1)
     morse_states_sizes.append(current_state_size)
 
     return morse_states_sizes
