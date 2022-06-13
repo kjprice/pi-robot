@@ -1,5 +1,6 @@
 from enum import Enum
 import os
+from typing import List, Dict
 import unittest
 
 from .morse_code_units import MorseCodeUnits
@@ -69,8 +70,7 @@ def print_stats(state_sizes):
         output.append('{} {}'.format(active, t))
     print(' | '.join(output), end='\r')
 
-
-def data_to_states_sizes(data):
+def binary_data_to_states_sizes(data: List[int]) -> List[Dict]:
     morse_states_sizes = []
     current_state_size = to_state_size(data[0], 1)
 
@@ -161,12 +161,12 @@ class TestMorseCode(unittest.TestCase):
             output.append(self.helper_get_state_size(state, size))
         return output
 
-    def test_data_to_states_sizes(self):
+    def test_binary_data_to_states_sizes(self):
         data = self.LETTER_A_RAW
 
         expected_state_sizes = self.LETTER_A_STATE_SIZES
 
-        morse_states_sizes = data_to_states_sizes(data)
+        morse_states_sizes = binary_data_to_states_sizes(data)
         self.assertEqual(morse_states_sizes, expected_state_sizes)
     
     def test_state_sizes_to_morse_units(self):
