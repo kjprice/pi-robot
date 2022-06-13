@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 from pynput import keyboard, mouse
 
-from modules.morse_code.morse_code import to_state_size, print_stats
+from .modules.morse_code.morse_code import to_state_size, print_stats
 
 def image_to_brightness_data(image):
     return image.mean()

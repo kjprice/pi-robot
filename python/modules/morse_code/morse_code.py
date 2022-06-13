@@ -2,14 +2,9 @@ from enum import Enum
 import os
 import unittest
 
-IS_TEST = 'IS_TEST' in os.environ
+from .morse_code_units import MorseCodeUnits
 
-class MorseCodeUnits(Enum):
-    DOT = 'DOT'
-    DASH = 'DASH'
-    SPACE = 'SPACE'
-    NEW_LETTER = 'NEW_LETTER'
-    NEW_WORD = 'NEW_WORD'
+IS_TEST = 'IS_TEST' in os.environ
 
 DOT = MorseCodeUnits.DOT
 DASH = MorseCodeUnits.DASH
