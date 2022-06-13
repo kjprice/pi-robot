@@ -5,11 +5,11 @@ import unittest
 IS_TEST = 'IS_TEST' in os.environ
 
 class MorseCodeUnits(Enum):
-    DOT = 1
-    DASH = 2
-    SPACE = 3
-    NEW_LETTER = 4
-    NEW_WORD = 5
+    DOT = 'DOT'
+    DASH = 'DASH'
+    SPACE = 'SPACE'
+    NEW_LETTER = 'NEW_LETTER'
+    NEW_WORD = 'NEW_WORD'
 
 DOT = MorseCodeUnits.DOT
 DASH = MorseCodeUnits.DASH
@@ -36,12 +36,23 @@ MORSE_LETTERS = {
     'T': [DASH],
 }
 
+# Turns List[MorseCodeUnits] into a string of their values
+def serialize_units(units):
+    output = []
+    for unit in units:
+        output.append(unit.value)
+    
+    return '_'.join(output)
+
+MORSE_UNITS_TO_LETTER = {}
+for letter in MORSE_LETTERS:
+    units = MORSE_LETTERS[letter]
+    units_str = serialize_units(units)
+    MORSE_UNITS_TO_LETTER[units_str] = letter
+
 def morse_units_to_letter(morse_units):
-    # TODO: Inneficient - maybe use a trie?
-    for letter in MORSE_LETTERS:
-        units = MORSE_LETTERS[letter]
-        if morse_units == units:
-            return letter
+    units_str = serialize_units(morse_units)
+    return MORSE_UNITS_TO_LETTER[units_str]
 
 def seperate_units_by(morse_units, by=MorseCodeUnits):
     units_group = []
