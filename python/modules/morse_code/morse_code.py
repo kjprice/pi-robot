@@ -3,6 +3,7 @@ import os
 import unittest
 
 from .morse_code_units import MorseCodeUnits
+from .morse_letters import morse_units_to_letter, MORSE_LETTERS
 
 IS_TEST = 'IS_TEST' in os.environ
 
@@ -24,30 +25,6 @@ class MorseCodeStates(Enum):
 
 ACTIVE = MorseCodeStates.ACTIVE
 INACTIVE = MorseCodeStates.INACTIVE
-
-MORSE_LETTERS = {
-    'A': [DOT, SPACE, DASH],
-    'E': [DOT],
-    'T': [DASH],
-}
-
-# Turns List[MorseCodeUnits] into a string of their values
-def serialize_units(units):
-    output = []
-    for unit in units:
-        output.append(unit.value)
-    
-    return '_'.join(output)
-
-MORSE_UNITS_TO_LETTER = {}
-for letter in MORSE_LETTERS:
-    units = MORSE_LETTERS[letter]
-    units_str = serialize_units(units)
-    MORSE_UNITS_TO_LETTER[units_str] = letter
-
-def morse_units_to_letter(morse_units):
-    units_str = serialize_units(morse_units)
-    return MORSE_UNITS_TO_LETTER[units_str]
 
 def seperate_units_by(morse_units, by=MorseCodeUnits):
     units_group = []
