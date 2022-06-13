@@ -1,10 +1,10 @@
-from enum import Enum
 import os
 from typing import List, Dict
 import unittest
 
 from .morse_code_units import MorseCodeUnits
 from .morse_letters import morse_units_to_letter, MORSE_LETTERS
+from .morse_code_states import MorseCodeStates, to_state_size
 
 IS_TEST = 'IS_TEST' in os.environ
 
@@ -13,16 +13,6 @@ DASH = MorseCodeUnits.DASH
 SPACE = MorseCodeUnits.SPACE
 NEW_LETTER = MorseCodeUnits.NEW_LETTER
 NEW_WORD = MorseCodeUnits.NEW_WORD
-
-class MorseCodeStates(Enum):
-    ACTIVE = 1
-    INACTIVE = 2
-
-    @classmethod
-    def value_to_state(self, value):
-        if value == 0:
-            return self.INACTIVE
-        return self.ACTIVE
 
 ACTIVE = MorseCodeStates.ACTIVE
 INACTIVE = MorseCodeStates.INACTIVE
@@ -55,12 +45,6 @@ def morse_units_to_words(morse_units):
         words.append(morse_units_to_word(unit))
     
     return ' '.join(words)
-
-def to_state_size(value: float, size: float):
-    return {
-        'state': MorseCodeStates.value_to_state(value),
-        'size': size
-    }
 
 def print_stats(state_sizes):
     output = []
