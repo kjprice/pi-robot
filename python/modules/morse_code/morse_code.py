@@ -69,7 +69,7 @@ def binary_data_to_states_sizes(data: List[int]) -> List[Dict]:
 
     return morse_states_sizes
 
-def morse_units_from_state_size(state, size):
+def morse_units_from_state_size(state: MorseCodeStates, size: int):
     if state == MorseCodeStates.ACTIVE:
         if size == 1:
             return MorseCodeUnits.DOT
