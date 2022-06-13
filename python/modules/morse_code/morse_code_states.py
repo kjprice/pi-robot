@@ -9,10 +9,3 @@ class MorseCodeStates(Enum):
         if value == 0:
             return self.INACTIVE
         return self.ACTIVE
-
-def to_state_size(value: float, size: float):
-    return {
-        'state': MorseCodeStates.value_to_state(value),
-        'size': size
-    }
-

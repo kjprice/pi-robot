@@ -4,7 +4,8 @@ import unittest
 
 from .morse_code_units import MorseCodeUnits
 from .morse_letters import morse_units_to_letter, MORSE_LETTERS
-from .morse_code_states import MorseCodeStates, to_state_size
+from .morse_code_states import MorseCodeStates
+from .morse_state_size import MorseCodeStateSize
 
 IS_TEST = 'IS_TEST' in os.environ
 
@@ -49,22 +50,23 @@ def morse_units_to_words(morse_units):
 def print_stats(state_sizes):
     output = []
     for e in state_sizes:
-        active = 'ON' if e['state'] == MorseCodeStates.ACTIVE else 'OFF'
-        t = e['size']
+        active = 'ON' if e.state == MorseCodeStates.ACTIVE else 'OFF'
+        t = e.size
         output.append('{} {}'.format(active, t))
     print(' | '.join(output), end='\r')
 
 def binary_data_to_states_sizes(data: List[int]) -> List[Dict]:
     morse_states_sizes = []
-    current_state_size = to_state_size(data[0], 1)
+    current_state_size = MorseCodeStateSize(data[0], 1)
 
     for unit in data[1:]:
         state = MorseCodeStates.value_to_state(unit)
-        if state == current_state_size['state']:
-            current_state_size['size'] += 1
+        if state == current_state_size.state:
+            # TODO: It's odd to mutate size here
+            current_state_size.size += 1
         else:
             morse_states_sizes.append(current_state_size)
-            current_state_size = to_state_size(unit, 1)
+            current_state_size = MorseCodeStateSize(unit, 1)
     morse_states_sizes.append(current_state_size)
 
     return morse_states_sizes
@@ -88,8 +90,8 @@ def morse_units_from_state_size(state: MorseCodeStates, size: int):
 def state_sizes_to_morse_units(state_sizes):
     morse_units = []
     for state_size in state_sizes:
-        state = state_size['state']
-        size = state_size['size']
+        state = state_size.state
+        size = state_size.size
 
         unit = morse_units_from_state_size(state, size)
         morse_units.append(unit)
@@ -116,11 +118,11 @@ class TestMorseCode(unittest.TestCase):
     WORD_EAT_UNITS = None
     WORD_TEA_UNITS = None
     def setUp(self) -> None:
-        self.LETTER_A_STATE_SIZES = self.helper_get_state_sizes([
-            [ACTIVE, 1],
-            [INACTIVE, 1],
-            [ACTIVE, 3],
-        ])
+        self.LETTER_A_STATE_SIZES = [
+            MorseCodeStateSize(1, 1),
+            MorseCodeStateSize(0, 1),
+            MorseCodeStateSize(1, 3),
+        ]
 
         self.WORD_EAT_UNITS = self.helper_create_word('EAT')
         self.WORD_TEA_UNITS = self.helper_create_word('TEA')
