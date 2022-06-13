@@ -72,12 +72,25 @@ def morse_units_to_words(morse_units):
     
     return ' '.join(words)
 
+# TODO: "counts" can be float too - maybe better name is just "elapsed"?
+def get_state_counts(value: float, count: float):
+    return {
+        'state': MorseCodeStates.value_to_state(value),
+        'count': count
+    }
+
+def print_stats(state_counts):
+    output = []
+    for e in state_counts:
+        active = 'ON' if e['state'] == MorseCodeStates.ACTIVE else 'OFF'
+        t = e['count']
+        output.append('{} {}'.format(active, t))
+    print(' | '.join(output), end='\r')
+
+
 def data_to_states_counts(data):
     morse_states_counts = []
-    current_state_count = {
-        'state': MorseCodeStates.value_to_state(data[0]),
-        'count': 1
-    }
+    current_state_count = get_state_counts(data[0], 1)
 
     for unit in data[1:]:
         state = MorseCodeStates.value_to_state(unit)
@@ -132,6 +145,7 @@ class MorseCode:
 
 
 class TestMorseCode(unittest.TestCase):
+    # TODO: Raw data should have units associated already?
     LETTER_A_RAW = [1, 0, 1, 1, 1]
     LETTER_E_RAW = [1]
     LETTER_T_RAW = [1, 1, 1]
@@ -232,5 +246,5 @@ class TestMorseCode(unittest.TestCase):
 # - include odd units - resize so smallest unit is 1
 # - include variance of values - turn 0.7 into 1 for example based on context
 
-if IS_TEST:
+if __name__ == '__main__':
     unittest.main()
