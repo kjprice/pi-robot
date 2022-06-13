@@ -134,18 +134,6 @@ class TestMorseCode(unittest.TestCase):
         for letter in letters:
             word += MORSE_LETTERS[letter] + [NEW_LETTER]
         return word[:-1] # Remove last NEW_LINE
-    def helper_get_state_size(self, state: MorseCodeStates, size):
-        return {
-            'state': state,
-            'size': size
-        }
-    
-    def helper_get_state_sizes(self, state_sizes):
-        output = []
-        for state_size in state_sizes:
-            state, size = state_size
-            output.append(self.helper_get_state_size(state, size))
-        return output
 
     def test_binary_data_to_states_sizes(self):
         data = self.LETTER_A_RAW
