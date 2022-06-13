@@ -72,63 +72,62 @@ def morse_units_to_words(morse_units):
     
     return ' '.join(words)
 
-# TODO: "counts" can be float too - maybe better name is just "elapsed"?
-def get_state_counts(value: float, count: float):
+def to_state_size(value: float, size: float):
     return {
         'state': MorseCodeStates.value_to_state(value),
-        'count': count
+        'size': size
     }
 
-def print_stats(state_counts):
+def print_stats(state_sizes):
     output = []
-    for e in state_counts:
+    for e in state_sizes:
         active = 'ON' if e['state'] == MorseCodeStates.ACTIVE else 'OFF'
-        t = e['count']
+        t = e['size']
         output.append('{} {}'.format(active, t))
     print(' | '.join(output), end='\r')
 
 
-def data_to_states_counts(data):
-    morse_states_counts = []
-    current_state_count = get_state_counts(data[0], 1)
+def data_to_states_sizes(data):
+    morse_states_sizes = []
+    current_state_size = to_state_size(data[0], 1)
 
     for unit in data[1:]:
         state = MorseCodeStates.value_to_state(unit)
-        if state == current_state_count['state']:
-            current_state_count['count'] += 1
+        if state == current_state_size['state']:
+            current_state_size['size'] += 1
         else:
-            morse_states_counts.append(current_state_count)
-            current_state_count = {
+            morse_states_sizes.append(current_state_size)
+            current_state_size = {
                 'state': MorseCodeStates.value_to_state(unit),
-                'count': 1
+                'size': 1
             }
-    morse_states_counts.append(current_state_count)
+    morse_states_sizes.append(current_state_size)
 
-    return morse_states_counts
+    return morse_states_sizes
 
-def morse_units_from_state_count(state, count):
+def morse_units_from_state_size(state, size):
     if state == MorseCodeStates.ACTIVE:
-        if count == 1:
+        if size == 1:
             return MorseCodeUnits.DOT
-        if count == 3:
+        if size == 3:
             return MorseCodeUnits.DASH
     if state == MorseCodeStates.INACTIVE:
-        if count == 1:
+        if size == 1:
             return MorseCodeUnits.SPACE
-        if count == 3:
+        if size == 3:
             return MorseCodeUnits.NEW_LETTER
-        if count == 7:
+        if size == 7:
             return MorseCodeUnits.NEW_WORD
     
     return None
 
-def state_counts_to_morse_units(state_counts):
+def state_sizes_to_morse_units(state_sizes):
     morse_units = []
-    for state_count in state_counts:
-        state = state_count['state']
-        count = state_count['count']
+    for state_size in state_sizes:
+        state = state_size['state']
+        size = state_size['size']
 
-        unit = morse_units_from_state_count(state, count)
+        unit = morse_units_from_state_size(state, size)
         morse_units.append(unit)
     return morse_units
 
@@ -149,11 +148,11 @@ class TestMorseCode(unittest.TestCase):
     LETTER_A_RAW = [1, 0, 1, 1, 1]
     LETTER_E_RAW = [1]
     LETTER_T_RAW = [1, 1, 1]
-    LETTER_A_STATE_COUNTS = None
+    LETTER_A_STATE_SIZES = None
     WORD_EAT_UNITS = None
     WORD_TEA_UNITS = None
     def setUp(self) -> None:
-        self.LETTER_A_STATE_COUNTS = self.helper_get_state_counts([
+        self.LETTER_A_STATE_SIZES = self.helper_get_state_sizes([
             [ACTIVE, 1],
             [INACTIVE, 1],
             [ACTIVE, 3],
@@ -169,32 +168,32 @@ class TestMorseCode(unittest.TestCase):
         for letter in letters:
             word += MORSE_LETTERS[letter] + [NEW_LETTER]
         return word[:-1] # Remove last NEW_LINE
-    def helper_get_state_count(self, state: MorseCodeStates, count):
+    def helper_get_state_size(self, state: MorseCodeStates, size):
         return {
             'state': state,
-            'count': count
+            'size': size
         }
     
-    def helper_get_state_counts(self, state_counts):
+    def helper_get_state_sizes(self, state_sizes):
         output = []
-        for state_count in state_counts:
-            state, count = state_count
-            output.append(self.helper_get_state_count(state, count))
+        for state_size in state_sizes:
+            state, size = state_size
+            output.append(self.helper_get_state_size(state, size))
         return output
 
-    def test_data_to_states_counts(self):
+    def test_data_to_states_sizes(self):
         data = self.LETTER_A_RAW
 
-        expected_state_counts = self.LETTER_A_STATE_COUNTS
+        expected_state_sizes = self.LETTER_A_STATE_SIZES
 
-        morse_states_counts = data_to_states_counts(data)
-        self.assertEqual(morse_states_counts, expected_state_counts)
+        morse_states_sizes = data_to_states_sizes(data)
+        self.assertEqual(morse_states_sizes, expected_state_sizes)
     
-    def test_state_counts_to_morse_units(self):
-        state_counts = self.LETTER_A_STATE_COUNTS
+    def test_state_sizes_to_morse_units(self):
+        state_sizes = self.LETTER_A_STATE_SIZES
         expected_morse = MORSE_LETTERS['A']
 
-        morse_units = state_counts_to_morse_units(state_counts)
+        morse_units = state_sizes_to_morse_units(state_sizes)
         self.assertEqual(morse_units, expected_morse)
     
     def test_morse_units_to_letter(self):

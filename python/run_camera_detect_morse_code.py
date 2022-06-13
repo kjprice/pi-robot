@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 from pynput import keyboard, mouse
 
-from modules.morse_code import get_state_counts, print_stats
+from modules.morse_code import to_state_size, print_stats
 
 def image_to_brightness_data(image):
     return image.mean()
@@ -57,7 +57,7 @@ class MorseCodeMouseClick():
 
         # Example, if button is pressed, then we want to store how long the button was not pressed (ie "not active")
         active = not pressed
-        e = get_state_counts(active, time_diff)
+        e = to_state_size(active, time_diff)
         self.events.append(e)
     def on_click(self, x, y, button, pressed):
         if button == mouse.Button.left:
