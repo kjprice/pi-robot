@@ -1,3 +1,4 @@
+import enum
 import os
 from typing import List, Dict
 import unittest
@@ -23,7 +24,6 @@ INACTIVE = MorseCodeStates.INACTIVE
 def normalize_sizes(sizes):
     middle = np.median(sizes)
     std = np.std(sizes)
-    print(std)
     half_std = std / 2
     normalized_sizes = sizes.copy()
     for i, size in enumerate(sizes):
@@ -36,16 +36,24 @@ def normalize_sizes(sizes):
     return normalized_sizes
 
 def seperate_units_by(morse_units, by=MorseCodeUnits):
+    starting_index = 0
+    for unit in morse_units:
+        if unit != by:
+            break
+        starting_index += 1
+    if len(morse_units) == starting_index:
+        return [morse_units]
     units_group = []
-    current_group = [morse_units[0]]
-    for morse_unit in morse_units[1:]:
+    current_group = [morse_units[starting_index]]
+    for morse_unit in morse_units[starting_index+1:]:
         if morse_unit != by:
             current_group.append(morse_unit)
         else:
             units_group.append(current_group)
             current_group = []
 
-    units_group.append(current_group)
+    if len(current_group) > 0:
+        units_group.append(current_group)
     return units_group
 
 def morse_units_to_word(morse_units):
@@ -93,6 +101,9 @@ def morse_units_from_state_size(state: MorseCodeStates, size: int):
         if size == 1:
             return MorseCodeUnits.DOT
         if size == 3:
+            return MorseCodeUnits.DASH
+        # Based on normalization, this is possible
+        if size == 7:
             return MorseCodeUnits.DASH
     if state == MorseCodeStates.INACTIVE:
         if size == 1:
@@ -192,6 +203,18 @@ class TestMorseCode(unittest.TestCase):
         expected_output = [
             MORSE_LETTERS['E'],
             MORSE_LETTERS['T']
+        ]
+
+        found_units = seperate_units_by(morse_units, NEW_WORD)
+        self.assertEqual(found_units, expected_output)
+
+    def test_seperate_units_by_words_ignores_extra_newword_boundaries(self):
+        morse_units = [NEW_WORD] + \
+            MORSE_LETTERS['E'] + \
+                [NEW_WORD]
+
+        expected_output = [
+            MORSE_LETTERS['E']
         ]
 
         found_units = seperate_units_by(morse_units, NEW_WORD)

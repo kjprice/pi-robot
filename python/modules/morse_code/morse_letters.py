@@ -26,4 +26,7 @@ for letter in MORSE_LETTERS:
 
 def morse_units_to_letter(morse_units):
     units_str = serialize_units(morse_units)
-    return MORSE_UNITS_TO_LETTER[units_str]
+    if units_str in MORSE_UNITS_TO_LETTER:
+        return MORSE_UNITS_TO_LETTER[units_str]
+    
+    return '?'

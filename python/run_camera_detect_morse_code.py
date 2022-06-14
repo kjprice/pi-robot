@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 from pynput import keyboard, mouse
 
-from .modules.morse_code.morse_code import print_stats
+from .modules.morse_code.morse_code import print_stats, morse_units_to_words, normalize_sizes, state_sizes_to_morse_units
 from .modules.morse_code.morse_state_size import MorseCodeStateSize
 
 def image_to_brightness_data(image):
@@ -43,9 +43,11 @@ def detect_morse_from_keypress():
 class MorseCodeMouseClick():
     t = None
     events = None
+    normalized_events = None
     def __init__(self) -> None:
         self.t = time.time() #reading time in sec
         self.events = []
+        self.normalized_events = []
         print('Left click on mouse to add action, any other mouse button will quit')
         with mouse.Listener(
             on_click=self.on_click,
@@ -61,10 +63,22 @@ class MorseCodeMouseClick():
         active = not pressed
         e = MorseCodeStateSize(active, time_diff)
         self.events.append(e)
+    def normalize_events(self):
+        self.normalized_events = []
+        sizes = [e.size for e in self.events]
+        normalized_sizes = normalize_sizes(sizes)
+        for e, n in zip(self.events, normalized_sizes):
+            self.normalized_events.append(
+                MorseCodeStateSize(e.value, n)
+            )
     def on_click(self, x, y, button, pressed):
         if button == mouse.Button.left:
             self.create_event(pressed)
-            print_stats(self.events)
+            self.normalize_events()
+            units = state_sizes_to_morse_units(self.normalized_events)
+            print(units)
+            print(morse_units_to_words(units))
+            # print_stats(self.events)
         else:
             print()
             print('Pressed "{}". Quiting'.format(button))

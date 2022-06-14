@@ -3,14 +3,20 @@ import unittest
 from .morse_code_states import MorseCodeStates
 
 class MorseCodeStateSize():
+    value = None
     state = None
     size = None
     def __init__(self, value: float, size: float) -> None:
+        self.value = value
         self.state = MorseCodeStates.value_to_state(value)
         self.size = size
     
     def __eq__(self, __o: object) -> bool:
         return self.state == __o.state and self.size == __o.size
+    
+    def __repr__(self) -> str:
+        state = '1' if self.state == MorseCodeStates.ACTIVE else '0'
+        return '{} {}'.format(state, self.size)
 
 class TestMorseCodeStateSize(unittest.TestCase):
     def test_simple_state_size(self):

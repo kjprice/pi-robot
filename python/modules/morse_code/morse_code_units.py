@@ -6,3 +6,6 @@ class MorseCodeUnits(Enum):
     SPACE = 'SPACE'
     NEW_LETTER = 'NEW_LETTER'
     NEW_WORD = 'NEW_WORD'
+
+    def __repr__(self) -> str:
+        return self.value
