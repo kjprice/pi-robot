@@ -2,6 +2,8 @@ import os
 from typing import List, Dict
 import unittest
 
+import numpy as np
+
 from .morse_code_units import MorseCodeUnits
 from .morse_letters import morse_units_to_letter, MORSE_LETTERS
 from .morse_code_states import MorseCodeStates
@@ -17,6 +19,21 @@ NEW_WORD = MorseCodeUnits.NEW_WORD
 
 ACTIVE = MorseCodeStates.ACTIVE
 INACTIVE = MorseCodeStates.INACTIVE
+
+def normalize_sizes(sizes):
+    middle = np.median(sizes)
+    std = np.std(sizes)
+    print(std)
+    half_std = std / 2
+    normalized_sizes = sizes.copy()
+    for i, size in enumerate(sizes):
+        if size < (middle - half_std):
+            normalized_sizes[i] = 1
+        elif size < (middle + std):
+            normalized_sizes[i] = 3
+        else:
+            normalized_sizes[i] = 7
+    return normalized_sizes
 
 def seperate_units_by(morse_units, by=MorseCodeUnits):
     units_group = []
@@ -193,11 +210,19 @@ class TestMorseCode(unittest.TestCase):
 
         found_word = morse_units_to_words(morse_units)
         self.assertEqual(found_word, expected_words)
-
-# TODO:
-# - include variance in units...round to nearest odd number
-# - include odd units - resize so smallest unit is 1
-# - include variance of values - turn 0.7 into 1 for example based on context
+    
+    def test_normalize_sizes(self):
+        # Does not find any sevens (7) because middle number is so high
+        raw = [0.2, 0.9, 1.2]
+        expected_normalized = [1, 3, 3]
+        normalized = normalize_sizes(raw)
+        self.assertEqual(normalized, expected_normalized)
+        
+        # The middle number (0.7) changes criterium for what would be a 7
+        raw = [0.3, 0.7, 1.2]
+        expected_normalized = [1, 3, 7]
+        normalized = normalize_sizes(raw)
+        self.assertEqual(normalized, expected_normalized)
 
 if __name__ == '__main__':
     unittest.main()
