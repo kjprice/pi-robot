@@ -22,39 +22,6 @@ NEW_WORD = MorseCodeUnits.NEW_WORD
 ACTIVE = MorseCodeStates.ACTIVE
 INACTIVE = MorseCodeStates.INACTIVE
 
-# Make sure sizes are not too large comparitively
-def cap_sizes(sizes):
-    LARGEST_UNIT = 7
-    smallest_number = np.min(sizes)
-    largest_allowed_size = smallest_number * LARGEST_UNIT
-    capped_sizes =[]
-    for size in sizes:
-        if size > largest_allowed_size:
-            size = largest_allowed_size
-        capped_sizes.append(size)
-    
-    return capped_sizes
-
-def normalize_sizes(state_sizes: MorseCodeStateSizes) -> MorseCodeStateSizes:
-    sizes = state_sizes.sizes
-    sizes = cap_sizes(sizes)
-    middle = np.median(sizes)
-    std = np.std(sizes)
-    half_std = std / 2
-    normalized_state_sizes = MorseCodeStateSizes()
-    for state_size in state_sizes:
-        size = state_size.size
-        value = state_size.value
-
-        if size < (middle - half_std):
-            size = 1
-        elif size < (middle + std):
-            size = 3
-        else:
-            size = 7
-        normalized_state_sizes.append(MorseCodeStateSize(value, size))
-
-    return normalized_state_sizes
 
 def seperate_units_by(morse_units, by=MorseCodeUnits):
     starting_index = 0
@@ -163,12 +130,7 @@ class MorseCode:
         self.events.append(e)
 
     def normalize_events(self):
-        self.normalized_events = []
-        normalized_sizes = normalize_sizes(self.events).sizes
-        for e, n in zip(self.events, normalized_sizes):
-            self.normalized_events.append(
-                MorseCodeStateSize(e.value, n)
-            )
+        self.normalized_events = self.events.normalize()
     def translate_data(self) -> str:
         self.normalize_events()
         units = state_sizes_to_morse_units(self.normalized_events)
@@ -203,14 +165,6 @@ class TestMorseCode(unittest.TestCase):
             word += MORSE_LETTERS[letter] + [NEW_LETTER]
         return word[:-1] # Remove last NEW_LINE
     
-    def helper_sizes_to_state_sizes(self, sizes: List[float]):
-        state_sizes = MorseCodeStateSizes()
-        active = 0
-        for size in sizes:
-            state_sizes.append(MorseCodeStateSize(active, size))
-        
-        return state_sizes
-
     def test_morse_code_add_event(self):
         morse_code = MorseCode()
         morse_code.add_event(active=True)
@@ -295,26 +249,6 @@ class TestMorseCode(unittest.TestCase):
 
         found_word = morse_units_to_words(morse_units)
         self.assertEqual(found_word, expected_words)
-
-    def test_normalize_sizes(self):
-        # Does not find any sevens (7) because middle number is so high
-        raw = self.helper_sizes_to_state_sizes([0.2, 0.9, 1.2])
-        expected_normalized = self.helper_sizes_to_state_sizes([1, 3, 3])
-        normalized = normalize_sizes(raw)
-        self.assertEqual(normalized, expected_normalized)
-        
-        # The middle number (0.7) changes criterium for what would be a 7
-        raw = self.helper_sizes_to_state_sizes([0.3, 0.7, 1.2])
-        expected_normalized = self.helper_sizes_to_state_sizes([1, 3, 7])
-        normalized = normalize_sizes(raw)
-        self.assertEqual(normalized, expected_normalized)
-    
-    def test_normalize_sizes_extreme(self):
-        # Last value should not skew smaller numbers
-        raw = self.helper_sizes_to_state_sizes([1, 2, 3, 7, 200])
-        expected_normalized = self.helper_sizes_to_state_sizes([1, 3, 3, 7, 7])
-        normalized = normalize_sizes(raw)
-        self.assertEqual(normalized, expected_normalized)
 
 if __name__ == '__main__':
     unittest.main()

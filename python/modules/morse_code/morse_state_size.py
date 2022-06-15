@@ -6,6 +6,7 @@ class MorseCodeStateSize():
     value = None
     state = None
     size = None
+    
     def __init__(self, value: float, size: float) -> None:
         self.value = value
         self.state = MorseCodeStates.value_to_state(value)
