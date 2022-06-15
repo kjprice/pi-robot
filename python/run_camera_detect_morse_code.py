@@ -59,7 +59,12 @@ class MorseCodeMouseClick():
     def on_click(self, x, y, button, pressed):
         if button == mouse.Button.left:
             self.create_event(pressed)
-            print(self.morse_code.translate_data())
+            words = self.morse_code.translate_data()
+            print(words)
+        elif button == mouse.Button.x2:
+            if pressed:
+                print('Pressed "{}". Restarting'.format(button))
+                self.morse_code = MorseCode()
         else:
             print()
             print('Pressed "{}". Quiting'.format(button))
