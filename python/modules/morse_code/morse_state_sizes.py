@@ -27,13 +27,13 @@ class MorseCodeStateSizes(list):
     sizes_by_state = None
 
     # if state_sizes is provided, then a deep copy is made
-    def __init__(self, state_sizes = List[MorseCodeStateSize]) -> None:
+    def __init__(self, state_sizes: List[MorseCodeStateSize] = None) -> None:
         self.sizes = []
         self.sizes_by_state = {
             ACTIVE: [],
             INACTIVE: []
         }
-        if type(state_sizes) == MorseCodeStateSizes:
+        if state_sizes is not None:
             self.copy_from(state_sizes)
 
     def copy_from(self, state_sizes):
@@ -69,6 +69,26 @@ class MorseCodeStateSizes(list):
             normalized_state_sizes.append(MorseCodeStateSize(value, size))
 
         return normalized_state_sizes
+
+    def __repr__(self) -> str:
+        output = []
+        for state_size in self:
+            output.append(str(state_size))
+        
+        return ', '.join(output)
+
+    @classmethod
+    def deserialize(self, serialized_str: str):
+        state_sizes = MorseCodeStateSizes()
+        for _str in serialized_str.split(', '):
+            state, size = _str.split(' ')
+            state_size = MorseCodeStateSize(int(state), float(size))
+            print(state_size.state)
+            state_sizes.append(state_size)
+        
+        return state_sizes
+
+
 
 class TestMorseCodeStateSizes(unittest.TestCase):
     def test_init(self):
@@ -143,6 +163,7 @@ class TestMorseCodeStateSizes(unittest.TestCase):
         expected_normalized = self.helper_sizes_to_state_sizes([1, 3, 3])
         normalized = raw.normalize()
         self.assertEqual(normalized, expected_normalized)
+        # print(expected_normalized)
         
         # The middle number (0.7) changes criterium for what would be a 7
         raw = self.helper_sizes_to_state_sizes([0.3, 0.7, 1.2])
@@ -156,5 +177,14 @@ class TestMorseCodeStateSizes(unittest.TestCase):
         expected_normalized = self.helper_sizes_to_state_sizes([1, 3, 3, 7, 7])
         normalized = raw.normalize()
         self.assertEqual(normalized, expected_normalized)
+    
+    def test_deserialize(self):
+        serialized_text = '0 1, 1 3, 0 3'
+        _sz = MorseCodeStateSize
+        expected_output = MorseCodeStateSizes([_sz(0, 1), _sz(1, 3), _sz(0, 3)])
+
+        state_sizes = MorseCodeStateSizes.deserialize(serialized_text)
+
+        self.assertEqual(state_sizes, expected_output)
 
 
