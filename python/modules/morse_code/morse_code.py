@@ -192,9 +192,16 @@ class TestMorseCode(unittest.TestCase):
         morse_units = state_sizes_to_morse_units(state_sizes)
         self.assertEqual(morse_units, expected_morse)
     
-    def test_morse_units_to_letter(self):
+    def test_morse_units_to_letter_a(self):
         morse_units = MORSE_LETTERS['A']
         expected_letter = 'A'
+
+        found_letter = morse_units_to_letter(morse_units)
+        self.assertEqual(found_letter, expected_letter)
+    
+    def test_morse_units_to_letter_e(self):
+        morse_units = MORSE_LETTERS['E']
+        expected_letter = 'E'
 
         found_letter = morse_units_to_letter(morse_units)
         self.assertEqual(found_letter, expected_letter)
@@ -261,8 +268,9 @@ class TestMorseCode(unittest.TestCase):
         normalized = normalize_sizes(raw)
         self.assertEqual(normalized, expected_normalized)
     
-    def test_normalize_sizes_difficult(self):
-        raw = [1, 2, 3, 7, 25]
+    def test_normalize_sizes_extreme(self):
+        # Last value should not skew smaller numbers
+        raw = [1, 2, 3, 7, 200]
         expected_normalized = [1, 3, 3, 7, 7]
         normalized = normalize_sizes(raw)
         self.assertEqual(normalized, expected_normalized)
