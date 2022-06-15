@@ -11,6 +11,9 @@ class MorseCodeStateSize():
         self.state = MorseCodeStates.value_to_state(value)
         self.size = size
     
+    def copy(self):
+        return MorseCodeStateSize(self.value, self.size)
+
     def __eq__(self, __o: object) -> bool:
         return self.state == __o.state and self.size == __o.size
     
@@ -24,3 +27,9 @@ class TestMorseCodeStateSize(unittest.TestCase):
         
         self.assertEqual(state_size.state, MorseCodeStates.ACTIVE)
         self.assertEqual(state_size.size, 3)
+    
+    def test_copy(self):
+        state_size1 = MorseCodeStateSize(1, 3)
+        state_size2 = state_size1.copy()
+        self.assertEqual(state_size1, state_size2)
+        self.assertIsNot(state_size1, state_size2)
