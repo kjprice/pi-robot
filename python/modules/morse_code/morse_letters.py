@@ -1,11 +1,22 @@
+from typing import List
+
 from .morse_code_units import MorseCodeUnits
 
 DOT = MorseCodeUnits.DOT
 DASH = MorseCodeUnits.DASH
 SPACE = MorseCodeUnits.SPACE
 
+def add_spaces(units: List[MorseCodeUnits]) -> List[MorseCodeUnits]:
+    units_with_spaces = []
+    for unit in units:
+        if len(units_with_spaces) != 0:
+            units_with_spaces.append(SPACE)
+        units_with_spaces.append(unit)
+    
+    return units_with_spaces
+
 MORSE_LETTERS = {
-    'A': [DOT, SPACE, DASH],
+    'A': add_spaces([DOT, DASH]),
     'E': [DOT],
     'T': [DASH],
 }
