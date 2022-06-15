@@ -21,7 +21,21 @@ NEW_WORD = MorseCodeUnits.NEW_WORD
 ACTIVE = MorseCodeStates.ACTIVE
 INACTIVE = MorseCodeStates.INACTIVE
 
+# Make sure sizes are not too large comparitively
+def cap_sizes(sizes):
+    LARGEST_UNIT = 7
+    smallest_number = np.min(sizes)
+    largest_allowed_size = smallest_number * LARGEST_UNIT
+    capped_sizes =[]
+    for size in sizes:
+        if size > largest_allowed_size:
+            size = largest_allowed_size
+        capped_sizes.append(size)
+    
+    return capped_sizes
+
 def normalize_sizes(sizes):
+    sizes = cap_sizes(sizes)
     middle = np.median(sizes)
     std = np.std(sizes)
     half_std = std / 2
@@ -244,6 +258,12 @@ class TestMorseCode(unittest.TestCase):
         # The middle number (0.7) changes criterium for what would be a 7
         raw = [0.3, 0.7, 1.2]
         expected_normalized = [1, 3, 7]
+        normalized = normalize_sizes(raw)
+        self.assertEqual(normalized, expected_normalized)
+    
+    def test_normalize_sizes_difficult(self):
+        raw = [1, 2, 3, 7, 25]
+        expected_normalized = [1, 3, 3, 7, 7]
         normalized = normalize_sizes(raw)
         self.assertEqual(normalized, expected_normalized)
 
