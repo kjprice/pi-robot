@@ -49,6 +49,8 @@ class MorseCodeMouseClick():
         self.t = time.time() #reading time in sec
         self.events = MorseCodeStateSizes()
         self.normalized_events = MorseCodeStateSizes()
+    
+    def listen(self):
         print('Left click on mouse to add action, any other mouse button will quit')
         with mouse.Listener(
             on_click=self.on_click,
@@ -86,4 +88,5 @@ class MorseCodeMouseClick():
 
 # detect_morse_from_images()
 # detect_morse_from_keypress()
-MorseCodeMouseClick()
+if __name__ == '__main__':
+    MorseCodeMouseClick().listen()
