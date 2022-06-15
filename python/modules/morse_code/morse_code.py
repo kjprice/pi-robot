@@ -1,5 +1,5 @@
-import enum
 import os
+import time
 from typing import List, Dict
 import unittest
 
@@ -142,15 +142,34 @@ def state_sizes_to_morse_units(state_sizes):
     return morse_units
 
 class MorseCode:
-    raw_data = None
+    t = None
+    events = None
+    normalized_events = None
     def __init__(self) -> None:
-        self.raw_data = []
-    def translate_data(self):
-        pass
+        self.t = time.time() #reading time in sec
+        self.events = MorseCodeStateSizes()
+        self.normalized_events = MorseCodeStateSizes()
 
-    def raw_data_to_morse(self):
-        # pass
-        morse_units = []
+    def add_event(self, active = False):
+        new_time = time.time()
+        time_diff = np.round(new_time - self.t, 2)
+        self.t = new_time
+        e = MorseCodeStateSize(active, time_diff)
+        self.events.append(e)
+
+    def normalize_events(self):
+        self.normalized_events = []
+        normalized_sizes = normalize_sizes(self.events)
+        for e, n in zip(self.events, normalized_sizes):
+            self.normalized_events.append(
+                MorseCodeStateSize(e.value, n)
+            )
+    def translate_data(self) -> str:
+        self.normalize_events()
+        units = state_sizes_to_morse_units(self.normalized_events)
+        words = morse_units_to_words(units)
+
+        return words
 
 
 class TestMorseCode(unittest.TestCase):
@@ -186,6 +205,13 @@ class TestMorseCode(unittest.TestCase):
             state_sizes.append(MorseCodeStateSize(active, size))
         
         return state_sizes
+
+    def test_morse_code_add_event(self):
+        morse_code = MorseCode()
+        morse_code.add_event(active=True)
+
+        self.assertEqual(len(morse_code.events), 1)
+        self.assertEqual(morse_code.events[0], MorseCodeStateSize(1, 0))
 
     def test_binary_data_to_states_sizes(self):
         data = self.LETTER_A_RAW
