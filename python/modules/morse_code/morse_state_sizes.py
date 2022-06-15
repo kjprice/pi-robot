@@ -24,12 +24,12 @@ def cap_sizes(sizes):
 # Extends "list" so we have more control of internal data
 class MorseCodeStateSizes(list):
     sizes = None
-    sizes_by_state = None
+    state_sizes_by_state = None
 
     # if state_sizes is provided, then a deep copy is made
     def __init__(self, state_sizes: List[MorseCodeStateSize] = None) -> None:
         self.sizes = []
-        self.sizes_by_state = {
+        self.state_sizes_by_state = {
             ACTIVE: [],
             INACTIVE: []
         }
@@ -45,24 +45,36 @@ class MorseCodeStateSizes(list):
         self.sizes.append(size)
 
         state = state_size.state
-        self.sizes_by_state[state].append(size)
+        self.state_sizes_by_state[state].append(state_size)
 
         return super().append(state_size)
     
     def normalize(self):
-        sizes = self.sizes
-        sizes = cap_sizes(sizes)
-        middle = np.median(sizes)
-        std = np.std(sizes)
-        half_std = std / 2
+        stats_by_state = {}
+        for state in self.state_sizes_by_state:
+            state_sizes = self.state_sizes_by_state[state]
+            sizes = [state_size.size for state_size in state_sizes]
+            if len(sizes):
+                std = np.std(sizes)
+                stats_by_state[state] = {
+                    'smallest': np.min(sizes),
+                    'sizes': cap_sizes(sizes),
+                    'middle': np.median(sizes),
+                    'std': std,
+                    'half_std': std / 2
+                }
+
         normalized_state_sizes = MorseCodeStateSizes()
         for state_size in self:
+            state = state_size.state
             size = state_size.size
             value = state_size.value
 
-            if size < (middle - half_std):
+            stats = stats_by_state[state]
+
+            if size < (stats['smallest'] * 1.5):
                 size = 1
-            elif size < (middle + std):
+            elif size < (stats['smallest'] * 4):
                 size = 3
             else:
                 size = 7
@@ -154,27 +166,25 @@ class TestMorseCodeStateSizes(unittest.TestCase):
         active = 0
         for size in sizes:
             state_sizes.append(MorseCodeStateSize(active, size))
+            active = abs(active - 1)
         
         return state_sizes
 
     def test_normalize_sizes(self):
-        # Does not find any sevens (7) because middle number is so high
-        raw = self.helper_sizes_to_state_sizes([0.2, 0.9, 1.2])
-        expected_normalized = self.helper_sizes_to_state_sizes([1, 3, 3])
+        raw = self.helper_sizes_to_state_sizes([0.2, 0.9, 0.6])
+        expected_normalized = self.helper_sizes_to_state_sizes([1, 1, 3])
         normalized = raw.normalize()
         self.assertEqual(normalized, expected_normalized)
-        # print(expected_normalized)
         
-        # The middle number (0.7) changes criterium for what would be a 7
         raw = self.helper_sizes_to_state_sizes([0.3, 0.7, 1.2])
-        expected_normalized = self.helper_sizes_to_state_sizes([1, 3, 7])
+        expected_normalized = self.helper_sizes_to_state_sizes([1, 1, 7])
         normalized = raw.normalize()
         self.assertEqual(normalized, expected_normalized)
     
     def test_normalize_sizes_extreme(self):
         # Last value should not skew smaller numbers
-        raw = self.helper_sizes_to_state_sizes([1, 2, 3, 7, 200])
-        expected_normalized = self.helper_sizes_to_state_sizes([1, 3, 3, 7, 7])
+        raw = self.helper_sizes_to_state_sizes([1, 3, 3, 5, 200])
+        expected_normalized = self.helper_sizes_to_state_sizes([1, 1, 3, 3, 7])
         normalized = raw.normalize()
         self.assertEqual(normalized, expected_normalized)
     
