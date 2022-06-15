@@ -9,6 +9,7 @@ from .morse_code_units import MorseCodeUnits
 from .morse_letters import morse_units_to_letter, MORSE_LETTERS
 from .morse_code_states import MorseCodeStates
 from .morse_state_size import MorseCodeStateSize
+from .morse_state_sizes import MorseCodeStateSizes
 
 IS_TEST = 'IS_TEST' in os.environ
 
@@ -34,7 +35,8 @@ def cap_sizes(sizes):
     
     return capped_sizes
 
-def normalize_sizes(sizes):
+def normalize_sizes(state_sizes: MorseCodeStateSizes) -> MorseCodeStateSizes:
+    sizes = state_sizes.sizes
     sizes = cap_sizes(sizes)
     middle = np.median(sizes)
     std = np.std(sizes)
@@ -176,6 +178,14 @@ class TestMorseCode(unittest.TestCase):
         for letter in letters:
             word += MORSE_LETTERS[letter] + [NEW_LETTER]
         return word[:-1] # Remove last NEW_LINE
+    
+    def helper_sizes_to_state_sizes(self, sizes: List[float]):
+        state_sizes = MorseCodeStateSizes()
+        active = 0
+        for size in sizes:
+            state_sizes.append(MorseCodeStateSize(active, size))
+        
+        return state_sizes
 
     def test_binary_data_to_states_sizes(self):
         data = self.LETTER_A_RAW
@@ -254,23 +264,23 @@ class TestMorseCode(unittest.TestCase):
 
         found_word = morse_units_to_words(morse_units)
         self.assertEqual(found_word, expected_words)
-    
+
     def test_normalize_sizes(self):
         # Does not find any sevens (7) because middle number is so high
-        raw = [0.2, 0.9, 1.2]
+        raw = self.helper_sizes_to_state_sizes([0.2, 0.9, 1.2])
         expected_normalized = [1, 3, 3]
         normalized = normalize_sizes(raw)
         self.assertEqual(normalized, expected_normalized)
         
         # The middle number (0.7) changes criterium for what would be a 7
-        raw = [0.3, 0.7, 1.2]
+        raw = self.helper_sizes_to_state_sizes([0.3, 0.7, 1.2])
         expected_normalized = [1, 3, 7]
         normalized = normalize_sizes(raw)
         self.assertEqual(normalized, expected_normalized)
     
     def test_normalize_sizes_extreme(self):
         # Last value should not skew smaller numbers
-        raw = [1, 2, 3, 7, 200]
+        raw = self.helper_sizes_to_state_sizes([1, 2, 3, 7, 200])
         expected_normalized = [1, 3, 3, 7, 7]
         normalized = normalize_sizes(raw)
         self.assertEqual(normalized, expected_normalized)

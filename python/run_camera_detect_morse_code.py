@@ -7,6 +7,7 @@ from pynput import keyboard, mouse
 
 from .modules.morse_code.morse_code import print_stats, morse_units_to_words, normalize_sizes, state_sizes_to_morse_units
 from .modules.morse_code.morse_state_size import MorseCodeStateSize
+from .modules.morse_code.morse_state_sizes import MorseCodeStateSizes
 
 def image_to_brightness_data(image):
     return image.mean()
@@ -46,8 +47,8 @@ class MorseCodeMouseClick():
     normalized_events = None
     def __init__(self) -> None:
         self.t = time.time() #reading time in sec
-        self.events = []
-        self.normalized_events = []
+        self.events = MorseCodeStateSizes()
+        self.normalized_events = MorseCodeStateSizes()
         print('Left click on mouse to add action, any other mouse button will quit')
         with mouse.Listener(
             on_click=self.on_click,
@@ -65,8 +66,7 @@ class MorseCodeMouseClick():
         self.events.append(e)
     def normalize_events(self):
         self.normalized_events = []
-        sizes = [e.size for e in self.events]
-        normalized_sizes = normalize_sizes(sizes)
+        normalized_sizes = normalize_sizes(self.events)
         for e, n in zip(self.events, normalized_sizes):
             self.normalized_events.append(
                 MorseCodeStateSize(e.value, n)
