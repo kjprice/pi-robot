@@ -1,5 +1,3 @@
-print('hiya')
-
 import time
 
 import RPi.GPIO as GPIO
