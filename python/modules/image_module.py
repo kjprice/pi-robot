@@ -1,10 +1,7 @@
 import cv2
 import os
 
-try:
-    from modules.config import TEST_IMAGE_DIR, SAVE_IMAGE_DIR
-except ModuleNotFoundError:
-    from config import TEST_IMAGE_DIR, SAVE_IMAGE_DIR
+from .config import TEST_IMAGE_DIR, SAVE_IMAGE_DIR
 
 def grayscale(img):
     return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)

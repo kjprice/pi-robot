@@ -5,10 +5,7 @@ import time
 
 import socketio
 
-try:
-    from modules.config import append_log_info, get_log_dir_by_server_name, write_log_info, SOCKET_IO_HOST_URI, SERVER_NAMES
-except ModuleNotFoundError:
-    from config import append_log_info, get_log_dir_by_server_name, write_log_info, SOCKET_IO_HOST_URI, SERVER_NAMES
+from ..config import append_log_info, get_log_dir_by_server_name, write_log_info, SOCKET_IO_HOST_URI, SERVER_NAMES
 
 TIME_IN_SECONDS_BETWEEN_CHECKING_STATUS = 0.001
 

@@ -4,7 +4,7 @@ import time
 import cv2
 import numpy as np
 
-from modules.image_module import get_file_path_for_save, load_image, grayscale
+from .image_module import get_file_path_for_save, load_image, grayscale
 
 # This import will fail on a mac
 try:

@@ -4,8 +4,11 @@ from .modules.morse_code.morse_state_size import TestMorseCodeStateSize
 from .modules.morse_code.morse_state_sizes import TestMorseCodeStateSizes
 from .modules.morse_code.morse_letters import TestMorseLetters
 
-from .pi_applications.run_camera_detect_morse_code import image_to_brightness_data
-
+# Just make sure that we can import all main code
+from .pi_applications import run_camera_detect_morse_code
+from .pi_applications import run_camera_head_server
+from .pi_applications import run_image_processing_server
+from .pi_applications import run_servo_server
 
 suite = unittest.TestSuite()
 suite.addTest(unittest.makeSuite(TestMorseCode))

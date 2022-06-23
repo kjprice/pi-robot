@@ -4,10 +4,7 @@ import unittest
 import cv2
 import numpy as np
 
-try:
-    from modules.image_module import is_image_grayscale, load_test_image
-except ModuleNotFoundError:
-    from image_module import is_image_grayscale, load_test_image
+from .image_module import is_image_grayscale, load_test_image
 
 
 IS_TEST = False

@@ -12,9 +12,9 @@ def cd_to_this_directory():
     os.chdir(dname)
 cd_to_this_directory()
 
-from modules.camera_module import image_generator, camera_setup
-from modules.config import get_servo_url, SERVER_NAMES
-from modules.server_module.server_classification_module import Server_Classification_Module
+from ..modules.camera_module import image_generator, camera_setup
+from ..modules.config import get_servo_url, SERVER_NAMES
+from ..modules.server_module.server_classification_module import Server_Classification_Module
 
 # We do not need too many images - it is ok to throw away some
 # TODO: Decide which images to throw away based on if they are more blurry than others

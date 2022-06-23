@@ -8,20 +8,12 @@ import pandas as pd
 import requests
 
 
-try:
-    from modules.config import append_log_info, CLASSIFICATION_MODELS, DEFAULT_CLASSIFICATION_MODEL, ensure_directory_exists, get_log_filepath, get_servo_url, save_plot, write_log_info, LOG_DIR_BASES, SAVE_IMAGE_DIR
-    from modules.image_module import process_image, save_image
-    from modules.process_image_for_servo import calculate_image_clarity, extend_image, get_person_position_x_from_image
-    from modules.server_module import handle_default_server_response
-    from modules.servo_module import calculate_duty_from_image_position
-    from modules.image_classification import load_classification_model_by_name
-except ModuleNotFoundError:
-    from config import append_log_info, CLASSIFICATION_MODELS, DEFAULT_CLASSIFICATION_MODEL, ensure_directory_exists, get_log_filepath, get_servo_url, save_plot, write_log_info, LOG_DIR_BASES, SAVE_IMAGE_DIR
-    from image_module import process_image, save_image
-    from process_image_for_servo import calculate_image_clarity, extend_image, get_person_position_x_from_image
-    from server_module import handle_default_server_response
-    from servo_module import calculate_duty_from_image_position
-    from image_classification import load_classification_model_by_name
+from .config import append_log_info, CLASSIFICATION_MODELS, DEFAULT_CLASSIFICATION_MODEL, ensure_directory_exists, get_log_filepath, get_servo_url, save_plot, write_log_info, LOG_DIR_BASES, SAVE_IMAGE_DIR
+from .image_module import process_image, save_image
+from .process_image_for_servo import calculate_image_clarity, extend_image, get_person_position_x_from_image
+from .server_module import handle_default_server_response
+from .servo_module import calculate_duty_from_image_position
+from .image_classification import load_classification_model_by_name
 
 IS_TEST = False
 if 'IS_TEST' in os.environ:

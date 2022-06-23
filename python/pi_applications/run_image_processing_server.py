@@ -13,10 +13,10 @@ def cd_to_this_directory():
     os.chdir(dname)
 cd_to_this_directory()
 
-from modules.config import SERVER_NAMES
-from modules.image_module import get_file_path_for_save
-from modules.server_module.server_classification_module import Server_Classification_Module
-from modules.workers.image_stream_worker import get_perpetual_list_of_images_from_worker
+from ..modules.config import SERVER_NAMES
+from ..modules.image_module import get_file_path_for_save
+from ..modules.server_module.server_classification_module import Server_Classification_Module
+from ..modules.workers.image_stream_worker import get_perpetual_list_of_images_from_worker
 
 IS_TEST = 'IS_TEST' in os.environ
 
