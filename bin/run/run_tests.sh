@@ -1,7 +1,7 @@
 #!/bin/bash
 cd "$(dirname "$0")"
-cd ..
+cd ../..
 
-source ./bin/setup_shell.sh
+source ./bin/misc/setup_shell.sh
 
 python -m python.tests
