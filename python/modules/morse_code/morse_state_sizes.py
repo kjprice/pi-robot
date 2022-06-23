@@ -95,7 +95,6 @@ class MorseCodeStateSizes(list):
         for _str in serialized_str.split(', '):
             state, size = _str.split(' ')
             state_size = MorseCodeStateSize(int(state), float(size))
-            print(state_size.state)
             state_sizes.append(state_size)
         
         return state_sizes
@@ -196,5 +195,3 @@ class TestMorseCodeStateSizes(unittest.TestCase):
         state_sizes = MorseCodeStateSizes.deserialize(serialized_text)
 
         self.assertEqual(state_sizes, expected_output)
-
-

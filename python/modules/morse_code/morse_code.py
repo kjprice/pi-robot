@@ -11,8 +11,6 @@ from .morse_code_states import MorseCodeStates
 from .morse_state_size import MorseCodeStateSize
 from .morse_state_sizes import MorseCodeStateSizes
 
-IS_TEST = 'IS_TEST' in os.environ
-
 DOT = MorseCodeUnits.DOT
 DASH = MorseCodeUnits.DASH
 SPACE = MorseCodeUnits.SPACE
@@ -21,7 +19,6 @@ NEW_WORD = MorseCodeUnits.NEW_WORD
 
 ACTIVE = MorseCodeStates.ACTIVE
 INACTIVE = MorseCodeStates.INACTIVE
-
 
 def seperate_units_by(morse_units, by=MorseCodeUnits):
     starting_index = 0
