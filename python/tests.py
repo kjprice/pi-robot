@@ -25,6 +25,5 @@ suite.addTest(unittest.makeSuite(TestMorseLetters))
 suite.addTest(unittest.makeSuite(TestProcessImages))
 suite.addTest(unittest.makeSuite(TestServoModule))
 
-
 runner = unittest.TextTestRunner()
 runner.run(suite)
