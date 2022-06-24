@@ -1,3 +1,4 @@
+import os
 import time
 import unittest
 
@@ -5,10 +6,7 @@ import numpy as np
 
 # Some servos have duty=2 at the far left and some are the opposite
 SHOULD_REVERSE = False
-IS_TEST = False
-
-if __name__ == '__main__':
-    IS_TEST = True
+IS_TEST = 'IS_TEST' in os.environ
 
 # This import will fail on a mac
 try:
@@ -90,7 +88,6 @@ class TestServoModule(unittest.TestCase):
         self.assertEqual(calculate_duty_from_image_position(1), HALF_IMAGE_SERVO_DUTY_RANGE)
         self.assertEqual(calculate_duty_from_image_position(-1), -HALF_IMAGE_SERVO_DUTY_RANGE)
         self.assertEqual(calculate_duty_from_image_position(0.5), HALF_IMAGE_SERVO_DUTY_RANGE / 2)
-        pass
 
     def test_1_start_servo(self):
         self.assertEqual(self.servo.current_duty, 7)
@@ -104,7 +101,3 @@ class TestServoModule(unittest.TestCase):
         self.assertEqual(self.servo.current_duty, 5)
         self.servo.move(-1)
         self.assertEqual(self.servo.current_duty, 6)
-
-
-if IS_TEST:
-    unittest.main()
