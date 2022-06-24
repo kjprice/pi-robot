@@ -10,12 +10,13 @@ import time
 import eventlet
 import socketio
 
-from modules.config import get_hostname, SERVER_NAMES, SOCKET_IO_SERVER_PORT, SOCKET_ROOMS, STATIC_DIR, write_static_config
-from modules.workers.job_process.job_process import JobProcess
-from modules.workers.job_process.ssh_process import SSH_Process
+from .modules.config import get_hostname, SERVER_NAMES, SOCKET_IO_SERVER_PORT, SOCKET_ROOMS, STATIC_DIR, write_static_config
+from .modules.workers.job_process.job_process import JobProcess
+from .modules.workers.job_process.ssh_process import SSH_Process
 
-from run_image_processing_server import run_image_processing_server
-from run_camera_head_server import start_camera_process
+# from .pi_applications
+from .pi_applications.run_image_processing_server import run_image_processing_server
+from .pi_applications.run_camera_head_server import start_camera_process
 
 jobs_running_by_fn_name = {}
 
