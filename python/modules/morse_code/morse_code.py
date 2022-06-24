@@ -246,6 +246,3 @@ class TestMorseCode(unittest.TestCase):
 
         found_word = morse_units_to_words(morse_units)
         self.assertEqual(found_word, expected_words)
-
-if __name__ == '__main__':
-    unittest.main()

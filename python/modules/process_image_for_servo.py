@@ -149,7 +149,6 @@ class TestProcessImages(unittest.TestCase):
         self.assertEqual(self.get_person_midpoint(0, 100), 50)
         self.assertEqual(self.get_person_midpoint(30, 50), 40)
     def test_get_person_person_position_xs(self):
-        # return
         full_screen_person_position_x = get_person_person_position_x(100, (0, 0, 100, 100))
         self.assertEqual(full_screen_person_position_x, 0)
         mid_right_person_position_x = get_person_person_position_x(100, (50, 60, 0, 0))
@@ -174,7 +173,3 @@ class TestProcessImages(unittest.TestCase):
 #     img = extend_image(img, show_persons=True, show_vertical_lines=True, texts=texts, persons=persons)
 #     display_image(img)
 
-if IS_TEST:
-    # display_test_image()
-
-    unittest.main()
