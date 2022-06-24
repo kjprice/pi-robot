@@ -1,15 +1,11 @@
 #!/bin/bash
 cd "$(dirname "$0")"
-cd ../../python
+../misc/setup_shell.sh
 
-source ~/.bash_profile
-ca
-
-# script_to_run=run_camera_head_server.py
+script_to_run=run_camera_head_server.sh
 # script_to_run=modules/process_image_for_servo.py
-script_to_run=modules/servo_module.py
+# script_to_run=modules/servo_module.py
 # script_to_run=run_servo_server.py
 
-# TODO: nodemon should run a shell script (not python)
-
-nodemon -e py,sh -x "time IS_TEST=true python3.6 $script_to_run"
+cd ../..
+nodemon -e py,sh -x "IS_TEST=true ./bin/run/$script_to_run || true"
