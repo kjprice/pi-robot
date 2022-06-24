@@ -7,5 +7,4 @@ source ../misc/setup_shell.sh
 
 cd ../..
 
-# TODO: Modules are not going to work, should run through main: `python -m python.main``
-python python/pi_applications/run_image_processing_server.py
+python -m python.pi_applications.run_image_processing_server
