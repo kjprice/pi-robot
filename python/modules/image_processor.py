@@ -313,6 +313,7 @@ class Image_Processor:
         # TODO: Clean image (make sharper perhaps) to better find objects_detected
         # TODO: Try to find pedestrians as well
         # TODO: Why do we need to pass img in here?
+        # TODO: We need this for a unit test
         people_detected = self.get_people_from_objects_detected(objects_detected)
         person_position_x, total_time = call_and_get_time(get_person_position_x_from_image, (img, people_detected))
         self.add_stat('get_objects_detected', total_time)
