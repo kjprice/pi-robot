@@ -10,13 +10,6 @@ import time
 import eventlet
 import socketio
 
-
-def cd_to_this_directory():
-    abspath = os.path.abspath(__file__)
-    dname = os.path.dirname(abspath)
-    os.chdir(dname)
-cd_to_this_directory()
-
 from modules.config import get_hostname, SERVER_NAMES, SOCKET_IO_SERVER_PORT, SOCKET_ROOMS, STATIC_DIR, write_static_config
 from modules.workers.job_process.job_process import JobProcess
 from modules.workers.job_process.ssh_process import SSH_Process

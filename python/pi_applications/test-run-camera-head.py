@@ -9,14 +9,6 @@ import RPi.GPIO as GPIO
 
 import numpy as np
 
-# This must be done before we bring in our modules because they depend on the correct directory
-def cd_to_this_directory():
-    abspath = os.path.abspath(__file__)
-    dname = os.path.dirname(abspath)
-    os.chdir(dname)
-
-cd_to_this_directory()
-
 
 if 'IGNORE_CAMERA' not in os.environ:
     from test_modules.test_camera import capture_camera_image, save_test_image, test_fast_image_capture

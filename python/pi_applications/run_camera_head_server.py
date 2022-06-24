@@ -5,13 +5,6 @@ import time
 
 import imagezmq
 
-# This must be done before we bring in our modules because they depend on the correct directory
-def cd_to_this_directory():
-    abspath = os.path.abspath(__file__)
-    dname = os.path.dirname(abspath)
-    os.chdir(dname)
-cd_to_this_directory()
-
 from ..modules.camera_module import image_generator, camera_setup
 from ..modules.config import get_servo_url, SERVER_NAMES
 from ..modules.server_module.server_classification_module import Server_Classification_Module

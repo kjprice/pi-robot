@@ -6,13 +6,6 @@ import time
 
 import imagezmq
 
-# This must be done before we bring in our modules because they depend on the correct directory
-def cd_to_this_directory():
-    abspath = os.path.abspath(__file__)
-    dname = os.path.dirname(abspath)
-    os.chdir(dname)
-cd_to_this_directory()
-
 from ..modules.config import SERVER_NAMES
 from ..modules.image_module import get_file_path_for_save
 from ..modules.server_module.server_classification_module import Server_Classification_Module

@@ -6,7 +6,7 @@ import cv2
 import socket
 
 
-DATA_DIR = os.path.join('..', '..', 'data')
+DATA_DIR = os.path.join('data')
 TEST_IMAGE_DIR = os.path.join(DATA_DIR, 'test-images')
 SAVE_IMAGE_DIR = os.path.join(DATA_DIR, 'images')
 CACHE_DIR = os.path.join(DATA_DIR, 'cache')
