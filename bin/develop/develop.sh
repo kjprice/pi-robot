@@ -1,6 +1,5 @@
 #!/bin/bash
 cd "$(dirname "$0")"
-../misc/setup_shell.sh
 
 script_to_run=run_camera_head_server.sh
 # script_to_run=modules/process_image_for_servo.py

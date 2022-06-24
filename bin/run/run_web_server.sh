@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cd "$(dirname "$0")"
-../misc/setup_shell.sh
+source ../misc/setup_shell.sh
 
 # In case we want to pull images directly into the browser
 # TODO: This path won't work

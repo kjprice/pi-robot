@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 cd "$(dirname "$0")"
-../misc/setup_shell.sh
+source ../misc/setup_shell.sh
 
 export PORT=5000
 
