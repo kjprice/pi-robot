@@ -2,6 +2,7 @@ import argparse
 import concurrent.futures as cf
 import datetime
 import time
+import traceback
 
 import socketio
 
@@ -155,7 +156,8 @@ class ServerModule:
         except Exception as e:
             message = '\n'.join((
                 'Found exception while trying to run {}:'.format(self.server_name_str),
-                str(e)
+                str(e),
+                traceback.format_exc()
             ))
             self.send_output(message)
             print(message)
@@ -163,4 +165,3 @@ class ServerModule:
 
     def run_continuously(self):
         raise NotImplementedError
-    
