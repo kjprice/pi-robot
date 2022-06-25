@@ -72,7 +72,7 @@ def create_servo_server_job():
 sio = socketio.Server(cors_allowed_origins='*')
 app = socketio.WSGIApp(sio, static_files={
     '/': os.path.join(STATIC_DIR, 'index.html'),
-    '/static': STATIC_DIR
+    '/static': os.path.join(STATIC_DIR, 'static')
 })
 
 def create_homepage_url():
