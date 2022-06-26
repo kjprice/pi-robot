@@ -32,3 +32,35 @@ cd web-app
 npm install
 npm start
 ```
+
+# Startup scripts
+
+We are currently adding a script to etc/rc.local to run at startup. Note that eventually we want to create an init.d file once our [Raspberry-pi-setup](https://gitlab.com/kjprice/raspberry-pi-setup) repo is merged into this repo.
+
+To "automatically" update the rc.local file to all servers, run:
+
+```
+.bin/run/run_set_startup_scripts.sh
+```
+
+> Note that you still need to manually edit the `/etc/rc.local` file and move the `exit 0` line to the end of the file. Obviously this is not ideal.
+
+### Startup script
+
+All raspbberry pis will then run the same command:
+```
+/home/pi/Projects/pirobot/bin/on_pi_startup/run_for_hostname.sh || true &
+```
+
+The [run_for_hostname.sh](/bin/on_pi_startup/run_for_hostname.sh) script will see if there is a startup file that matches the hostname of the machine. For example, the hostname `pi3misc2` will run /bin/on_pi_startup/startup_by_hostname/pi3misc2.sh.
+
+# TODO:
+ - [ ] Move https://gitlab.com/kjprice/raspberry-pi-setup into this repo
+ - [ ] Combine `set_startup_script.sh` with https://gitlab.com/kjprice/raspberry-pi-setup/-/blob/main/run.sh
+ - [ ] Add symbolic links on raspberry pis to all shell scripts they might need (add to ~/bin/ and set PATH)
+ - [ ] Add symbolic links on raspberry pis to all logs (`~/Projects/pirobot/data/logs` -> `/var/logs/`)
+ - [ ] Log *everything* that runs on the raspberry pis
+ - [ ] Move log path directories to config.json
+ - [ ] Add endpoint to server_status to retrieve most recent log (`./bin/logs/read_last_log.sh`)
+ 
+ 

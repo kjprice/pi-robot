@@ -6,9 +6,14 @@ port=`../misc/get_config.sh health_status_port`
 
 ../misc/kill_process_on_port.sh $port
 
-cd ../../nodejs/server_status
+cd ../../nodejs/server_status/
 
-npm install
+# TODO: Add log directory to config
+LOGS_DIR=../../data/logs/node_server_status
+mkdir -p $LOGS_DIR
+log_filename=$(date '+%Y-%m-%d_%H_%M_%S').txt
+log_filepath=$LOGS_DIR/$log_filename
 
-echo "Running server status server on port $port"
-node index &
+npm install >> $log_filepath 2>&1
+
+node index >> $log_filepath 2>&1 &

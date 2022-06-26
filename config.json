@@ -1,3 +1,4 @@
 {
-  "health_status_port": 1818
+  "health_status_port": 1818,
+  "servers": ["pirobot", "pi3misc2"]
 }
