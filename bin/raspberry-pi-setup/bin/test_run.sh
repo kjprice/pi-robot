@@ -37,7 +37,7 @@ assert_equals './bin/validate_args.sh --help' "${help_message}"
 assert_equals "./bin/validate_args.sh $test_hostname" ""
 
 assert_equals './bin/get_config.sh username' $username
-assert_equals './bin/get_config.sh setup_filepath' '/tmp/initial_setup.sh'
+assert_equals './bin/get_config.sh setup_filepath' '/tmp/setup/'
 
 IS_TEST=false assert_equals "./bin/run_command.sh 'echo yo'" "yo"
 IS_TEST=true assert_equals "./bin/run_command.sh 'echo yo'" ""
@@ -47,7 +47,7 @@ assert_equals "./bin/commands/ssh-copy-id.sh $test_hostname" "$expected_ssh_copy
 
 assert_equals "./bin/copy_ssh_key.sh $test_hostname" "$copy_ssh_key_message"
 
-expected_scp_command="scp test/test1 $username@$test_hostname:/tmp/test1/"
+expected_scp_command="scp -r test/test1 $username@$test_hostname:/tmp/test1/"
 assert_equals "./bin/commands/scp.sh $test_hostname test/test1 /tmp/test1/" "$expected_scp_command"
 
 assert_equals "./bin/send_setup_files.sh $test_hostname" "$send_setup_files_message"

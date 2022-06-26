@@ -10,5 +10,5 @@ help_message=`cat text/ssh-scp-setup-files.txt`
 setup_path=`./bin/get_config.sh setup_filepath`
 echo "$help_message"
 
-cmd=`./bin/commands/scp.sh $hostname pi-bin/initial_setup.sh $setup_path`
+cmd=`./bin/commands/scp.sh $hostname pi-bin/ $setup_path`
 ./bin/run_command.sh "$cmd"

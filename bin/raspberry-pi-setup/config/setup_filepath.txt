@@ -1,1 +1,1 @@
-/tmp/initial_setup.sh
+/tmp/setup/
