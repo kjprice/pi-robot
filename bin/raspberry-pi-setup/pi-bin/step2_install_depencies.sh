@@ -52,6 +52,8 @@ pip install --no-input --upgrade google-api-python-client google-auth-httplib2 g
 # Keyboard/mouse events
 pip install --no-input pynput
 
+# TODO: Only pull down some of these files if they do not exist on our system yet
+
 # NVM and Node.js
 curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
 nvm install stable

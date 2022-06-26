@@ -9,4 +9,4 @@ hostname="$1"
 src_dir="$2"
 destination_path="$3"
 
-echo "scp $src_dir/* $username@$hostname:$destination_path"
+echo "rsync -r $src_dir $username@$hostname:$destination_path"

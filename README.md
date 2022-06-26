@@ -5,6 +5,20 @@ To configure a raspberry pi, you can use the utility `./bin/raspberry-pi-setup/r
 
 To configure a new host that can control the raspberry pis (like a ubuntu server or mac), run [ubuntu_wsl_setup.sh](/bin/raspberry-pi-setup/ubuntu_wsl_setup.sh)
 
+
+# Startup scripts
+
+Running the utility to setup a raspberry pi (see above) will also create a script to be run every time the raspberry pi boots up. The script (found [here](/bin/raspberry-pi-setup/pi-bin/init.d/robot_startup.sh) locally) is copied to the raspberry pi's /etc/init.d folder.
+
+### Startup script
+
+All raspbberry pis will then run the same command:
+```
+/home/pi/Projects/pirobot/bin/on_pi_startup/run_for_hostname.sh || true &
+```
+
+The [run_for_hostname.sh](/bin/on_pi_startup/run_for_hostname.sh) script will see if there is a startup file that matches the hostname of the machine. For example, the hostname `pi3misc2` will run /bin/on_pi_startup/startup_by_hostname/pi3misc2.sh.
+
 # Servo Motor
 
 To get the servo Motor up and running, it is recommended to wire the servo up to the following pins (based on board numbers):
@@ -39,27 +53,6 @@ cd web-app
 npm install
 npm start
 ```
-
-# Startup scripts
-
-We are currently adding a script to etc/rc.local to run at startup. Note that eventually we want to create an init.d file once our [Raspberry-pi-setup](https://gitlab.com/kjprice/raspberry-pi-setup) repo is merged into this repo.
-
-To "automatically" update the rc.local file to all servers, run:
-
-```
-.bin/run/run_set_startup_scripts.sh
-```
-
-> Note that you still need to manually edit the `/etc/rc.local` file and move the `exit 0` line to the end of the file. Obviously this is not ideal.
-
-### Startup script
-
-All raspbberry pis will then run the same command:
-```
-/home/pi/Projects/pirobot/bin/on_pi_startup/run_for_hostname.sh || true &
-```
-
-The [run_for_hostname.sh](/bin/on_pi_startup/run_for_hostname.sh) script will see if there is a startup file that matches the hostname of the machine. For example, the hostname `pi3misc2` will run /bin/on_pi_startup/startup_by_hostname/pi3misc2.sh.
 
 # TODO:
  - [ ] Combine `set_startup_script.sh` with /bin/raspberry-pi-setup/run.sh
