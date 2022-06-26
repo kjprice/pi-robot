@@ -7,6 +7,7 @@ import ServerOutput from './components/ServerOutput';
 import LoadingPage from './components/LoadingPage';
 import Header from './components/Header';
 import { SERVER_STATUSES } from './redux/constants/server-constants';
+import SideBar from './components/SideBar';
 
 
 function mapStateToProps(state) {
@@ -24,11 +25,14 @@ function App(props) {
   }
 
   return (
-    <div className="container" id="main-container">
-      <Header />
-      <ServerOutput />
-      <ImageContainer />
-    </div>
+    <>
+      <SideBar />
+      <div className="container" id="main-container">
+        <Header />
+        <ServerOutput />
+        <ImageContainer />
+      </div>
+    </>
   );
 }
 

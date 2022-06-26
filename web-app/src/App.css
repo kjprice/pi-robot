@@ -1,3 +1,18 @@
+main {
+  display: flex;
+  width: 100%;
+  align-items: stretch;
+}
+
+#sidebar {
+  min-width: 200px;
+  background: #ccc;
+}
+
+#main-container {
+  min-height: 100vh;
+}
+
 .server-output {
   resize: vertical;
   height: 200px;
