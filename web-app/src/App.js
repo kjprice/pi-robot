@@ -3,9 +3,9 @@ import { Route, Routes } from 'react-router-dom';
 
 import './App.css';
 import './api/setup-socket-connections';
-import ImageContainer from './components/CameraRobot/ImageContainer';
-import ServerOutput from './components/CameraRobot/ServerOutput';
-import Header from './components/CameraRobot/Header';
+
+import CameraRobot from './components/CameraRobot/';
+
 import { SERVER_STATUSES } from './redux/constants/server-constants';
 import LoadingPage from './components/LoadingPage';
 import SideBar from './components/SideBar';
@@ -19,15 +19,6 @@ function mapStateToProps(state) {
   };
 }
 
-function RobotWebApp() {
-return (
-  <>
-    <Header />
-    <ServerOutput />
-    <ImageContainer />
-  </>
-);
-}
 
 function App(props) {
   const { serversStatuses } = props;
@@ -40,7 +31,7 @@ function App(props) {
       <SideBar />
       <div className="container" id="main-container">
           <Routes>
-            <Route path="/"  element={<RobotWebApp />} />
+            <Route path="/" element={<CameraRobot />} />
           </Routes>
       </div>
     </>
