@@ -361,7 +361,7 @@ class Image_Processor:
     def process_message_immediately(self, img, time_passed_for_image, time_all_start):
         self.model_started = True
 
-        self.set_initial_time(time_passed_for_image)        
+        self.set_initial_time(time_passed_for_image)
 
         img = self.process_image(img)
 

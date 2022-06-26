@@ -28,11 +28,15 @@ def x_positions_in_image(img):
 # https://www.pyimagesearch.com/2015/09/07/blur-detection-with-opencv/
 def calculate_image_clarity(img):
     return cv2.Laplacian(img, cv2.CV_64F).var()
+
+def get_box_from_person(person):
+    if type(person) == dict and 'box_points' in person:
+        return person['box_points']
+    
+    return person
     
 def get_person_x_midpoint(person):
-    # TODO: Had to change to fix tests, possibly broke something else :(
-    # x1, y1, width, height = person['box_points']
-    x1, y1, width, height = person
+    x1, y1, width, height = get_box_from_person(person)
 
     return x1 + (width // 2)
 
@@ -159,6 +163,12 @@ class TestProcessImages(unittest.TestCase):
         self.assertEqual(large_far_left_quandrant, -0.2)
         far_right_person_position_x = get_person_person_position_x(100, (80, 10, 10, 20))
         self.assertEqual(far_right_person_position_x, 0.6)
+    def get_box_from_person_dict(self):
+        person_dict = {'box_points': [1,2,3,4]}
+        self.assertEqual(get_box_from_person(person_dict), [1,2,3,4])
+    def get_box_from_person_list(self):
+        person_list = [1,2,3,4]
+        self.assertEqual(get_box_from_person(person_list), [1,2,3,4])
     
     # TODO: This test is broken
     # def test_integration_get_person_position_x_from_image(self):
