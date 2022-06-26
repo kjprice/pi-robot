@@ -1,0 +1,1 @@
+Example: `sh run.sh {hostname}` where hostname is the hostname of the raspberry pi
