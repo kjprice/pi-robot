@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 
 import ServerStatus from "../ServerStatus";
-import Tooltip from '../../../misc/Tooltip';
+import Tooltip from '../../misc/Tooltip';
 import { SERVER_DESCRIPTIONS } from '../../../redux/constants/server-constants';
 
 function mapStateToProps(state) {
