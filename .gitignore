@@ -9,3 +9,4 @@ data/test_camera
 data/security_videos
 static/images
 static/server_config.json
+node_modules

@@ -14,3 +14,5 @@ rsync -r --delete bin pi3misc:~/Projects/pirobot/
 # raspberry pi (misc)
 # rsync -r --delete python pi@pi3misc2:~/Projects/pirobot/
 rsync -r --delete bin pi@pi3misc2:~/Projects/pirobot/
+rsync -r --exclude node_modules --delete nodejs pi@pi3misc2:~/Projects/pirobot/
+rsync config.json pi@pi3misc2:~/Projects/pirobot/
