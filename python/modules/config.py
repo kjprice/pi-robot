@@ -95,6 +95,8 @@ ensure_directory_exists(SAVE_IMAGE_DIR)
 ensure_directory_exists(CACHE_DIR)
 ensure_directory_exists(LOGS_DIR)
 ensure_directory_exists(FIGURES_DIR)
+ensure_directory_exists(STATIC_DIR)
+
 
 def setup_log_directories():
     for log_base_dir in LOG_DIR_BASES:
