@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import { Route, Routes } from 'react-router-dom';
 
 import './App.css';
 import './api/setup-socket-connections';
@@ -18,6 +19,16 @@ function mapStateToProps(state) {
   };
 }
 
+function RobotWebApp() {
+return (
+  <>
+    <Header />
+    <ServerOutput />
+    <ImageContainer />
+  </>
+);
+}
+
 function App(props) {
   const { serversStatuses } = props;
   if (serversStatuses.webApp === SERVER_STATUSES.OFFLINE) {
@@ -28,9 +39,9 @@ function App(props) {
     <>
       <SideBar />
       <div className="container" id="main-container">
-        <Header />
-        <ServerOutput />
-        <ImageContainer />
+          <Routes>
+            <Route path="/"  element={<RobotWebApp />} />
+          </Routes>
       </div>
     </>
   );
