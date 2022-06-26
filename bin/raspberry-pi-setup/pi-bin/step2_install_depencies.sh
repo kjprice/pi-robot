@@ -1,3 +1,9 @@
+#!/bin/bash
+
+echo 
+echo 
+echo "### INSTALLING DEPENCIES"
+echo 
 
 # Taken from https://ai-pool.com/d/how-to-install-keras-on-raspberry-pi-
 # ML Libraries
