@@ -15,7 +15,7 @@ FIGURES_DIR = os.path.join(DATA_DIR, 'figures')
 
 STATIC_DIR = os.path.join('web-app', 'build')
 
-MODELS_DIR = os.path.join('..', 'models')
+MODELS_DIR = os.path.join('models')
 
 SOCKET_IO_SERVER_HOSTNAME = 'kj-macbook.lan'
 SOCKET_IO_SERVER_PORT = 9898
