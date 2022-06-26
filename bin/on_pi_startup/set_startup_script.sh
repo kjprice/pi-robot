@@ -26,7 +26,7 @@ then
     script_filepath=$dir/run_for_hostname.sh
 
     # Script will always exit without an error
-    script="$script_filepath || true &"
+    script="runuser -l pi -c '$script_filepath || true &'"
 
     echo $search_text | sudo tee -a $startup_file
     echo $script | sudo tee -a $startup_file
