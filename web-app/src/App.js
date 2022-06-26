@@ -3,11 +3,11 @@ import { Route, Routes } from 'react-router-dom';
 
 import './App.css';
 import './api/setup-socket-connections';
-import ImageContainer from './components/ImageContainer';
-import ServerOutput from './components/ServerOutput';
-import LoadingPage from './components/LoadingPage';
-import Header from './components/Header';
+import ImageContainer from './components/CameraRobot/ImageContainer';
+import ServerOutput from './components/CameraRobot/ServerOutput';
+import Header from './components/CameraRobot/Header';
 import { SERVER_STATUSES } from './redux/constants/server-constants';
+import LoadingPage from './components/LoadingPage';
 import SideBar from './components/SideBar';
 
 

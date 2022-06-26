@@ -3,9 +3,9 @@ import { connect } from 'react-redux';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 
-import { setServerProcessedClassificationModel } from '../../redux/actions/server-actions';
-import { CLASSIFICATION_MODELS } from '../../redux/constants/server-constants';
-import { sendNewClassificationModel } from '../../api/handle-socket-connections';
+import { setServerProcessedClassificationModel } from '../../../redux/actions/server-actions';
+import { CLASSIFICATION_MODELS } from '../../../redux/constants/server-constants';
+import { sendNewClassificationModel } from '../../../api/handle-socket-connections';
 
 function formatClassificationModelName(classificationModel) {
   return classificationModel.replaceAll('_', ' ');

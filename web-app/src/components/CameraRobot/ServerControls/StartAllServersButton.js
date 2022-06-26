@@ -1,9 +1,9 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { setServerStartInit } from '../../redux/actions/server-actions';
-import { SERVER_STATUSES } from '../../redux/constants/server-constants';
-import { loadAllServers } from '../../api/handle-socket-connections';
+import { setServerStartInit } from '../../../redux/actions/server-actions';
+import { SERVER_STATUSES } from '../../../redux/constants/server-constants';
+import { loadAllServers } from '../../../api/handle-socket-connections';
 
 const mapStateToProps = (props) => {
   const { serverReducers } = props;

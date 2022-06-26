@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 
-import { SERVER_STATUSES } from '../../redux/constants/server-constants';
-import { stopAllServers } from '../../api/handle-socket-connections';
+import { SERVER_STATUSES } from '../../../redux/constants/server-constants';
+import { stopAllServers } from '../../../api/handle-socket-connections';
 
 const mapStateToProps = (props) => {
   const { serverReducers } = props;

@@ -1,8 +1,8 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { setWaitBetweenImages } from '../../redux/actions/server-actions';
-import { sendDelayChange } from '../../api/handle-socket-connections';
+import { setWaitBetweenImages } from '../../../redux/actions/server-actions';
+import { sendDelayChange } from '../../../api/handle-socket-connections';
 
 
 const mapStateToProps = (props) => {

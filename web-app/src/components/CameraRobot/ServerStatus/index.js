@@ -3,7 +3,7 @@ import React from 'react';
 import OfflineIcon from './StatusIcons/OfflineIcon';
 import WaitingIcon from './StatusIcons/WaitingIcon';
 import OnlineIcon from './StatusIcons/OnlineIcon';
-import { SERVER_STATUSES } from '../../redux/constants/server-constants';
+import { SERVER_STATUSES } from '../../../redux/constants/server-constants';
 
 class ServerStatus extends(React.Component) {
   render () {
