@@ -6,6 +6,8 @@ import './api/setup-socket-connections';
 
 import CameraRobot from './components/CameraRobot/';
 
+import RaspberryPi from './components/RaspberryPi'
+
 import { SERVER_STATUSES } from './redux/constants/server-constants';
 import LoadingPage from './components/LoadingPage';
 import SideBar from './components/SideBar';
@@ -32,7 +34,8 @@ function App(props) {
       <div className="container" id="main-container">
           <Routes>
             <Route path="/" element={<CameraRobot />} />
-            <Route path="/security_camera" element={<div>LOVE</div>} />
+            <Route path="/security-camera" element={<CameraRobot />} />
+            <Route path="raspberry/:hostname" element={<RaspberryPi />} />
           </Routes>
       </div>
     </>

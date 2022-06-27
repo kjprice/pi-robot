@@ -19,7 +19,7 @@ const ServerStatuses = (props) => {
   }
   
   return serverHostnames.map(hostname => (
-    <li key={hostname}>{hostname}</li>
+    <li key={hostname}><Link to={`/raspberry/${hostname}`}>{hostname}</Link></li>
   ))
 }
 

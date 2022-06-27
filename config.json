@@ -1,4 +1,5 @@
 {
   "healthStatusPort": 1818,
+  "webminPort": 10000,
   "serverHostnames": ["pirobot", "pi3misc2"]
 }
