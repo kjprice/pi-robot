@@ -32,6 +32,7 @@ function App(props) {
       <div className="container" id="main-container">
           <Routes>
             <Route path="/" element={<CameraRobot />} />
+            <Route path="/security_camera" element={<div>LOVE</div>} />
           </Routes>
       </div>
     </>
