@@ -55,11 +55,13 @@ npm start
 ```
 
 # TODO:
- - [ ] Combine `set_startup_script.sh` with /bin/raspberry-pi-setup/run.sh
  - [ ] Add symbolic links on raspberry pis to all shell scripts they might need (add to ~/bin/ and set PATH)
  - [ ] Add symbolic links on raspberry pis to all logs (`~/Projects/pirobot/data/logs` -> `/var/logs/`)
  - [ ] Log *everything* that runs on the raspberry pis
  - [ ] Move log path directories to config.json
  - [ ] Add endpoint to server_status to retrieve most recent log (`./bin/logs/read_last_log.sh`)
+ - [ ] Add UI to web-app to display all logs
+ - [ ] Add UI to web-app to display videos from security
+ 
  
  
