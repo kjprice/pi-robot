@@ -13,6 +13,7 @@ import socketio
 from .modules.config import get_hostname, SERVER_NAMES, SOCKET_IO_SERVER_PORT, SOCKET_ROOMS, STATIC_DIR, load_json_config
 from .modules.workers.job_process.job_process import JobProcess
 from .modules.workers.job_process.ssh_process import SSH_Process
+from .modules.server_module.raspi_poller import RaspiPoller
 
 # from .pi_applications
 from .pi_applications.run_image_processing_server import run_image_processing_server
@@ -55,6 +56,15 @@ def create_image_processing_server_job(classification_model: str):
   server_name = SERVER_NAMES.IMAGE_PROCESSING.value
   create_job(server_name, run_image_processing_server, arg_flags)
 
+def start_poller(arg_flags):
+  poller = RaspiPoller(arg_flags)
+  poller.start_threads()
+
+def create_raspi_poller_job():
+  arg_flags = ''
+  server_name = SERVER_NAMES.RASPI_POLLER.value
+  create_job(server_name, start_poller, arg_flags)
+
 def create_camera_head_server_job(use_remote_servers: bool, seconds_between_images: int, classification_model: str):
   server_name = SERVER_NAMES.CAMERA_HEAD.value
   arg_flags = '--delay {}'.format(seconds_between_images)
@@ -90,7 +100,13 @@ print()
 def connect(sid, environ):
   print('connect ', sid)
 
+# TODO: Move to config
 BROWSERS_ROOM_NAME = 'browsers'
+
+@sio.event
+def raspi_status_changed(sid, server):
+  sio.emit('raspi_status_changed', server, room=BROWSERS_ROOM_NAME)
+
 
 @sio.event
 def set_socket_room(sid, room_name):
@@ -164,4 +180,6 @@ def disconnect(sid):
     print('disconnect ', sid)
 
 if __name__ == '__main__':
+  create_raspi_poller_job()
   eventlet.wsgi.server(eventlet.listen((get_hostname(), SOCKET_IO_SERVER_PORT)), app)
+  

@@ -17,7 +17,7 @@ app.get('/ping', (req, res) => {
   const date = new Date();
   log(`hit "${req.method} ${req.url}" from ip: "${ip}"`);
 
-  res.send('success');
+  res.status(200).send('success');
 })
 
 io.on('connection', (socket) => {

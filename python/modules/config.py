@@ -19,11 +19,13 @@ MODELS_DIR = os.path.join('models')
 
 JSON_CONFIG_FILEPATH = 'config.json'
 
+# TODO: Move to config.json
 SOCKET_IO_SERVER_HOSTNAME = 'kj-macbook.lan'
 SOCKET_IO_SERVER_PORT = 9898
 SOCKET_IO_HOST_URI = 'http://{}:{}'.format(SOCKET_IO_SERVER_HOSTNAME, SOCKET_IO_SERVER_PORT)
 
-SOCKET_ROOMS = ('image_processing_server', 'camera_head', 'browsers')
+# TODO: Move to config.json
+SOCKET_ROOMS = ('image_processing_server', 'camera_head', 'browsers', 'raspi_poller')
 
 RESNET_MODEL_FILEPATH = os.path.join(MODELS_DIR, 'resnet50_coco_best_v2.1.0.h5')
 
@@ -31,10 +33,12 @@ class LOG_DIR_BASES(str, Enum):
     IMAGE_PROCESSING_TIME = 'image_processing_time'
     CAMERA_HEAD_SERVER = 'camera_head_server'
     IMAGE_PROCESSING_SERVER = 'image_processing_server'
+    RASPI_POLLER = 'raspi_poller'
 
 class SERVER_NAMES(str, Enum):
     CAMERA_HEAD = 'camera_head'
     IMAGE_PROCESSING = 'image_processing_server'
+    RASPI_POLLER = 'raspi_poller'
     @classmethod
     def to_dict(cls):
         obj = {}
@@ -112,6 +116,8 @@ def get_log_dir_by_server_name(server_name: SERVER_NAMES):
         return LOG_DIR_BASES.CAMERA_HEAD_SERVER
     if server_name == SERVER_NAMES.IMAGE_PROCESSING:
         return LOG_DIR_BASES.IMAGE_PROCESSING_SERVER
+    if server_name == SERVER_NAMES.RASPI_POLLER:
+        return LOG_DIR_BASES.RASPI_POLLER
     
     raise ValueError('Unknown server_name: {}'.format(server_name))
         

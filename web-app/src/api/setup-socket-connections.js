@@ -57,3 +57,5 @@ function handleImageReceived(arrayBuffer) {
 socket.on('processed_image_finished', handleImageReceived);
 socket.on('send_output', actions.setServerOutputReceived);
 
+// TODO: Wire in action
+socket.on('raspi_status_changed', (server) => {console.log('raspi_status_changed', server)})
