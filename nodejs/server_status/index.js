@@ -7,7 +7,16 @@ const io = new Server(server);
 
 const port = require('../../config.json')['healthStatusPort']
 
+const log = (str) => {
+  const date = new Date();
+  console.log(`${date.toISOString()} \t ${str}`);
+}
+
 app.get('/ping', (req, res) => {
+  const ip = req.socket.remoteAddress || req.ip || req.headers['x-real-ip'];
+  const date = new Date();
+  log(`hit "${req.method} ${req.url}" from ip: "${ip}"`);
+
   res.send('success');
 })
 
