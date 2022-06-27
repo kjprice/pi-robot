@@ -2,7 +2,7 @@
 
 cd "$(dirname "$0")"
 
-port=`../misc/get_config.sh health_status_port`
+port=`../misc/get_config.sh healthStatusPort`
 
 ../misc/kill_process_on_port.sh $port
 

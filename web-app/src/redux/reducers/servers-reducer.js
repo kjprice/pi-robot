@@ -24,11 +24,12 @@ const getDefaultState = () => ({
   waitTimeBetweenImages: 1, // Time in seconds
   serverOutputByProcessName: {},
   processedImage: null,
-  classificationModel: CLASSIFICATION_MODELS.FACES_ONLY
+  classificationModel: CLASSIFICATION_MODELS.FACES_ONLY, 
+  config: {}
 });
 
 const setServerInitialState = (state, payload) => {
-  const { jobs_running: jobsRunning } = payload;
+  const { jobs_running: jobsRunning, config } = payload;
 
   let allServers = SERVER_STATUSES.OFFLINE;
   if (jobsRunning.length > 0) {
@@ -43,7 +44,8 @@ const setServerInitialState = (state, payload) => {
       ...serversStatuses,
       allServers,
       webApp: SERVER_STATUSES.ONLINE,
-    }
+    },
+    config
   }
 }
 

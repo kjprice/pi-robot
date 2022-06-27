@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 
-const port = require('../../config.json')['health_status_port']
+const port = require('../../config.json')['healthStatusPort']
 
 app.get('/ping', (req, res) => {
   res.send('success');

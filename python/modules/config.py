@@ -17,6 +17,8 @@ STATIC_DIR = os.path.join('web-app', 'build')
 
 MODELS_DIR = os.path.join('models')
 
+JSON_CONFIG_FILEPATH = 'config.json'
+
 SOCKET_IO_SERVER_HOSTNAME = 'kj-macbook.lan'
 SOCKET_IO_SERVER_PORT = 9898
 SOCKET_IO_HOST_URI = 'http://{}:{}'.format(SOCKET_IO_SERVER_HOSTNAME, SOCKET_IO_SERVER_PORT)
@@ -24,6 +26,7 @@ SOCKET_IO_HOST_URI = 'http://{}:{}'.format(SOCKET_IO_SERVER_HOSTNAME, SOCKET_IO_
 SOCKET_ROOMS = ('image_processing_server', 'camera_head', 'browsers')
 
 RESNET_MODEL_FILEPATH = os.path.join(MODELS_DIR, 'resnet50_coco_best_v2.1.0.h5')
+
 class LOG_DIR_BASES(str, Enum):
     IMAGE_PROCESSING_TIME = 'image_processing_time'
     CAMERA_HEAD_SERVER = 'camera_head_server'
@@ -177,8 +180,6 @@ def get_cache_info(file_name):
     with open(cache_filepath, 'r') as f:
         return json.load(f)
 
-def write_static_config(content_obj):
-    filename = 'server_config.json'
-    filepath = os.path.join(STATIC_DIR, filename)
-    with open (filepath, 'w') as f:
-        json.dump(content_obj, f)
+def load_json_config():
+    with open(JSON_CONFIG_FILEPATH, 'r') as f:
+        return json.load(f)

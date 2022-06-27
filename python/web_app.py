@@ -10,7 +10,7 @@ import time
 import eventlet
 import socketio
 
-from .modules.config import get_hostname, SERVER_NAMES, SOCKET_IO_SERVER_PORT, SOCKET_ROOMS, STATIC_DIR, write_static_config
+from .modules.config import get_hostname, SERVER_NAMES, SOCKET_IO_SERVER_PORT, SOCKET_ROOMS, STATIC_DIR, load_json_config
 from .modules.workers.job_process.job_process import JobProcess
 from .modules.workers.job_process.ssh_process import SSH_Process
 
@@ -131,7 +131,8 @@ def stop_all_servers(sid):
 @sio.event
 def get_server_statuses(sid):
   jobs_running = jobs_running_by_fn_name.keys()
-  sio.emit('browser_init_status', {'jobs_running': list(jobs_running)}, to=sid)
+  config = load_json_config()
+  sio.emit('browser_init_status', {'jobs_running': list(jobs_running), 'config': config}, to=sid)
 
 @sio.event
 def processed_image_finished(sid, message):
@@ -162,13 +163,5 @@ def confirm_image_processing_server_online(sid):
 def disconnect(sid):
     print('disconnect ', sid)
 
-def create_config_object():
-  server_names = SERVER_NAMES.to_dict()
-
-  return {
-    'serverNames': server_names
-  }
-
 if __name__ == '__main__':
-  write_static_config(create_config_object())
   eventlet.wsgi.server(eventlet.listen((get_hostname(), SOCKET_IO_SERVER_PORT)), app)
