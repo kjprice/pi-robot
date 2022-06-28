@@ -6,6 +6,8 @@ import requests
 from ..config import SERVER_NAMES, load_json_config
 from .server_module import ServerModule
 
+DELAY_BETWEEN_REQUESTS = 5
+
 # TODO: add method for "toString" equivalent
 class PollServer:
     is_online = None
@@ -20,8 +22,9 @@ class PollServer:
         ping_url = f'{self.address}/ping'
         print(ping_url)
         is_server_online = False
+        SECONDS_BEFORE_TIMEOUT = 2
         try:
-            r = requests.get(ping_url)
+            r = requests.get(ping_url, timeout=SECONDS_BEFORE_TIMEOUT)
             is_server_online = r.status_code == 200
         except requests.exceptions.ConnectionError:
             is_server_online = False
@@ -91,5 +94,5 @@ class RaspiPoller(ServerModule):
                 if server.hasStatusChanged():
                     self.send_output('{} online changed to {}'.format(server.hostname, server.is_online))
                     self.on_status_change(server)
-            time.sleep(10)
+            time.sleep(DELAY_BETWEEN_REQUESTS)
 
