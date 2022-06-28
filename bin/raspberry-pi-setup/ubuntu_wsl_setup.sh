@@ -15,6 +15,7 @@ python3 -m pip install opencv-python
 python3 -m pip install --no-input pynput
 python3 -m pip install --no-input imagezmq
 python3 -m pip install --no-input python-socketio
+python3 -m pip install --no-input "python-socketio[client]"
 python3 -m pip install --no-input pandas
 python3 -m pip install --no-input flask
 python3 -m pip install --no-input flask-cors
