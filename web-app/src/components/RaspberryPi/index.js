@@ -6,7 +6,7 @@ const mapStateToProps = (props) => {
   const { config } = serverReducers;
   const { ports } = config;
 
-  const { webminPort, pythonFileSystemServerPort } = ports;
+  const { webminPort, pythonFileSystemServerPort } = ports || {};
 
   return {
     webminPort,
