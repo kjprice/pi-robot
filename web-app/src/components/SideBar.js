@@ -17,7 +17,7 @@ const mapStateToProps = (props) => {
 const RaspiTextItem = props => {
   const { hostname, serverStatus} = props;
 
-  if (serverStatus == SERVER_STATUSES.OFFLINE) {
+  if (serverStatus === SERVER_STATUSES.OFFLINE) {
     return hostname;
   }
 
