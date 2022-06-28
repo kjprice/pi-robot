@@ -28,3 +28,5 @@ THIS_LOG_FILEPATH=$LOGS_DIR/video_$filename.txt
 # Take video transformed to mp4
 time libcamera-vid -t $MS -o $raw_filepath |& tee -a $ALL_LOGS_FILEPATH $THIS_LOG_FILEPATH
 time MP4Box -add $raw_filepath $mp4_filepath |& tee -a $ALL_LOGS_FILEPATH $THIS_LOG_FILEPATH
+
+rm $raw_filepath
