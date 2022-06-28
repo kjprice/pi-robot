@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 cd ../..
 
 # How many seconds each video should capture
-SECONDS=1
+SECONDS=30
 MS=$(expr $SECONDS*1000 | bc)
 
 filename=$(date '+%Y-%m-%d_%H_%M_%S')
