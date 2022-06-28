@@ -8,8 +8,8 @@ from .image_module import get_file_path_for_save, load_image, grayscale
 
 # This import will fail on a mac
 try:
-    from picamera import PiCamera
-    import picamera.array
+    from picamera2 import Picamera2
+    import picamera2.array
 except ModuleNotFoundError:
     None
 
@@ -20,8 +20,8 @@ def camera_setup(is_test=False, framerate=30, grayscale=False, resolution=(640, 
         camera = cv2.VideoCapture(0)
     else:
         # Can be 1080p or 720p
-        # camera = PiCamera(resolution='720p')
-        camera = PiCamera()
+        # camera = Picamera2(resolution='720p')
+        camera = Picamera2()
         camera.resolution = resolution
         if grayscale:
             camera.color_effects = (128,128) # turn camera to black and white

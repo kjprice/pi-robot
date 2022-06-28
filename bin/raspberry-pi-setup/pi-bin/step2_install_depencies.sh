@@ -13,12 +13,15 @@ sudo apt-get install -y python3-numpy
 sudo apt-get install -y libblas-dev
 sudo apt-get install -y liblapack-dev
 sudo apt-get install -y python3-dev
-sudo apt-get install -y libatlas-base-dev
 sudo apt-get install -y gfortran
 sudo apt-get install -y python3-setuptools
 sudo apt-get install -y python3-scipy
 sudo apt-get update
 sudo apt-get install -y python3-h5py
+
+# PiCamera2 dependencies
+sudo apt install -y python3-libcamera python3-kms++
+sudo apt install -y python3-pyqt5 python3-prctl libatlas-base-dev ffmpeg
 
 # Install common ML libraries
 python3 -m pip install scipy
@@ -32,7 +35,8 @@ python3 -m pip install --user -U nltk
 # TODO: install keras
 
 # Raspberry Pi Camera for Python
-python3 -m pip install picamera
+python3 -m pip install --no-input numpy --upgrade
+python3 -m pip install --no-input picamera2
 
 # Networking/Connectivity
 python3 -m pip install --no-input imagezmq
