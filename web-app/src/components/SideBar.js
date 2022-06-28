@@ -14,6 +14,16 @@ const mapStateToProps = (props) => {
   };
 };
 
+const RaspiTextItem = props => {
+  const { hostname, serverStatus} = props;
+
+  if (serverStatus == SERVER_STATUSES.OFFLINE) {
+    return hostname;
+  }
+
+  return <Link to={`/raspberry/${hostname}`}>{hostname}</Link>
+}
+
 const ServerStatuses = (props) => {
   const { serverHostnames, raspiStatusesByHostname } = props;
 
@@ -21,12 +31,14 @@ const ServerStatuses = (props) => {
     return null;
   }
   
-  return serverHostnames.map(hostname => (
-    <li key={hostname}>
-      <Link to={`/raspberry/${hostname}`}>{hostname}</Link>
-      <ServerStatus serverStatus={raspiStatusesByHostname[hostname] || SERVER_STATUSES.OFFLINE} />
+  return serverHostnames.map(hostname => {
+    const serverStatus = raspiStatusesByHostname[hostname] || SERVER_STATUSES.OFFLINE
+    return (
+      <li key={hostname}>
+        <RaspiTextItem hostname={hostname} serverStatus={serverStatus} /> <ServerStatus serverStatus={serverStatus} />
       </li>
-  ))
+    )
+})
 }
 
 function SideBar(props) {
