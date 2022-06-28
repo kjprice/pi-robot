@@ -20,7 +20,6 @@ class PollServer:
     
     def run_ping(self):
         ping_url = f'{self.address}/ping'
-        print(ping_url)
         is_server_online = False
         SECONDS_BEFORE_TIMEOUT = 2
         try:
@@ -78,7 +77,7 @@ class RaspiPoller(ServerModule):
 
         @sio.event
         def request_raspi_statuses():
-            print('request_raspi_statuses')
+            self.send_output('request_raspi_statuses')
             self.send_all_raspi_statuses()
     
     def send_all_raspi_statuses(self):
