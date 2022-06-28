@@ -8,7 +8,11 @@ cd ../..
 SECONDS=1
 MS=$(expr $SECONDS*1000 | bc)
 
-DATA_DIR=data/security_videos
+filename=$(date '+%Y-%m-%d_%H_%M_%S')
+folder=$(date '+%Y-%m-%d')
+
+
+DATA_DIR=data/security_videos/$folder
 LOGS_DIR=data/logs/security_videos
 mkdir -p $DATA_DIR
 mkdir -p $LOGS_DIR
