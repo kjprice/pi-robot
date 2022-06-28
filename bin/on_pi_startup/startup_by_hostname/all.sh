@@ -9,4 +9,15 @@ echo "Adding '$node_folder' to PATH"
 PATH="$node_folder:$PATH"
 node --version
 
-../../run/run_server_status_server.sh &
+echo "Starting server status server"
+# ../../run/run_server_status_server.sh &
+
+echo "starting python simple http server"
+source ../../misc/setup_shell.sh
+python_port=`../../misc/get_config.sh pythonFileSystemServerPort`
+log_dir=`../../misc/get_config.sh logDirectoriesByProcess.pythonFileSystemDir`
+../../misc/kill_process_on_port.sh $python_port
+echo "Listening on port $python_port"
+(cd ../../../data/ && python -m http.server $python_port >> $log_dir 2>&1 &)
+
+exit 0

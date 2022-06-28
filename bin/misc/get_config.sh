@@ -3,7 +3,7 @@ cd "$(dirname "$0")"
 
 cd ../..
 
-field_name="${@: -1}"
+field_name="$1"
 config=`cat config.json`
 
 field_value=`echo $config | jq ".$field_name"`
