@@ -5,28 +5,36 @@ import { Link } from 'react-router-dom';
 const mapStateToProps = (props) => {
   const { serverReducers } = props;
   const { config } = serverReducers;
-  const { webminPort } = config;
+  const { webminPort, pythonFileSystemServerPort } = config;
 
   return {
-    webminPort
+    webminPort,
+    pythonFileSystemServerPort,
   };
 };
 
-const WebminLink = ({hostname, webminPort}) => {
-  const link = `https://${hostname}:${webminPort}`;
+const WebminLink = ({hostname, port}) => {
+  const link = `https://${hostname}:${port}`;
 
-  return <a href={link} target="_blank">webmin</a>;
+  return <a href={link} rel="noreferrer" target="_blank">webmin</a>;
+}
+
+const DataDirectoryLink = ({hostname, port}) => {
+  const link = `http://${hostname}:${port}`;
+
+  return <a href={link} rel="noreferrer" target="_blank">Data Directory</a>;
 }
 
 function RaspberryPi(props) {
-  const { webminPort } = props;
+  const { webminPort, pythonFileSystemServerPort } = props;
   let params = useParams();
   const { hostname } = params;
 
   console.log({props, params, hostname});
   return (
     <ul className="list-unstyled">
-      <li><WebminLink hostname={hostname} webminPort={webminPort} /></li>
+      <li><WebminLink hostname={hostname} port={webminPort} /></li>
+      <li><DataDirectoryLink hostname={hostname} port={pythonFileSystemServerPort} /></li>
     </ul>
 )
 }
