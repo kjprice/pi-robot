@@ -60,7 +60,14 @@ socket.on('processed_image_finished', handleImageReceived);
 socket.on('send_output', actions.setServerOutputReceived);
 
 // TODO: Wire in action
-socket.on('raspi_status_changed', (server) => {console.log('raspi_status_changed', server)})
+socket.on('raspi_status_changed', (server) => {
+  console.log('raspi_status_changed', server);
+  actions.setRaspiStatuses([server]);
+});
 
-socket.on('all_raspi_statuses', actions.setRaspiStatuses);
+// TODO: This is getting called twice
+socket.on('all_raspi_statuses', (servers) => {
+  console.log('all_raspi_statuses', servers);
+  actions.setRaspiStatuses(servers)
+});
 
