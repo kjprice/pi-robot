@@ -61,9 +61,7 @@ def start_poller(arg_flags):
   poller.start_threads()
 
 def create_raspi_poller_job():
-  arg_flags = ''
-  server_name = SERVER_NAMES.RASPI_POLLER.value
-  create_job(server_name, start_poller, arg_flags)
+ JobProcess(start_poller, '')
 
 def create_camera_head_server_job(use_remote_servers: bool, seconds_between_images: int, classification_model: str):
   server_name = SERVER_NAMES.CAMERA_HEAD.value
