@@ -25,7 +25,7 @@ python3 -m pip install scipy
 python3 -m pip install pandas
 python3 -m pip install cython
 python3 -m pip install opencv-python
-pip install -U scikit-learn # sklearn
+python3 -m pip pip install -U scikit-learn # sklearn
 python3 -m pip install --user -U nltk
 
 # TODO: install tensorflow lite: https://lindevs.com/install-precompiled-tensorflow-lite-on-raspberry-pi/
