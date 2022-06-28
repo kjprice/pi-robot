@@ -10,7 +10,7 @@ PATH="$node_folder:$PATH"
 node --version
 
 echo "Starting server status server"
-# ../../run/run_server_status_server.sh &
+../../run/run_server_status_server.sh &
 
 echo "starting python simple http server"
 source ../../misc/setup_shell.sh
