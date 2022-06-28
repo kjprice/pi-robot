@@ -5,7 +5,7 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 
-const port = require('../../config.json')['healthStatusPort']
+const port = require('../../config.json')['ports']['healthStatusPort']
 
 const log = (str) => {
   const date = new Date();

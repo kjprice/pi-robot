@@ -1,7 +1,9 @@
 {
-  "healthStatusPort": 1818,
-  "webminPort": 10000,
-  "pythonFileSystemServerPort": 8001,
+  "ports": {
+    "healthStatusPort": 1818,
+    "webminPort": 10000,
+    "pythonFileSystemServerPort": 8001
+  },
   "serverHostnames": ["pirobot", "pi3misc2", "kj-macbook.lan"],
   "logDirectoriesByProcess": {
     "pythonFileSystemDir": "python_http_server"

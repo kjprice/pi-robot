@@ -4,7 +4,9 @@ import { connect } from 'react-redux';
 const mapStateToProps = (props) => {
   const { serverReducers } = props;
   const { config } = serverReducers;
-  const { webminPort, pythonFileSystemServerPort } = config;
+  const { ports } = config;
+
+  const { webminPort, pythonFileSystemServerPort } = ports;
 
   return {
     webminPort,
