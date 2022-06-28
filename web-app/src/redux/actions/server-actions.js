@@ -12,6 +12,7 @@ const {
   SERVER_SET_CLASSIFICATION_MODEL,
   SET_SERVER_WEBSERVER_OFFLINE,
   SET_SERVER_WEBSERVER_CONNECTED,
+  SET_RASPI_STATUSES,
 } = serverConstants;
 
 export const setServerStartInit = () => ({ type:SERVER_START_INIT });
@@ -26,3 +27,4 @@ export const setServerProcessedImageReceived = (payload) => ({ type: SERVER_PROC
 export const setServerProcessedClassificationModel = (payload) => ({ type: SERVER_SET_CLASSIFICATION_MODEL, payload})
 export const setWebServerOffline = () => ({ type: SET_SERVER_WEBSERVER_OFFLINE });
 export const setWebServerConnected = () => ({ type: SET_SERVER_WEBSERVER_CONNECTED });
+export const setRaspiStatuses = (payload) => ({ type: SET_RASPI_STATUSES, payload });

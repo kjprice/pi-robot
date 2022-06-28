@@ -150,6 +150,12 @@ def get_server_statuses(sid):
   config = load_json_config()
   sio.emit('browser_init_status', {'jobs_running': list(jobs_running), 'config': config}, to=sid)
 
+  sio.emit('request_raspi_statuses', room='raspi_poller')
+  @sio.event
+  def all_raspi_statuses(_, servers):
+    sio.emit('all_raspi_statuses', servers, to=sid)
+
+
 @sio.event
 def processed_image_finished(sid, message):
   sio.emit('processed_image_finished', message, room=BROWSERS_ROOM_NAME)

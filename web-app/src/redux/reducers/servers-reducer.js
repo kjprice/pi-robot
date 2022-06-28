@@ -13,6 +13,7 @@ import {
   CLASSIFICATION_MODELS,
   SET_SERVER_WEBSERVER_OFFLINE,
   SET_SERVER_WEBSERVER_CONNECTED,
+  SET_RASPI_STATUSES,
 } from '../constants/server-constants';
 
 const getDefaultState = () => ({
@@ -25,7 +26,8 @@ const getDefaultState = () => ({
   serverOutputByProcessName: {},
   processedImage: null,
   classificationModel: CLASSIFICATION_MODELS.FACES_ONLY, 
-  config: {}
+  config: {},
+  raspiStatusesByHostname: {},
 });
 
 const setServerInitialState = (state, payload) => {
@@ -151,6 +153,29 @@ function setServerProcessedClassificationModel(state, classificationModel) {
   }
 }
 
+function setRaspiStatus(raspiStatusesByHostname, status) {
+  const { hostname, is_online: isOnline } = status;
+
+  return {
+    ...raspiStatusesByHostname,
+    [hostname]: isOnline ? SERVER_STATUSES.ONLINE : SERVER_STATUSES.OFFLINE
+  };
+}
+
+function setRaspiStatuses(state, statuses) {
+  const { raspiStatusesByHostname } = state;
+  let newRaspiStatusesByHostname = raspiStatusesByHostname;
+
+  statuses.forEach(status => {
+    newRaspiStatusesByHostname = setRaspiStatus(newRaspiStatusesByHostname, status);
+  });
+
+  return {
+    ...state,
+    raspiStatusesByHostname: newRaspiStatusesByHostname
+  }
+}
+
 export default function serverReducer(state = getDefaultState(), data) {
   const { type } = data;
 
@@ -163,6 +188,8 @@ export default function serverReducer(state = getDefaultState(), data) {
       return setServerStartComplete(state, 'allServers');
     case SET_SERVER_INITIAL_STATE:
       return setServerInitialState(state, data.payload);
+    case SET_RASPI_STATUSES:
+      return setRaspiStatuses(state, data.payload);
     case SET_WAIT_BETWEEN_IMAGES:
       return setWaitBetweenImages(state, data.payload);
     case SERVER_STOP_INIT:

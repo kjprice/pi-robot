@@ -1,25 +1,31 @@
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import ServerStatus from "./misc/ServerStatus";
+import { SERVER_STATUSES } from '../redux/constants/server-constants';
 
 const mapStateToProps = (props) => {
   const { serverReducers } = props;
-  const { config } = serverReducers;
+  const { config, raspiStatusesByHostname } = serverReducers;
   const { serverHostnames } = config;
 
   return {
-    serverHostnames
+    serverHostnames,
+    raspiStatusesByHostname
   };
 };
 
 const ServerStatuses = (props) => {
-  const { serverHostnames } = props;
+  const { serverHostnames, raspiStatusesByHostname } = props;
 
   if (!serverHostnames) {
     return null;
   }
   
   return serverHostnames.map(hostname => (
-    <li key={hostname}><Link to={`/raspberry/${hostname}`}>{hostname}</Link></li>
+    <li key={hostname}>
+      <Link to={`/raspberry/${hostname}`}>{hostname}</Link>
+      <ServerStatus serverStatus={raspiStatusesByHostname[hostname] || SERVER_STATUSES.OFFLINE} />
+      </li>
   ))
 }
 

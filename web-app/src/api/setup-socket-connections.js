@@ -6,6 +6,7 @@ import {
   setServerProcessedImageReceived,
   setWebServerOffline,
   setWebServerConnected,
+  setRaspiStatuses,
 } from '../redux/actions/server-actions';
 
 import { getImageSourceFromArrayBuffer } from '../utilities/image-utilities';
@@ -21,6 +22,7 @@ function mapDispatchToProps(dispatch) {
     setServerProcessedImageReceived,
     setWebServerOffline,
     setWebServerConnected,
+    setRaspiStatuses,
     }, dispatch);
 }
 
@@ -59,3 +61,6 @@ socket.on('send_output', actions.setServerOutputReceived);
 
 // TODO: Wire in action
 socket.on('raspi_status_changed', (server) => {console.log('raspi_status_changed', server)})
+
+socket.on('all_raspi_statuses', actions.setRaspiStatuses);
+

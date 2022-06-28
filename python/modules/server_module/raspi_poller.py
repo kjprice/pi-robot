@@ -36,7 +36,12 @@ class PollServer:
 
         self.is_online = is_server_online
         return True
-
+    
+    def to_json(self):
+        return {
+            'hostname': self.hostname,
+            'is_online': self.is_online
+        }
 
 def setup_servers() -> List[PollServer]:
     servers = []
@@ -66,13 +71,20 @@ class RaspiPoller(ServerModule):
 
     def other_socket_events(self):
         super().other_socket_events()
+        sio = self.sio
+
+        @sio.event
+        def request_raspi_statuses():
+            print('request_raspi_statuses')
+            self.send_all_raspi_statuses()
+    
+    def send_all_raspi_statuses(self):
+        servers = [server.to_json() for server in self.poll_servers]
+        self.emit('all_raspi_statuses', servers)
 
     def on_status_change(self, server: PollServer) -> None:
-        data = {
-            'hostname': server.hostname,
-            'is_online': server.is_online
-        }
-        self.emit('raspi_status_changed', data)
+        self.emit('raspi_status_changed', server.to_json())
+
     def run_continuously(self):
         while True:
             for server in self.poll_servers:
