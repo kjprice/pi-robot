@@ -54,7 +54,7 @@ npm install
 npm start
 ```
 
-# Server Running On WSL:
+# Server Running On WSL
 WSL makes it easy to run a linux server on Windows. The drawback is that http traffic to the WSL server is blocked from outside windows. To get around this, we can use port forwarding.
 
 After running the web_app server (`./bin/run/run_web_server.sh`), there will be a lot of output text including a note of the local IP. Take note of the IP address and use it for the following commands. This has been tested with git bash on Windows 11.
