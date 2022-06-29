@@ -3,7 +3,7 @@ All package depencies and initial setup for a raspberry pi can be found in `./bi
 
 To configure a raspberry pi, you can use the utility `./bin/raspberry-pi-setup/run.sh`, which will run [initial_setup.sh](/bin/raspberry-pi-setup/pi-bin/initial_setup.sh).
 
-To configure a new host that can control the raspberry pis (like a ubuntu server or mac), run [ubuntu_wsl_setup.sh](/bin/raspberry-pi-setup/ubuntu_wsl_setup.sh)
+To configure a new host that can control the raspberry pis (like a ubuntu server or mac), run [ubuntu_wsl_setup.sh](/bin/raspberry-pi-setup/ubuntu_wsl_setup.sh). See specific information for WSL setup below.
 
 
 # Startup scripts
@@ -53,6 +53,39 @@ cd web-app
 npm install
 npm start
 ```
+
+# Server Running On WSL:
+WSL makes it easy to run a linux server on Windows. The drawback is that http traffic to the WSL server is blocked from outside windows. To get around this, we can use port forwarding.
+
+After running the web_app server (`./bin/run/run_web_server.sh`), there will be a lot of output text including a note of the local IP. Take note of the IP address and use it for the following commands. This has been tested with git bash on Windows 11.
+
+### Startup
+Commands below often need the following:
+
+```
+WSL_IP=$1 # Replace "$1" with the IP Address for WSL
+PORT=$2 # Replace "$2" with the port from output
+WINDOWS_IP=`ipconfig|grep -m 1 IPv4|sed "s/IPv4 Address. . . . . . . . . . . : //g" | xargs`
+```
+
+### Forward Port
+```
+netsh interface portproxy add v4tov4 listenport=$PORT listenaddress=$WINDOWS_IP connectport=$PORT connectaddress=$WSL_IP
+```
+
+### Stop Port Forwarding
+```
+netsh interface portproxy delete v4tov4 listenport=$PORT listenaddress=$WINDOWS_IP
+```
+
+### Print Services Running On Port
+```
+netstat -ano | findstr :$PORT
+```
+
+### Resources
+This solution helped me tremendously:
+ -  https://stackoverflow.com/questions/11525703/port-forwarding-in-windows
 
 # TODO:
  - [ ] Add symbolic links on raspberry pis to all shell scripts they might need (add to ~/bin/ and set PATH)
