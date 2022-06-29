@@ -93,17 +93,10 @@ def create_wsl_forward_helper_text():
   port=SOCKET_IO_SERVER_PORT
   wsl_ip=get_local_ip()
   return '\n'.join([
-    '##### For servers on a virtual machine (like windows wsl)',
-    'you may want to forward http traffic by running:',
-    '',
-    'windows_local_ip=`ipconfig|grep -m 1 IPv4|sed "s/IPv4 Address. . . . . . . . . . . : //g" | xargs`',
-    # f'port={SOCKET_IO_SERVER_PORT}',
-    f'netsh interface portproxy add v4tov4 listenport={port} listenaddress=$windows_local_ip connectport={port} connectaddress={wsl_ip}',
-    '',
-    'then to close the port forwarding, run:',
-    f'netsh interface portproxy delete v4tov4 listenport={port} listenaddress=$windows_local_ip',
-    '',
-    ''
+    '# Port Forwarding (WSL)',
+    'Follow the instructions on https://github.com/kjprice/pi-robot#server-running-on-wsl with the following information:',
+    f'The IP for WSL is: {wsl_ip}',
+    f'The port for WSL and Windows is: {SOCKET_IO_SERVER_PORT}',
   ])
 
 print()
