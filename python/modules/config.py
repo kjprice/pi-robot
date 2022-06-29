@@ -19,9 +19,19 @@ MODELS_DIR = os.path.join('models')
 
 JSON_CONFIG_FILEPATH = 'config.json'
 
+def get_hostname():
+    return socket.gethostname()
+
+# https://www.delftstack.com/howto/python/get-ip-address-python/#use-the-socket-getsockname-funtion-to-get-the-local-ip-address-in-python
+def get_local_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    return s.getsockname()[0]
+
 # TODO: Move to config.json
-SOCKET_IO_SERVER_HOSTNAME = 'kj-macbook.lan'
+SOCKET_IO_SERVER_HOSTNAME = get_hostname()
 SOCKET_IO_SERVER_PORT = 9898
+# TODO: This needs to be dynamic when sent to servers
 SOCKET_IO_HOST_URI = 'http://{}:{}'.format(SOCKET_IO_SERVER_HOSTNAME, SOCKET_IO_SERVER_PORT)
 
 # TODO: Move to config.json
@@ -77,8 +87,6 @@ def save_plot(filename, plot):
     filepath = get_figure_filepath(filename)
     fig.savefig(filepath)
 
-def get_hostname():
-    return socket.gethostname()
 
 def get_processing_server_urls():
     urls = []

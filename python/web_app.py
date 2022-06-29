@@ -200,5 +200,5 @@ def disconnect(sid):
 
 if __name__ == '__main__':
   create_raspi_poller_job()
-  eventlet.wsgi.server(eventlet.listen((get_hostname(), SOCKET_IO_SERVER_PORT)), app)
+  eventlet.wsgi.server(eventlet.listen((get_local_ip(), SOCKET_IO_SERVER_PORT)), app)
   
