@@ -10,7 +10,7 @@ import time
 import eventlet
 import socketio
 
-from .modules.config import get_hostname, SERVER_NAMES, SOCKET_IO_SERVER_PORT, SOCKET_ROOMS, STATIC_DIR, load_json_config
+from .modules.config import get_hostname, SERVER_NAMES, SOCKET_IO_SERVER_PORT, SOCKET_ROOMS, STATIC_DIR, load_json_config, get_local_ip
 from .modules.workers.job_process.job_process import JobProcess
 from .modules.workers.job_process.ssh_process import SSH_Process
 from .modules.server_module.raspi_poller import RaspiPoller
@@ -86,7 +86,7 @@ app = socketio.WSGIApp(sio, static_files={
 def create_homepage_url():
   return '\n'.join([
     '# Server URL',
-    'http://{}:{}/'.format(get_local_ip(), SOCKET_IO_SERVER_PORT)
+    'http://{}:{}/'.format(get_hostname(), SOCKET_IO_SERVER_PORT)
   ])
 
 def create_wsl_forward_helper_text():
