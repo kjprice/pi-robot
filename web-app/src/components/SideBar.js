@@ -15,11 +15,7 @@ const mapStateToProps = (props) => {
 };
 
 const RaspiTextItem = props => {
-  const { hostname, serverStatus} = props;
-
-  if (serverStatus === SERVER_STATUSES.OFFLINE) {
-    return hostname;
-  }
+  const { hostname} = props;
 
   return <Link to={`/raspberry/${hostname}`}>{hostname}</Link>
 }
@@ -35,7 +31,7 @@ const ServerStatuses = (props) => {
     const serverStatus = raspiStatusesByHostname[hostname] || SERVER_STATUSES.OFFLINE
     return (
       <li key={hostname}>
-        <RaspiTextItem hostname={hostname} serverStatus={serverStatus} /> <ServerStatus serverStatus={serverStatus} />
+        <RaspiTextItem hostname={hostname} /> <ServerStatus serverStatus={serverStatus} />
       </li>
     )
 })
