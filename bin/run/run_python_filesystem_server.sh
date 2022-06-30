@@ -3,9 +3,9 @@
 cd "$(dirname "$0")"
 
 source ../misc/setup_shell.sh
-python_port=`../misc/get_config.sh ports.pythonFileSystemServerPort`
+python_port=`../misc/get_config.sh ports.pythonHttpServer`
 
-log_dir=`../misc/get_config.sh logDirectoriesByProcess.pythonFileSystemDir`
+log_dir=`../misc/get_config.sh logDirectoriesByProcess.pythonHttpServer`
 ../misc/kill_process_on_port.sh $python_port
 echo "Listening on port $python_port"
 
