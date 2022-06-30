@@ -31,8 +31,9 @@ def get_local_ip():
 # TODO: Move to config.json
 SOCKET_IO_SERVER_HOSTNAME = get_hostname()
 SOCKET_IO_SERVER_PORT = 9898
-# TODO: This needs to be dynamic when sent to servers
+
 SOCKET_IO_HOST_URI = 'http://{}:{}'.format(SOCKET_IO_SERVER_HOSTNAME, SOCKET_IO_SERVER_PORT)
+SOCKET_IO_HOST_URI_LOCAL = 'http://{}:{}'.format(get_local_ip(), SOCKET_IO_SERVER_PORT)
 
 # TODO: Move to config.json
 SOCKET_ROOMS = ('image_processing_server', 'camera_head', 'browsers', 'raspi_poller')

@@ -3,12 +3,21 @@ import concurrent.futures as cf
 import datetime
 import time
 import traceback
+import requests
 
 import socketio
 
-from ..config import append_log_info, get_log_dir_by_server_name, write_log_info, SOCKET_IO_HOST_URI, SERVER_NAMES
+from ..config import append_log_info, get_log_dir_by_server_name, write_log_info, SERVER_NAMES
 
 TIME_IN_SECONDS_BETWEEN_CHECKING_STATUS = 0.001
+
+def is_url_accessible(url:str) -> bool:
+    try:
+        r = requests.get(url, timeout=2)
+
+        return r.status_code in (200, 204)
+    except requests.exceptions.ConnectionError:
+        return False
 
 def handle_default_server_response(response):
     text = response.text
@@ -86,7 +95,7 @@ class ServerModule:
             self.abort_signal_received = True
 
         self.other_socket_events()
-        sio.connect(SOCKET_IO_HOST_URI)
+        sio.connect(self.socket_server_uri)
         sio.wait()
     
     # Run time.sleep() while continuously checking to make sure we shouldn't abort
@@ -120,8 +129,18 @@ class ServerModule:
             help='Set to true if this is running locally, otherwise it will try to use PiCamera'
         )
 
+        parser.add_argument(
+            '--socket_server_uri',
+            help='Provides a uri to connect to the server socket'
+        )
+
+        parser.add_argument(
+            '--socket_server_local_uri',
+            help='Provides a uri to connect to the server socket *locally*'
+        )
+
         self.other_args()
-    
+
     def other_args(self):
         pass
 
@@ -133,6 +152,17 @@ class ServerModule:
     @property
     def is_test(self):
         return self.get_args().is_test
+    
+    @property
+    def socket_server_uri(self) -> str:
+        possible_urls = [
+            self.get_args().socket_server_uri,
+            self.get_args().socket_server_local_uri,
+        ]
+        for url in possible_urls:
+            if is_url_accessible(url):
+                return url
+        return None            
     
     def emit(self, message, data=None):
         if not self.is_socket_connected:

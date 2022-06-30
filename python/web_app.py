@@ -10,7 +10,7 @@ import time
 import eventlet
 import socketio
 
-from .modules.config import get_hostname, SERVER_NAMES, SOCKET_IO_SERVER_PORT, SOCKET_ROOMS, STATIC_DIR, load_json_config, get_local_ip
+from .modules.config import get_hostname, SERVER_NAMES, SOCKET_IO_SERVER_PORT, SOCKET_ROOMS, STATIC_DIR, load_json_config, get_local_ip, SOCKET_IO_HOST_URI, SOCKET_IO_HOST_URI_LOCAL
 from .modules.workers.job_process.job_process import JobProcess
 from .modules.workers.job_process.ssh_process import SSH_Process
 from .modules.server_module.raspi_poller import RaspiPoller
@@ -33,9 +33,24 @@ def stop_all_server_processes():
   
   print('Shut off {} servers'.format(len(fn_names)))
 
-def create_job(fn_name, fn_reference, arg_flags=None):
+def add_default_arg_flags(provided_flags: str = ""):
+  socket_server_uri_flag = f'--socket_server_uri={SOCKET_IO_HOST_URI}'
+  socket_server_uri_local_flag = f'--socket_server_local_uri={SOCKET_IO_HOST_URI_LOCAL}'
+  all_flags = [
+    socket_server_uri_flag,
+    socket_server_uri_local_flag,
+  ]
+
+  if provided_flags:
+    all_flags.append(provided_flags)
+
+
+  return ' '.join(all_flags)
+
+def create_job(fn_name, fn_reference, arg_flags=""):
   stop_job_if_exists_by_fn_name(fn_name)
 
+  arg_flags = add_default_arg_flags(arg_flags)
   job = JobProcess(fn_reference, arg_flags)
 
   jobs_running_by_fn_name[fn_name] = job
@@ -46,6 +61,7 @@ def get_fn_for_ssh_job(hostname: str, script_str: str):
 def create_job_ssh(hostname: str, process_name: str, flags: str = ''):
   fn_name = get_fn_for_ssh_job(hostname, process_name)
   stop_job_if_exists_by_fn_name(fn_name)
+  flags = add_default_arg_flags(flags)
   job = SSH_Process(hostname, process_name, flags)
   jobs_running_by_fn_name[fn_name] = job
 
@@ -61,7 +77,7 @@ def start_poller(arg_flags):
   poller.start_threads()
 
 def create_raspi_poller_job():
- JobProcess(start_poller, '')
+ JobProcess(start_poller, add_default_arg_flags())
 
 def create_camera_head_server_job(use_remote_servers: bool, seconds_between_images: int, classification_model: str):
   server_name = SERVER_NAMES.CAMERA_HEAD.value
