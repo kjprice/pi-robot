@@ -198,3 +198,8 @@ def get_cache_info(file_name):
 def load_json_config():
     with open(JSON_CONFIG_FILEPATH, 'r') as f:
         return json.load(f)
+
+def get_port_by_name_from_config(port_name: str):
+    config = load_json_config()
+    ports = config['ports']
+    return ports[port_name]

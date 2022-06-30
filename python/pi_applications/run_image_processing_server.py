@@ -6,12 +6,14 @@ import time
 
 import imagezmq
 
-from ..modules.config import SERVER_NAMES
+from ..modules.config import SERVER_NAMES, get_port_by_name_from_config
 from ..modules.image_module import get_file_path_for_save
 from ..modules.server_module.server_classification_module import Server_Classification_Module
 from ..modules.workers.image_stream_worker import get_perpetual_list_of_images_from_worker
 
 IS_TEST = 'IS_TEST' in os.environ
+
+IMAGE_HUB_PORT = get_port_by_name_from_config('imageHubPort')
 
 # If false, we will use pub/sub; the two patterns behave completely differently https://github.com/jeffbass/imagezmq/blob/48614483298b782b37dffdddd6b75b9ae0ee525c/docs/req-vs-pub.rst
 REQ_REP = True
@@ -31,8 +33,9 @@ ALLOWED_HOSTNAMES = [
 ]
 
 def get_image_hub_uri_for_pub_sub():
+    # TODO: Update this from config
     hostname = 'kj-macbook.lan' if LOCAL_PUB_SUB else 'pirobot'
-    return 'tcp://{}:6666'.format(hostname)
+    return 'tcp://{}:{}'.format(hostname, IMAGE_HUB_PORT)
 
 perpetual_images = None
 
@@ -40,7 +43,8 @@ def get_image_hub():
     print('REQ_REP', REQ_REP)
     if REQ_REP:
         # This listens to this machine's port
-        return imagezmq.ImageHub(open_port='tcp://*:6666', REQ_REP=True)
+        uri = f'tcp://*:{IMAGE_HUB_PORT}'
+        return imagezmq.ImageHub(open_port=uri, REQ_REP=True)
 
 # TODO: Move to its own class
 last_image_time = None

@@ -6,7 +6,7 @@ import time
 import imagezmq
 
 from ..modules.camera_module import image_generator, camera_setup
-from ..modules.config import get_servo_url, SERVER_NAMES
+from ..modules.config import get_servo_url, SERVER_NAMES, get_port_by_name_from_config
 from ..modules.server_module.server_classification_module import Server_Classification_Module
 
 # We do not need too many images - it is ok to throw away some
@@ -17,6 +17,9 @@ FOLDER_TO_SAVE_TO = 'images-captured'
 
 # If false, we will use pub/sub; the two patterns behave completely differently https://github.com/jeffbass/imagezmq/blob/48614483298b782b37dffdddd6b75b9ae0ee525c/docs/req-vs-pub.rst
 REQ_REP = True
+
+WEB_SERVER_PORT = get_port_by_name_from_config('webServerPort')
+IMAGE_HUB_PORT = get_port_by_name_from_config('imageHubPort')
 
 def get_servo_url_path(path: str, is_test: bool):
     servo_url = get_servo_url(is_test)
@@ -72,13 +75,13 @@ class CameraHead(Server_Classification_Module):
         @sio.event
         def confirm_image_processing_server_online():
             self.send_output('Confirmed image processing server is online')
-            self.is_processing_server_online = True
             socket_uri=self.socket_server_uri
             self.send_output('Connecting to sender at {}'.format(socket_uri))
             # TODO: Pass in actual uri so we do not have to convert
-            uri=socket_uri.replace('http', 'tcp').replace('9898', '6666')
+            uri=socket_uri.replace('http', 'tcp').replace(str(WEB_SERVER_PORT), str(IMAGE_HUB_PORT))
             self.send_output('Converted uri to {}'.format(uri))
             self.sender = get_image_sender(uri)
+            self.is_processing_server_online = True
         
         @sio.event
         def change_seconds_between_images(seconds_between_images):

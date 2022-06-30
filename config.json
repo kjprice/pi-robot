@@ -3,7 +3,8 @@
     "healthStatusPort": 1818,
     "webminPort": 10000,
     "pythonFileSystemServerPort": 8001,
-    "webServerPort": 9898
+    "webServerPort": 9898,
+    "imageHubPort": 6666
   },
   "serverHostnames": ["pirobot", "pi3misc2", "kj-macbook.lan"],
   "logDirectoriesByProcess": {
