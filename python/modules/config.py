@@ -96,11 +96,11 @@ def get_processing_server_urls():
 
     return urls
     
-if SERVO_ENV_KEY  in os.environ:
-    SERVER_HOST = os.environ[SERVO_ENV_KEY]
-    print('Found the servo hostname "{}" from the environment variable {}'.format(SERVER_HOST, SERVO_ENV_KEY))
-else:
-    print('No environment set for {}. You can set this environment variable to change the hostname (connecting to the servo server).'.format(SERVO_ENV_KEY))
+# if SERVO_ENV_KEY  in os.environ:
+#     SERVER_HOST = os.environ[SERVO_ENV_KEY]
+#     print('Found the servo hostname "{}" from the environment variable {}'.format(SERVER_HOST, SERVO_ENV_KEY))
+# else:
+#     print('No environment set for {}. You can set this environment variable to change the hostname (connecting to the servo server).'.format(SERVO_ENV_KEY))
 
 def ensure_directory_exists(directory):
     try:
