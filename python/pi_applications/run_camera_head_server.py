@@ -24,13 +24,6 @@ def get_servo_url_path(path: str, is_test: bool):
 
     return url
 
-def test_connection_with_servo_server(is_test: bool):
-    url = get_servo_url_path('testConnection', is_test)
-    print('Testing connection with servo server on url "{}"'.format(url))
-    response = requests.get(url)
-    handle_default_server_response(response)
-    print('Successfully connected with servo server')
-
 def test_connection_with_image_processing_server(url):
     response = requests.get('{}/testConnection'.format(url))
     text = response.text
@@ -39,11 +32,12 @@ def test_connection_with_image_processing_server(url):
         return True
     return False
 
-def get_image_sender():
+def get_image_sender(uri):
     if REQ_REP:
-        return imagezmq.ImageSender(connect_to='tcp://kj-macbook.lan:6666', REQ_REP=True)
+        # TODO: Add port to config.json
+        return imagezmq.ImageSender(connect_to=uri, REQ_REP=True)
     else:
-        return imagezmq.ImageSender(connect_to='tcp://*:6666', REQ_REP=False)
+        return imagezmq.ImageSender(connect_to=uri, REQ_REP=False)
 
 class CameraHead(Server_Classification_Module):
     is_processing_server_online = None
@@ -52,6 +46,7 @@ class CameraHead(Server_Classification_Module):
     count_images_used = 0
     time_started = None
     last_image_sent_time = None
+    sender = None
     _seconds_between_images = None
 
     def __init__(self, arg_flags=None) -> None:
@@ -78,16 +73,24 @@ class CameraHead(Server_Classification_Module):
         def confirm_image_processing_server_online():
             self.send_output('Confirmed image processing server is online')
             self.is_processing_server_online = True
+            socket_uri=self.socket_server_uri
+            self.send_output('Connecting to sender at {}'.format(socket_uri))
+            # TODO: Pass in actual uri so we do not have to convert
+            uri=socket_uri.replace('http', 'tcp').replace('9898', '6666')
+            self.send_output('Converted uri to {}'.format(uri))
+            self.sender = get_image_sender(uri)
         
         @sio.event
         def change_seconds_between_images(seconds_between_images):
             self.send_output('Setting new seconds_between_images: {}'.format(seconds_between_images))
             self._seconds_between_images = seconds_between_images
+        self.send_output('other_socket_events 2')
     
     def socket_init(self):
         self.sio.emit('set_socket_room', 'camera_head')
     
     def check_if_processing_server_online(self):
+        self.send_output('self.is_processing_server_online', self.is_processing_server_online)
         if not self.is_processing_server_online:
             self.emit('is_processing_server_online')
 
@@ -108,7 +111,6 @@ class CameraHead(Server_Classification_Module):
         #     test_connection_with_servo_server(self.is_test)
 
         images_count = 0
-        sender = get_image_sender()
 
         for img, time_passed_for_image in image_generator(self.is_test, grayscale=False):
             self.check_if_processing_server_online()
@@ -123,7 +125,7 @@ class CameraHead(Server_Classification_Module):
                 if self.should_throttle_image():
                     self.count_images_used += 1
                     # TODO: Decide whether to make greyscale before saving - compare time savings
-                    sender.send_image(str(time.time()), img)
+                    self.sender.send_image(str(time.time()), img)
                 else:
                     self.count_images_discarded += 1
                 self.send_output('Found {} image(s) and dropped {} image(s)'.format(self.count_images_used, self.count_images_discarded))

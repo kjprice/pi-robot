@@ -95,7 +95,9 @@ class ServerModule:
             self.abort_signal_received = True
 
         self.other_socket_events()
-        sio.connect(self.socket_server_uri)
+        socket_uri=self.socket_server_uri
+        self.send_output(f'Attempting to connect to {socket_uri}')
+        sio.connect(socket_uri)
         sio.wait()
     
     # Run time.sleep() while continuously checking to make sure we shouldn't abort
