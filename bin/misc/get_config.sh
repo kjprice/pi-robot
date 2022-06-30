@@ -10,8 +10,10 @@ field_value=`echo $config | jq ".$field_name"`
 data_type=`echo $field_value | jq "type"`
 
 if [ "$data_type" = '"array"' ]; then
+  # Send output as raw (can be iterated on)
   echo $field_value | jq --raw-output '.[]'
 else
-  echo $field_value
+  # Send output as raw string
+  echo $field_value | jq --raw-output '.'
 fi
 
