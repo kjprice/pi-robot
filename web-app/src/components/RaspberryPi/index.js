@@ -33,10 +33,13 @@ function RaspberryPi(props) {
 
   console.log({props, params, hostname});
   return (
-    <ul className="list-unstyled">
-      <li><WebminLink hostname={hostname} port={webminPort} /></li>
-      <li><DataDirectoryLink hostname={hostname} port={pythonFileSystemServerPort} /></li>
-    </ul>
+    <div>
+      <h3>{hostname}</h3>
+      <ul className="list-unstyled">
+        <li><WebminLink hostname={hostname} port={webminPort} /></li>
+        <li><DataDirectoryLink hostname={hostname} port={pythonFileSystemServerPort} /></li>
+      </ul>
+    </div>
 )
 }
 
