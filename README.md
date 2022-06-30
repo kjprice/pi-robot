@@ -55,32 +55,28 @@ npm start
 ```
 
 # Server Running On WSL
-WSL makes it easy to run a linux server on Windows. The drawback is that http traffic to the WSL server is blocked from outside windows. To get around this, we can use port forwarding.
+WSL makes it easy to run a linux server on Windows. The drawback is that http traffic to the WSL server is blocked outside windows. To get around this, we can use port forwarding.
 
-After running the web_app server (`./bin/run/run_web_server.sh`), there will be a lot of output text including a note of the local IP. Take note of the IP address and use it for the following commands. This has been tested with git bash on Windows 11.
+After running the web_app server (`./bin/run/run_web_server.sh`) within wsl, we can run a script on windows to start port forwarding. 
 
-### Startup
-Commands below often need the following:
+### Start Forwarding
+On Windows run:
 
 ```
-WSL_IP=$1 # Replace "$1" with the IP Address for WSL
-PORT=$2 # Replace "$2" with the port from output
-WINDOWS_IP=`ipconfig|grep -m 1 IPv4|sed "s/IPv4 Address. . . . . . . . . . . : //g" | xargs`
+./bin/windows_scripts/forward_to_wsl_port/start.sh
 ```
 
-### Forward Port
-```
-netsh interface portproxy add v4tov4 listenport=$PORT listenaddress=$WINDOWS_IP connectport=$PORT connectaddress=$WSL_IP
-```
+### End Forwarding
+On Windows run:
 
-### Stop Port Forwarding
 ```
-netsh interface portproxy delete v4tov4 listenport=$PORT listenaddress=$WINDOWS_IP
+./bin/windows_scripts/forward_to_wsl_port/end.sh
 ```
 
 ### Print Services Running On Port
+To check if windows is listening on a port, run the following (replace `PORT` with desired port such as `9898`):
 ```
-netstat -ano | findstr :$PORT
+netstat -ano | findstr :PORT
 ```
 
 ### Resources
