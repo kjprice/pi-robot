@@ -13,7 +13,7 @@ source ../misc/setup_shell.sh
 cd ../..
 
 if [ -z $IS_TEST ] ; then
-    python -m python.pi_applications.run_camera_head_server
+    python -m python.pi_applications.run_camera_head_server $@
 else
     python -m python.pi_applications.run_camera_head_server --is_test
 fi
