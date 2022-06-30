@@ -2,7 +2,7 @@
 cd "$(dirname "$0")"
 
 WSL_IP=`wsl hostname -I`
-PORT=9898 # TODO: Pull from config.json
+PORT=`../misc/get_config.sh ports.webServerPort`
 
 WINDOWS_IP=`ipconfig|grep -m 1 IPv4|sed "s/IPv4 Address. . . . . . . . . . . : //g" | xargs`
 
