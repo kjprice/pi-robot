@@ -10,6 +10,7 @@ from .modules.morse_code.morse_letters import TestMorseLetters
 
 from .modules.process_image_for_servo import TestProcessImages
 from .modules.servo_module import TestServoModule
+from .modules.get_config_value import TestGetConfigValue
 
 # Just make sure that we can import all main code
 from .pi_applications import run_camera_detect_morse_code
@@ -24,6 +25,6 @@ suite.addTest(unittest.makeSuite(TestMorseCodeStateSizes))
 suite.addTest(unittest.makeSuite(TestMorseLetters))
 suite.addTest(unittest.makeSuite(TestProcessImages))
 suite.addTest(unittest.makeSuite(TestServoModule))
-
+suite.addTest(unittest.makeSuite(TestGetConfigValue))
 runner = unittest.TextTestRunner()
 runner.run(suite)
