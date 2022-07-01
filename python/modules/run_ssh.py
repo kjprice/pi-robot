@@ -2,6 +2,7 @@ import subprocess
 import multiprocessing
 
 def start_ssh_request(hostname, commands):
+  print(f'ssh {hostname} {commands}')
   ssh = subprocess.Popen(["ssh", hostname],
                           stdin =subprocess.PIPE,
                           stdout=subprocess.PIPE,
