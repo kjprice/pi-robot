@@ -85,7 +85,7 @@ def create_camera_head_server_job(use_remote_servers: bool, seconds_between_imag
   arg_flags += ' --classification_model {}'.format(classification_model)
   if use_remote_servers:
     # TODO: Move to config
-    create_job_ssh('pirobot', 'run_camera_head_server', arg_flags)
+    create_job_ssh('pi@pi3misc2', '/home/pi/Projects/pirobot/bin/run/run_camera_head_server', arg_flags)
   else:
     arg_flags += ' --is_test'
     create_job(server_name, start_camera_process, arg_flags)
@@ -134,8 +134,13 @@ BROWSERS_ROOM_NAME = 'browsers'
 
 @sio.event
 def raspi_status_changed(sid, server):
+  print('raspi_status_changed')
   sio.emit('raspi_status_changed', server, room=BROWSERS_ROOM_NAME)
 
+@sio.event
+def raspi_active_processes_changed(sid, server):
+  print('raspi_active_processes_changed')
+  sio.emit('raspi_status_changed', server, room=BROWSERS_ROOM_NAME)
 
 @sio.event
 def set_socket_room(sid, room_name):
@@ -156,11 +161,12 @@ def load_all_servers(sid, data):
   create_image_processing_server_job(classification_model=classification_model)
   sio.emit('all_servers_loading_status', { 'step': step, 'details': 'create camera head server job' }, sid)
   step += 1
+  # TODO: Try to run this with pi3misc2
   create_camera_head_server_job(use_remote_servers=use_remote_servers, seconds_between_images=seconds_between_images, classification_model=classification_model)
-  if use_remote_servers:
-    create_servo_server_job()
-    sio.emit('all_servers_loading_status', { 'step': step, 'details': 'create servo server job' }, sid)
-    step += 1
+  # if use_remote_servers:
+  #   create_servo_server_job()
+  #   sio.emit('all_servers_loading_status', { 'step': step, 'details': 'create servo server job' }, sid)
+  #   step += 1
 
   sio.emit('all_servers_loading_status', { 'step': step, 'details': 'complete' }, sid)
 
@@ -195,6 +201,7 @@ def send_output(sid, data):
 
 @sio.event
 def is_processing_server_online(sid):
+  print('is_processing_server_online')
   sio.emit('is_processing_server_online', room='image_processing_server')
 
 @sio.event

@@ -6,7 +6,8 @@ cd "$(dirname "$0")"
 source ../misc/setup_shell.sh
 
 # filename=$(basename "$0")
-# ../misc/kill_process_by_name.sh $filename
+# TODO: This is not ideal, but the security camera program might be using the camera
+../misc/kill_process_by_name.sh security_camera
 
 ../download/download_model.sh
 

@@ -61,12 +61,14 @@ socket.on('send_output', actions.setServerOutputReceived);
 
 // TODO: Wire in action
 socket.on('raspi_status_changed', (server) => {
+  // TODO: Handle processes
   console.log('raspi_status_changed', server);
   actions.setRaspiStatuses([server]);
 });
 
 // TODO: This is getting called twice
 socket.on('all_raspi_statuses', (servers) => {
+  // TODO: Handle processes
   console.log('all_raspi_statuses', servers);
   actions.setRaspiStatuses(servers)
 });

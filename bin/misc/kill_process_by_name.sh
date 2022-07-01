@@ -10,6 +10,7 @@ fi
 process_ids=$(ps aux | grep $filename | grep -v kill_process | awk '{print $2}' | $reverse_command)
 echo $process_ids
 
+# TODO: This file should find the process using "python -m python.modules.processes.process_id get"
 
 echo "filename" "$filename"
 i=0

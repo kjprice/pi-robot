@@ -1,3 +1,4 @@
+from concurrent.futures import process
 import time
 from typing import List
 
@@ -13,9 +14,11 @@ class PollServer:
     is_online = None
     hostname = None
     address = None
+    processes = None
     def __init__(self, hostname: str, port: int) -> None:
         self.is_online = False
         self.hostname = hostname
+        self.processes = []
         self.address = f'http://{hostname}:{port}'
     
     def run_ping(self):
@@ -29,6 +32,21 @@ class PollServer:
             is_server_online = False
         
         return is_server_online
+    
+    def fetch_active_processes(self):
+        url = f'{self.address}/processes'
+        r = requests.get(url)
+        return r.json()
+    
+    def has_active_processes_changed(self):
+        processes = self.fetch_active_processes()
+
+        if self.processes == processes:
+            return False
+        
+        self.processes = processes
+        return True
+
 
     def hasStatusChanged(self):
         is_server_online = self.run_ping()
@@ -42,7 +60,8 @@ class PollServer:
     def to_json(self):
         return {
             'hostname': self.hostname,
-            'is_online': self.is_online
+            'is_online': self.is_online,
+            'processes': self.processes,
         }
 
 def setup_servers() -> List[PollServer]:
@@ -86,6 +105,9 @@ class RaspiPoller(ServerModule):
 
     def on_status_change(self, server: PollServer) -> None:
         self.emit('raspi_status_changed', server.to_json())
+    
+    def on_active_process_change(self, server: PollServer) -> None:
+        self.emit('raspi_active_processes_changed', server.to_json())
 
     def run_continuously(self):
         while True:
@@ -93,5 +115,10 @@ class RaspiPoller(ServerModule):
                 if server.hasStatusChanged():
                     self.send_output('{} online changed to {}'.format(server.hostname, server.is_online))
                     self.on_status_change(server)
+            for server in self.poll_servers:
+                # TODO: Loop through all online servers and get their active processes
+                if server.is_online and server.has_active_processes_changed():
+                    self.on_active_process_change(server)
+
             time.sleep(DELAY_BETWEEN_REQUESTS)
 
