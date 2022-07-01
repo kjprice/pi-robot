@@ -17,6 +17,7 @@ from .pi_applications import run_camera_detect_morse_code
 from .pi_applications import run_camera_head_server
 from .pi_applications import run_image_processing_server
 from .pi_applications import run_servo_server
+from .modules.server_module.raspi_poller import RaspiPoller
 
 suite = unittest.TestSuite()
 suite.addTest(unittest.makeSuite(TestMorseCode))
