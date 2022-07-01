@@ -29,7 +29,11 @@ def get_process_id(process_name):
 
     return processes[process_name]
 
+def clear_processes():
+    if os.path.exists(ACTIVE_PROCESSES_PATH):
+        os.remove(ACTIVE_PROCESSES_PATH)
 
+# TODO: Log all actions
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Gets or sets a process id')
     subparsers = parser.add_subparsers()
@@ -42,9 +46,16 @@ if __name__ == '__main__':
     parser_for_get_process.add_argument('process_name', type=str)
     parser_for_get_process.add_argument('process_id', type=int)
     parser_for_get_process.set_defaults(func=set_process_id)
-    
+
+    parser_for_get_process = subparsers.add_parser('clear')
+    parser_for_get_process.set_defaults(func=clear_processes)
+
     args = parser.parse_args()
     if args.func == get_process_id:
         print(args.func(args.process_name))
-    else:
+    elif args.func == set_process_id:
         args.func(args.process_name, args.process_id)
+    elif args.func == clear_processes:
+        args.func()
+    else:
+        raise Exception('No argument specified')
