@@ -28,7 +28,9 @@ const ServerStatuses = (props) => {
   }
   
   return serverHostnames.map(hostname => {
-    const serverStatus = raspiStatusesByHostname[hostname] || SERVER_STATUSES.OFFLINE
+    const raspiInfo = raspiStatusesByHostname[hostname] || {};
+    const { status } = raspiInfo;
+    const serverStatus = status || SERVER_STATUSES.OFFLINE
     return (
       <li key={hostname}>
         <RaspiTextItem hostname={hostname} /> <ServerStatus serverStatus={serverStatus} />

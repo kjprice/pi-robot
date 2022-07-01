@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 const mapStateToProps = (props) => {
   const { serverReducers } = props;
-  const { config } = serverReducers;
+  const { config, raspiStatusesByHostname } = serverReducers;
   const { ports } = config;
 
   const { webminPort, pythonFileSystemServerPort, healthStatusPort } = ports || {};
@@ -12,6 +12,7 @@ const mapStateToProps = (props) => {
     webminPort,
     pythonFileSystemServerPort,
     healthStatusPort,
+    raspiStatusesByHostname,
   };
 };
 
@@ -41,12 +42,24 @@ const ServerStatusProcessesLink = (props) => {
   return <ServerStatusLink {...props} endpoint="processes" />
 }
 
+const ActiveProcesses = ({ hostname, processes }) => {
+  if (processes.length === 0) {
+    return 'No active processes found'
+  }
+
+  return (<ul className="list-unstyled">
+    {processes.map(process => <li key={process}>{process}</li>)}
+  </ul>);
+}
+
 function RaspberryPi(props) {
-  const { webminPort, pythonFileSystemServerPort, healthStatusPort } = props;
+  const { raspiStatusesByHostname, webminPort, pythonFileSystemServerPort, healthStatusPort } = props;
   let params = useParams();
   const { hostname } = params;
 
-  console.log({props, params, hostname});
+  const raspiInfo = raspiStatusesByHostname[hostname] || {}
+  const { processes = [] } = raspiInfo;
+
   return (
     <div>
       <h2>{hostname}</h2>
@@ -62,6 +75,9 @@ function RaspberryPi(props) {
         <li><ServerStatusPingLink hostname={hostname} port={healthStatusPort} /></li>
         <li><ServerStatusProcessesLink hostname={hostname} port={healthStatusPort} /></li>
       </ul>
+
+      <h4>Active Processes</h4>
+      <ActiveProcesses hostname={hostname} processes={processes} />
       
     </div>
 )

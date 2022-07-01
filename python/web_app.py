@@ -136,6 +136,10 @@ BROWSERS_ROOM_NAME = 'browsers'
 def raspi_status_changed(sid, server):
   sio.emit('raspi_status_changed', server, room=BROWSERS_ROOM_NAME)
 
+@sio.event
+def raspi_active_processes_changed(sid, server):
+  print('raspi_active_processes_changed')
+  sio.emit('raspi_status_changed', server, room=BROWSERS_ROOM_NAME)
 
 @sio.event
 def set_socket_room(sid, room_name):

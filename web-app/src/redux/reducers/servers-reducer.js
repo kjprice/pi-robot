@@ -154,11 +154,15 @@ function setServerProcessedClassificationModel(state, classificationModel) {
 }
 
 function setRaspiStatus(raspiStatusesByHostname, status) {
-  const { hostname, is_online: isOnline } = status;
+  const { hostname, processes, is_online: isOnline } = status;
 
   return {
     ...raspiStatusesByHostname,
-    [hostname]: isOnline ? SERVER_STATUSES.ONLINE : SERVER_STATUSES.OFFLINE
+    [hostname]: {
+      status: isOnline ? SERVER_STATUSES.ONLINE : SERVER_STATUSES.OFFLINE,
+      processes,
+    },
+
   };
 }
 
