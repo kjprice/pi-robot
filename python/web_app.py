@@ -84,8 +84,8 @@ def create_camera_head_server_job(use_remote_servers: bool, seconds_between_imag
   arg_flags = '--delay {}'.format(seconds_between_images)
   arg_flags += ' --classification_model {}'.format(classification_model)
   if use_remote_servers:
-    # TODO: Move to config
-    create_job_ssh('pirobot', 'run_camera_head_server', arg_flags)
+    # TODO: Move hostname to config or let user pick which raspi to connect to
+    create_job_ssh('pi@pi3misc2', '/home/pi/Projects/pirobot/bin/run/run_camera_head_server', arg_flags)
   else:
     arg_flags += ' --is_test'
     create_job(server_name, start_camera_process, arg_flags)
