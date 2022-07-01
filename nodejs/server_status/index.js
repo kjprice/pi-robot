@@ -1,8 +1,11 @@
 const express = require('express');
 const app = express();
 const http = require('http');
-const server = http.createServer(app);
 const { Server } = require("socket.io");
+
+const getProcesses = require('./tools/getProcesses');
+
+const server = http.createServer(app);
 const io = new Server(server);
 
 const port = require('../../config.json')['ports']['healthStatusPort'];
@@ -24,10 +27,10 @@ app.get('/processes', (req, res) => {
   const ip = req.socket.remoteAddress || req.ip || req.headers['x-real-ip'];
   log(`hit "${req.method} ${req.url}" from ip: "${ip}"`);
 
-  const processes = require('../../data/processes.json');
-  const processNames = Object.keys(processes);
-
-  res.status(200).send(processNames);
+  getProcesses().then(processes => {
+    const processNames = Object.keys(processes);
+    res.status(200).send(processNames);
+  });
 });
 
 io.on('connection', (socket) => {

@@ -2,4 +2,4 @@
 cd "$(dirname "$0")"
 cd ../..
 
-nodemon -e py,sh -x "./bin/run/run_server_status_server.sh"
+nodemon -e py,sh,js -x "./bin/run/run_server_status_server.sh"
