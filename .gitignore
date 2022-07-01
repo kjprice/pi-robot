@@ -7,6 +7,7 @@ data/logs
 data/figures
 data/test_camera
 data/security_videos
+data/processes.json
 static/images
 static/server_config.json
 node_modules

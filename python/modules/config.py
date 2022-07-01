@@ -17,6 +17,8 @@ STATIC_DIR = os.path.join('web-app', 'build')
 
 MODELS_DIR = os.path.join('models')
 
+ACTIVE_PROCESSES_PATH = os.path.join(DATA_DIR, 'processes.json')
+
 JSON_CONFIG_FILEPATH = 'config.json'
 
 def get_hostname():
