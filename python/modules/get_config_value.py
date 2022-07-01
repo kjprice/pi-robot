@@ -1,12 +1,7 @@
 import argparse
 import json
 import unittest
-JSON_CONFIG_FILEPATH = 'config.json'
-
-# TODO: Load this from config.py once we stop printing there
-def load_json_config():
-    with open(JSON_CONFIG_FILEPATH, 'r') as f:
-        return json.load(f)
+from .config import load_json_config
 
 def get_config_value(config, keys_str: str):
     keys = keys_str.split('.')
