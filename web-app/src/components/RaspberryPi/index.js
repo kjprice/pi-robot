@@ -6,11 +6,11 @@ const mapStateToProps = (props) => {
   const { config, raspiStatusesByHostname } = serverReducers;
   const { ports } = config;
 
-  const { webminPort, pythonFileSystemServerPort, healthStatusPort } = ports || {};
+  const { webminPort, pythonHttpServer, healthStatusPort } = ports || {};
 
   return {
     webminPort,
-    pythonFileSystemServerPort,
+    pythonHttpServer,
     healthStatusPort,
     raspiStatusesByHostname,
   };
@@ -53,7 +53,7 @@ const ActiveProcesses = ({ hostname, processes }) => {
 }
 
 function RaspberryPi(props) {
-  const { raspiStatusesByHostname, webminPort, pythonFileSystemServerPort, healthStatusPort } = props;
+  const { raspiStatusesByHostname, webminPort, pythonHttpServer, healthStatusPort } = props;
   let params = useParams();
   const { hostname } = params;
 
@@ -67,7 +67,7 @@ function RaspberryPi(props) {
       <h4>Internal Links</h4>
       <ul className="list-unstyled">
         <li><WebminLink hostname={hostname} port={webminPort} /></li>
-        <li><DataDirectoryLink hostname={hostname} port={pythonFileSystemServerPort} /></li>
+        <li><DataDirectoryLink hostname={hostname} port={pythonHttpServer} /></li>
       </ul>
 
       <h4>Server Status Links</h4>
