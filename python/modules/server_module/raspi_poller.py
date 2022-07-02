@@ -70,7 +70,7 @@ def setup_servers() -> List[PollServer]:
     servers = []
     config = load_json_config()
     server_hostnames = config['serverHostnames']
-    server_port = config['ports']['healthStatusPort']
+    server_port = config['portsByProcess']['nodeServerStatus']
     for server_hostname in server_hostnames:
         poll_server = PollServer(server_hostname, server_port)
         servers.append(poll_server)

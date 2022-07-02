@@ -7,8 +7,8 @@ const mapStateToProps = (props) => {
   const { config, raspiStatusesByHostname } = serverReducers;
   const { ports, portsByProcess } = config;
 
-  const { webminPort, pythonHttpServer } = ports || {};
-  const { nodeServerStatus } = portsByProcess || {};
+  const { webminPort } = ports || {};
+  const { nodeServerStatus, pythonHttpServer } = portsByProcess || {};
 
   return {
     webminPort,

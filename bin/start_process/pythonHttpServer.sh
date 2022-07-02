@@ -6,7 +6,7 @@ log_path=$1
 
 ../misc/setup_shell.sh
 
-python_port=`../misc/get_config.sh ports.pythonHttpServer`
+python_port=`../misc/get_config.sh portsByProcess.pythonHttpServer`
 ../misc/kill_process_on_port.sh $python_port
 
 cd ../../data
