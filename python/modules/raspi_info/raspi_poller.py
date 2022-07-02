@@ -5,7 +5,7 @@ from simplejson.errors import JSONDecodeError
 import requests
 
 from ..config import SERVER_NAMES, load_json_config
-from .server_module import ServerModule
+from ..server_module.server_module import ServerModule
 
 DELAY_BETWEEN_REQUESTS = 5
 
