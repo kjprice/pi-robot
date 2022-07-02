@@ -6,8 +6,13 @@
     "webServerPort": 9898,
     "imageHubPort": 6666
   },
+  "portsByProcess": {
+    "nodeServerStatus": 1818
+  },
   "serverHostnames": ["pirobot", "pi3misc2", "kj-macbook.lan"],
   "logDirectoriesByProcess": {
-    "pythonHttpServer": "python_http_server"
+    "pythonHttpServer": "python_http_server",
+    "nodeServerStatus": "node_server_status",
+    "securityCamera": "security_videos"
   }
 }
