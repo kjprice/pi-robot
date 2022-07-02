@@ -1,7 +1,6 @@
 import argparse
 import json
 import os
-import unittest
 
 from ..config import ACTIVE_PROCESSES_PATH
 
@@ -29,7 +28,17 @@ def get_process_id(process_name):
 
     return processes[process_name]
 
-def clear_processes():
+def clear_process_by_name(process_name):
+    processes = read_active_processes()
+    if not process_name in processes:
+        return
+
+    del processes[process_name]
+    save_active_processes(processes)
+
+def clear_processes(process_name = None):
+    if process_name is not None:
+        return clear_process_by_name(process_name)
     if os.path.exists(ACTIVE_PROCESSES_PATH):
         os.remove(ACTIVE_PROCESSES_PATH)
 
@@ -48,14 +57,17 @@ if __name__ == '__main__':
     parser_for_get_process.set_defaults(func=set_process_id)
 
     parser_for_get_process = subparsers.add_parser('clear')
+    parser_for_get_process.add_argument('process_name', type=str, nargs='?')
     parser_for_get_process.set_defaults(func=clear_processes)
 
+
     args = parser.parse_args()
+
     if args.func == get_process_id:
         print(args.func(args.process_name))
     elif args.func == set_process_id:
         args.func(args.process_name, args.process_id)
     elif args.func == clear_processes:
-        args.func()
+        args.func(args.process_name)
     else:
         raise Exception('No argument specified')
