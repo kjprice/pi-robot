@@ -1,11 +1,11 @@
 {
   "ports": {
     "webminPort": 10000,
-    "pythonHttpServer": 8001,
     "webServerPort": 9898,
     "imageHubPort": 6666
   },
   "portsByProcess": {
+    "pythonHttpServer": 8001,
     "nodeServerStatus": 1818
   },
   "serverHostnames": ["pirobot", "pi3misc2", "kj-macbook.lan"],
