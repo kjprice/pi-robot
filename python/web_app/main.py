@@ -4,6 +4,9 @@
 #  - image processing-server
 #  - servo server
 
+# TODO: Move to config
+BROWSERS_ROOM_NAME = 'browsers'
+
 import os
 import time
 
@@ -106,21 +109,14 @@ class WebApp():
         '/static': os.path.join(STATIC_DIR, 'static')
     })
 
+    # From all clients
     @sio.event
     def connect(sid, environ):
       print('connect ', sid)
 
-    # TODO: Move to config
-    BROWSERS_ROOM_NAME = 'browsers'
-
     @sio.event
-    def raspi_status_changed(sid, server):
-      sio.emit('raspi_status_changed', server, room=BROWSERS_ROOM_NAME)
-
-    @sio.event
-    def raspi_active_processes_changed(sid, server):
-      print('raspi_active_processes_changed')
-      sio.emit('raspi_status_changed', server, room=BROWSERS_ROOM_NAME)
+    def disconnect(sid):
+        print('disconnect ', sid)
 
     @sio.event
     def set_socket_room(sid, room_name):
@@ -130,6 +126,22 @@ class WebApp():
       sio.enter_room(sid, room_name)
       print('setting client "{}" to room "{}"'.format(sid, room_name))
 
+    # From all backend clients (not browser)
+    @sio.event
+    def send_output(sid, data):
+      sio.emit('send_output', data, room=BROWSERS_ROOM_NAME)
+
+    # From raspi poller
+    @sio.event
+    def raspi_status_changed(sid, server):
+      sio.emit('raspi_status_changed', server, room=BROWSERS_ROOM_NAME)
+
+    @sio.event
+    def raspi_active_processes_changed(sid, server):
+      print('raspi_active_processes_changed')
+      sio.emit('raspi_status_changed', server, room=BROWSERS_ROOM_NAME)
+
+    # From browser
     @sio.event
     def load_all_servers(sid, data):
       seconds_between_images = data['delay']
@@ -175,10 +187,6 @@ class WebApp():
       sio.emit('processed_image_finished', message, room=BROWSERS_ROOM_NAME)
 
     @sio.event
-    def send_output(sid, data):
-      sio.emit('send_output', data, room=BROWSERS_ROOM_NAME)
-
-    @sio.event
     def is_processing_server_online(sid):
       sio.emit('is_processing_server_online', room='image_processing_server')
 
@@ -194,10 +202,6 @@ class WebApp():
     @sio.event
     def confirm_image_processing_server_online(sid):
       sio.emit('confirm_image_processing_server_online', room='camera_head')
-
-    @sio.event
-    def disconnect(sid):
-        print('disconnect ', sid)
 
     eventlet.wsgi.server(eventlet.listen((get_local_ip(), SOCKET_IO_SERVER_PORT)), app)
 
