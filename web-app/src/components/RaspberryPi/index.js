@@ -45,7 +45,7 @@ const ServerStatusProcessesLink = (props) => {
 }
 
 const ActiveProcesses = ({ hostname, processes, status }) => {
-  if (processes.length === 0 || status == SERVER_STATUSES.OFFLINE) {
+  if (processes.length === 0 || status === SERVER_STATUSES.OFFLINE) {
     return 'No active processes found'
   }
 
