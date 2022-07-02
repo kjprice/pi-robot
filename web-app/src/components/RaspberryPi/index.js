@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { connect } from 'react-redux';
+import { SERVER_STATUSES } from '../../redux/constants/server-constants';
 
 const mapStateToProps = (props) => {
   const { serverReducers } = props;
@@ -42,8 +43,8 @@ const ServerStatusProcessesLink = (props) => {
   return <ServerStatusLink {...props} endpoint="processes" />
 }
 
-const ActiveProcesses = ({ hostname, processes }) => {
-  if (processes.length === 0) {
+const ActiveProcesses = ({ hostname, processes, status }) => {
+  if (processes.length === 0 || status == SERVER_STATUSES.OFFLINE) {
     return 'No active processes found'
   }
 
@@ -58,7 +59,7 @@ function RaspberryPi(props) {
   const { hostname } = params;
 
   const raspiInfo = raspiStatusesByHostname[hostname] || {}
-  const { processes = [] } = raspiInfo;
+  const { status, processes = [] } = raspiInfo;
 
   return (
     <div>
@@ -77,7 +78,7 @@ function RaspberryPi(props) {
       </ul>
 
       <h4>Active Processes</h4>
-      <ActiveProcesses hostname={hostname} processes={processes} />
+      <ActiveProcesses status={status} hostname={hostname} processes={processes} />
       
     </div>
 )
