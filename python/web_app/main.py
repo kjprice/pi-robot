@@ -15,16 +15,16 @@ from ..modules.workers.job_process.job_process import JobProcess
 from ..modules.workers.job_process.ssh_process import SSH_Process
 from ..modules.server_module.raspi_poller import RaspiPoller
 
-# from ..pi_applications
 from ..pi_applications.run_image_processing_server import run_image_processing_server
 from ..pi_applications.run_camera_head_server import start_camera_process
 
+from .misc.web_app_helper_text import print_startup_details
 class WebApp():
   jobs_running_by_fn_name = None
   def __init__(self) -> None:
     self.jobs_running_by_fn_name = {}
     self.create_raspi_poller_job()
-    self.print_startup_details()
+    print_startup_details()
     self.start_socket_server()
   
   def stop_job_if_exists_by_fn_name(self, fn_name):
@@ -96,33 +96,6 @@ class WebApp():
   def create_servo_server_job(self):
       self.create_job_ssh('pi3misc', 'run_servo_server')
 
-  def create_homepage_url(self):
-    return '\n'.join([
-      '# Server URL',
-      'http://{}:{}/'.format(get_hostname(), SOCKET_IO_SERVER_PORT)
-    ])
-
-  def create_wsl_forward_helper_text(self):
-    port=SOCKET_IO_SERVER_PORT
-    wsl_ip=get_local_ip()
-    return '\n'.join([
-      '# Port Forwarding (WSL)',
-      'Follow the instructions on https://github.com/kjprice/pi-robot#server-running-on-wsl with the following information:',
-      f'The IP for WSL is: {wsl_ip}',
-      f'The port for WSL and Windows is: {SOCKET_IO_SERVER_PORT}',
-    ])
-
-  def print_startup_details(self):
-    print()
-    print('**********')
-    print()
-    print(self.create_homepage_url())
-    print()
-    print(self.create_wsl_forward_helper_text())
-    print()
-    print('**********')
-    print()
-  
   def create_raspi_poller_job(self):
     JobProcess(self.start_poller, self.add_default_arg_flags())
   
