@@ -5,8 +5,7 @@ cd "$(dirname "$0")"
 
 source ../misc/setup_shell.sh
 
-# filename=$(basename "$0")
-# ../misc/kill_process_by_name.sh $filename
+../misc/kill_process_by_name.sh securityCamera
 
 ../download/download_model.sh
 
