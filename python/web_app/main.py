@@ -9,6 +9,7 @@ BROWSERS_ROOM_NAME = 'browsers'
 
 import os
 import time
+from typing import List
 
 import eventlet
 import socketio
@@ -24,8 +25,11 @@ from ..pi_applications.run_camera_head_server import start_camera_process
 from .misc.web_app_helper_text import print_startup_details
 class WebApp():
   jobs_running_by_fn_name = None
+  raspi_info_by_hostname = None
   def __init__(self) -> None:
     self.jobs_running_by_fn_name = {}
+    self.raspi_info_by_hostname = {}
+
     self.create_raspi_poller_job()
     print_startup_details()
     self.start_socket_server()
@@ -85,13 +89,23 @@ class WebApp():
     poller = RaspiPoller(arg_flags)
     poller.start_threads()
 
+  def get_first_online_raspi_hostname(self):
+    for raspi_info in self.raspi_info_by_hostname.values():
+      if raspi_info['is_online']:
+        return raspi_info['hostname']
+    return None
+
   def create_camera_head_server_job(self, use_remote_servers: bool, seconds_between_images: int, classification_model: str):
+    self.get_first_online_raspi_hostname()
     server_name = SERVER_NAMES.CAMERA_HEAD.value
     arg_flags = '--delay {}'.format(seconds_between_images)
     arg_flags += ' --classification_model {}'.format(classification_model)
-    if use_remote_servers:
+    raspi_hostname = self.get_first_online_raspi_hostname()
+
+    if use_remote_servers and raspi_hostname is not None:
+      print('Attempting to run camera head job on {}'.format(raspi_hostname))
       # TODO: Move hostname to config or let user pick which raspi to connect to
-      self.create_job_ssh('pi@pi3misc2', '/home/pi/Projects/pirobot/bin/run/run_camera_head_server', arg_flags)
+      self.create_job_ssh('pi@{}'.format(raspi_hostname), '/home/pi/Projects/pirobot/bin/run/run_camera_head_server', arg_flags)
     else:
       arg_flags += ' --is_test'
       self.create_job(server_name, start_camera_process, arg_flags)
@@ -102,6 +116,10 @@ class WebApp():
   def create_raspi_poller_job(self):
     JobProcess(self.start_poller, self.add_default_arg_flags())
   
+  def set_raspi_info(self, raspi_servers_info: List[dict]):
+    for raspi_server_info in raspi_servers_info:
+      self.raspi_info_by_hostname[raspi_server_info['hostname']] = raspi_server_info
+
   def start_socket_server(self):
     sio = socketio.Server(cors_allowed_origins='*')
     app = socketio.WSGIApp(sio, static_files={
@@ -134,10 +152,12 @@ class WebApp():
     # From raspi poller
     @sio.event
     def raspi_status_changed(sid, server):
+      self.set_raspi_info([server])
       sio.emit('raspi_status_changed', server, room=BROWSERS_ROOM_NAME)
 
     @sio.event
     def raspi_active_processes_changed(sid, server):
+      self.set_raspi_info([server])
       print('raspi_active_processes_changed')
       sio.emit('raspi_status_changed', server, room=BROWSERS_ROOM_NAME)
 
@@ -179,6 +199,7 @@ class WebApp():
       sio.emit('request_raspi_statuses', room='raspi_poller')
       @sio.event
       def all_raspi_statuses(_, servers):
+        self.set_raspi_info(servers)
         sio.emit('all_raspi_statuses', servers, to=sid)
 
 
