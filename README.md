@@ -91,6 +91,7 @@ This solution helped me tremendously:
  - [ ] Add endpoint to server_status to retrieve most recent log (`./bin/logs/read_last_log.sh`)
  - [ ] Add UI to web-app to display all logs
  - [ ] Add UI to web-app to display videos from security
+ - [ ] Allow user to start/stop processes from the web app
  
  
  
