@@ -5,14 +5,15 @@ import { SERVER_STATUSES } from '../../redux/constants/server-constants';
 const mapStateToProps = (props) => {
   const { serverReducers } = props;
   const { config, raspiStatusesByHostname } = serverReducers;
-  const { ports } = config;
+  const { ports, portsByProcess } = config;
 
-  const { webminPort, pythonHttpServer, healthStatusPort } = ports || {};
+  const { webminPort, pythonHttpServer } = ports || {};
+  const { nodeServerStatus } = portsByProcess || {};
 
   return {
     webminPort,
     pythonHttpServer,
-    healthStatusPort,
+    nodeServerStatus,
     raspiStatusesByHostname,
   };
 };
@@ -54,7 +55,7 @@ const ActiveProcesses = ({ hostname, processes, status }) => {
 }
 
 function RaspberryPi(props) {
-  const { raspiStatusesByHostname, webminPort, pythonHttpServer, healthStatusPort } = props;
+  const { raspiStatusesByHostname, webminPort, pythonHttpServer, nodeServerStatus } = props;
   let params = useParams();
   const { hostname } = params;
 
@@ -73,8 +74,8 @@ function RaspberryPi(props) {
 
       <h4>Server Status Links</h4>
       <ul className="list-unstyled">
-        <li><ServerStatusPingLink hostname={hostname} port={healthStatusPort} /></li>
-        <li><ServerStatusProcessesLink hostname={hostname} port={healthStatusPort} /></li>
+        <li><ServerStatusPingLink hostname={hostname} port={nodeServerStatus} /></li>
+        <li><ServerStatusProcessesLink hostname={hostname} port={nodeServerStatus} /></li>
       </ul>
 
       <h4>Active Processes</h4>

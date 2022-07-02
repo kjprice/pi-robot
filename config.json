@@ -1,6 +1,5 @@
 {
   "ports": {
-    "healthStatusPort": 1818,
     "webminPort": 10000,
     "pythonHttpServer": 8001,
     "webServerPort": 9898,

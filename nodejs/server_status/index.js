@@ -8,7 +8,7 @@ const getProcesses = require('./tools/getProcesses');
 const server = http.createServer(app);
 const io = new Server(server);
 
-const port = require('../../config.json')['ports']['healthStatusPort'];
+const port = require('../../config.json')['portsByProcess']['nodeServerStatus'];
 
 const log = (str) => {
   const date = new Date();

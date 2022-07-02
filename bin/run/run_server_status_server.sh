@@ -2,7 +2,7 @@
 
 cd "$(dirname "$0")"
 
-port=`../misc/get_config.sh ports.healthStatusPort`
+port=`../misc/get_config.sh portsByProcess.nodeServerStatus`
 
 source ../misc/setup_shell.sh
 
