@@ -5,6 +5,7 @@ import './App.css';
 import './api/setup-socket-connections';
 
 import CameraRobot from './components/CameraRobot/';
+import SecurityCamera from './components/SecurityCamera';
 
 import RaspberryPi from './components/RaspberryPi'
 
@@ -34,7 +35,7 @@ function App(props) {
       <div className="container" id="main-container">
           <Routes>
             <Route path="/" element={<CameraRobot />} />
-            <Route path="/security-camera" element={<CameraRobot />} />
+            <Route path="/security_camera" element={<SecurityCamera />} />
             <Route path="raspberry/:hostname" element={<RaspberryPi />} />
           </Routes>
       </div>
