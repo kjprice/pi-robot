@@ -12,9 +12,13 @@ cd ../../nodejs/server_status/
 
 log_filepath=$1
 
-npm install >> ../../$log_filepath 2>&1
-
-node index >> ../../$log_filepath 2>&1 &
+if [ -z $log_filepath ]; then
+  npm install
+  node index 
+else
+  npm install >> ../../$log_filepath 2>&1
+  node index >> ../../$log_filepath 2>&1 &
+fi
 
 process_id="$!"
 
