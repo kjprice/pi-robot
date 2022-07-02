@@ -32,7 +32,7 @@ The servo accepts a "duty" (a number between 2-12) which determines where to tur
 
 # Web App
 Front end code can be found at /web-app/
-Back end code can be found at python/web_app.py
+Back end code can be found at /python/web_app/
 
 ### Build files
 The web files are built using react. To build all files, run:

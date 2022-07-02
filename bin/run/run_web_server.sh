@@ -9,4 +9,4 @@ source ../misc/setup_shell.sh
 
 cd ../..
 
-python -m python.web_app
+python -m python.web_app.main
