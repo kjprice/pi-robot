@@ -12,6 +12,7 @@
   "logDirectoriesByProcess": {
     "pythonHttpServer": "python_http_server",
     "nodeServerStatus": "node_server_status",
-    "securityCamera": "security_videos"
+    "securityCamera": "security_videos",
+    "robotCameraHead": "camera_head_server"
   }
 }

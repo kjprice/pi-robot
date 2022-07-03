@@ -105,7 +105,7 @@ class WebApp():
     if use_remote_servers and raspi_hostname is not None:
       print('Attempting to run camera head job on {}'.format(raspi_hostname))
       # TODO: Move hostname to config or let user pick which raspi to connect to
-      self.create_job_ssh('pi@{}'.format(raspi_hostname), '/home/pi/Projects/pirobot/bin/run/run_camera_head_server', arg_flags)
+      self.create_job_ssh('pi@{}'.format(raspi_hostname), 'robotCameraHead', arg_flags)
     else:
       arg_flags += ' --is_test'
       self.create_job(server_name, start_camera_process, arg_flags)

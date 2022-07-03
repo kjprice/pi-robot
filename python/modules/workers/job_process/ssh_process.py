@@ -19,7 +19,7 @@ class SSH_Process(JobProcess):
     if flags is None:
       flags = []
     commands = [
-      '{}.sh {}'.format(process_name, flags)
+      '/home/pi/Projects/pirobot/bin/run/start_process_by_name.sh {} "{}"'.format(process_name, flags)
     ]
 
     self.job = run_ssh(hostname, commands)
@@ -27,7 +27,7 @@ class SSH_Process(JobProcess):
   def cleanup(self):
     commands = [
       'cd {}'.format(SCRIPT_PATH),
-      './kill_process_by_name.sh {}'.format(self.process_name)
+      './misc/kill_process_by_name.sh {}'.format(self.process_name)
     ]
 
     self.job = run_ssh(self.hostname, commands)
