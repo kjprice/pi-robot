@@ -34,6 +34,14 @@ export function loadAllServers(delay, remote, classificationModel) {
   });
 }
 
+export function startProcess(hostname, processName) {
+  socket.emit('start_process', { hostname, processName });
+}
+
+export function stopProcess(hostname, processName) {
+  socket.emit('stop_process', { hostname, processName });
+}
+
 export function sendDelayChange(delay) {
   socket.emit('delay_change', delay);
 }

@@ -5,6 +5,15 @@ from ...run_ssh import run_ssh
 
 SCRIPT_PATH = '~/Projects/pirobot/bin'
 
+def kill_process_by_name(hostname: str, process_name: str):
+  print('kill_process_by_name', hostname, process_name)
+  commands = [
+    'cd {}'.format(SCRIPT_PATH),
+    './misc/kill_process_by_name.sh {}'.format(process_name)
+  ]
+
+  return run_ssh(hostname, commands)
+
 class SSH_Process(JobProcess):
   hostname = None
   process_name = None
@@ -19,18 +28,13 @@ class SSH_Process(JobProcess):
     if flags is None:
       flags = []
     commands = [
-      '/home/pi/Projects/pirobot/bin/run/start_process_by_name.sh {} "{}"'.format(process_name, flags)
+      '~/Projects/pirobot/bin/run/start_process_by_name.sh {} "{}"'.format(process_name, flags)
     ]
 
     self.job = run_ssh(hostname, commands)
   # TODO: We will want to also kill by port number (for servo server)
   def cleanup(self):
-    commands = [
-      'cd {}'.format(SCRIPT_PATH),
-      './misc/kill_process_by_name.sh {}'.format(self.process_name)
-    ]
-
-    self.job = run_ssh(self.hostname, commands)
+    self.job = kill_process_by_name(self.hostname, self.process_name)
   def terminate(self):
     self.job.terminate()
     self.cleanup()

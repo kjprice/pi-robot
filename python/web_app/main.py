@@ -78,6 +78,10 @@ class WebApp():
     job = SSH_Process(hostname, process_name, flags)
     self.jobs_running_by_fn_name[fn_name] = job
 
+  def start_process_ssh(self, hostname: str, process_name: str, flags: str = ''):
+    flags = self.add_default_arg_flags(flags)
+    SSH_Process(hostname, process_name, '')      
+
   def create_image_processing_server_job(self, classification_model: str):
     arg_flags = ''
     if classification_model is not None:
@@ -180,6 +184,12 @@ class WebApp():
         step += 1
 
       sio.emit('all_servers_loading_status', { 'step': step, 'details': 'complete' }, sid)
+    
+    @sio.event
+    def start_process(sid, data):
+      hostname = data['hostname']
+      process_name = data['processName']
+      self.start_process_ssh(hostname, process_name)      
 
     @sio.event
     def stop_all_servers(sid):

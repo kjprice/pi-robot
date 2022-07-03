@@ -2,9 +2,10 @@ import { useParams } from "react-router-dom";
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBoxArchive } from '@fortawesome/free-solid-svg-icons'
-import RasperryPiSideContent from './RasperryPiSideContent';
+import { faBoxArchive, faPlay, faXmark } from '@fortawesome/free-solid-svg-icons'
 
+import RasperryPiSideContent from './RasperryPiSideContent';
+import { startProcess, stopProcess } from '../../api/handle-socket-connections';
 import { SERVER_STATUSES } from '../../redux/constants/server-constants';
 import ServerStatus from "../misc/ServerStatus";
 import Tooltip from '../misc/Tooltip';
@@ -60,19 +61,59 @@ const RecentLogLink = ({ processName }) => {
   let params = useParams();
   const { hostname } = params;
 
-  return <Tooltip message={"Read most recent log"}>
-    <Link to={`/raspberry/${hostname}/readLog/${processName}`}>
-      <FontAwesomeIcon icon={faBoxArchive} />
-    </Link>
-  </Tooltip>
+  return (
+    <Tooltip message={"Read most recent log"}>
+      <Link to={`/raspberry/${hostname}/readLog/${processName}`}>
+        <FontAwesomeIcon icon={faBoxArchive} />
+      </Link>
+    </Tooltip>
+  );
+}
+
+const StartProcessLink = ({ processName }) => {
+  let params = useParams();
+  const { hostname } = params;
+
+  return (
+    <Tooltip message={"Start Process"}>
+      <button onClick={() => {startProcess(hostname, processName)}} type='button' className="btn">
+        <FontAwesomeIcon icon={faPlay} />
+      </button>
+    </Tooltip>
+  );
+}
+
+const StopProcessLink = ({ processName }) => {
+  let params = useParams();
+  const { hostname } = params;
+
+  return (
+    <Tooltip message={"Stop Process"}>
+      <button onClick={() => {stopProcess(hostname, processName)}} type='button' className="btn">
+        <FontAwesomeIcon icon={faXmark} />
+      </button>
+    </Tooltip>
+  );
+}
+
+const UpdateProcessStatusButton = ({ processStatus, processName }) => {
+  if (processStatus === SERVER_STATUSES.ONLINE) {
+    return <StopProcessLink processName={processName} />
+  } else {
+    return <StartProcessLink processName={processName} />
+  }
 }
 
 const ProcessDetails = ({ activeProcesses, processName }) => {
   const processStatus = activeProcesses.includes(processName) ? SERVER_STATUSES.ONLINE : SERVER_STATUSES.OFFLINE;
 
-  return (<li>
-    {processName} <ServerStatus serverStatus={processStatus} /> <RecentLogLink processName={processName} />
-  </li>);
+  return (
+  <li>
+    {processName} <ServerStatus serverStatus={processStatus} />&nbsp;
+    <RecentLogLink processName={processName} />
+    <UpdateProcessStatusButton processName={processName}  processStatus={processStatus} />
+  </li>
+  );
 
 }
 
