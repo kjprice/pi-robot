@@ -1,11 +1,12 @@
 import { useParams } from "react-router-dom";
 import { connect } from 'react-redux';
 import { SERVER_STATUSES } from '../../redux/constants/server-constants';
+import ServerStatus from "../misc/ServerStatus";
 
 const mapStateToProps = (props) => {
   const { serverReducers } = props;
   const { config, raspiStatusesByHostname } = serverReducers;
-  const { ports, portsByProcess } = config;
+  const { ports, portsByProcess, processNames } = config;
 
   const { webminPort } = ports || {};
   const { nodeServerStatus, pythonHttpServer } = portsByProcess || {};
@@ -15,6 +16,7 @@ const mapStateToProps = (props) => {
     pythonHttpServer,
     nodeServerStatus,
     raspiStatusesByHostname,
+    processNames,
   };
 };
 
@@ -44,18 +46,23 @@ const ServerStatusProcessesLink = (props) => {
   return <ServerStatusLink {...props} endpoint="processes" />
 }
 
-const ActiveProcesses = ({ hostname, processes, status }) => {
-  if (processes.length === 0 || status === SERVER_STATUSES.OFFLINE) {
-    return 'No active processes found'
-  }
+const ProcessDetails = ({ activeProcesses, processName }) => {
+  const processStatus = activeProcesses.includes(processName) ? SERVER_STATUSES.ONLINE : SERVER_STATUSES.OFFLINE;
 
+  return (<li>
+    {processName} <ServerStatus serverStatus={processStatus} />
+  </li>);
+
+}
+
+const AllProcesses = ({ hostname, activeProcesses, processNames, status }) => {
   return (<ul className="list-unstyled">
-    {processes.map(process => <li key={process}>{process}</li>)}
+    {processNames.map(processName => <ProcessDetails key={processName} activeProcesses={activeProcesses} processName={processName} />)}
   </ul>);
 }
 
 function RaspberryPi(props) {
-  const { raspiStatusesByHostname, webminPort, pythonHttpServer, nodeServerStatus } = props;
+  const { processNames, raspiStatusesByHostname, webminPort, pythonHttpServer, nodeServerStatus } = props;
   let params = useParams();
   const { hostname } = params;
 
@@ -78,8 +85,8 @@ function RaspberryPi(props) {
         <li><ServerStatusProcessesLink hostname={hostname} port={nodeServerStatus} /></li>
       </ul>
 
-      <h4>Active Processes</h4>
-      <ActiveProcesses status={status} hostname={hostname} processes={processes} />
+      <h4>Processes</h4>
+      <AllProcesses status={status} hostname={hostname} processNames={processNames} activeProcesses={processes} />
       
     </div>
 )

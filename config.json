@@ -14,5 +14,11 @@
     "nodeServerStatus": "node_server_status",
     "securityCamera": "security_videos",
     "robotCameraHead": "camera_head_server"
-  }
+  },
+  "processNames": [
+    "pythonHttpServer",
+    "nodeServerStatus",
+    "securityCamera",
+    "robotCameraHead"
+  ]
 }
