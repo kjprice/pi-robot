@@ -77,27 +77,33 @@ function RaspberryPi(props) {
   const { status, processes = [] } = raspiInfo;
 
   return (
-    <div>
-      <h2>{hostname}</h2>
+    <div className="container">
+      <div className="row">
+        <div className="col-md-3">
+          <h2>{hostname}</h2>
 
-      <h4>Internal Links</h4>
-      <ul className="list-unstyled">
-        <li><WebminLink hostname={hostname} port={webminPort} /></li>
-        <li><DataDirectoryLink hostname={hostname} port={pythonHttpServer} /></li>
-      </ul>
+          <h4>Internal Links</h4>
+          <ul className="list-unstyled">
+            <li><WebminLink hostname={hostname} port={webminPort} /></li>
+            <li><DataDirectoryLink hostname={hostname} port={pythonHttpServer} /></li>
+          </ul>
 
-      <h4>Server Status Links</h4>
-      <ul className="list-unstyled">
-        <li><ServerStatusPingLink hostname={hostname} port={nodeServerStatus} /></li>
-        <li><ServerStatusProcessesLink hostname={hostname} port={nodeServerStatus} /></li>
-        <li><ServerStatusRecentLogLink hostname={hostname} port={nodeServerStatus} /></li>
-      </ul>
+          <h4>Server Status Links</h4>
+          <ul className="list-unstyled">
+            <li><ServerStatusPingLink hostname={hostname} port={nodeServerStatus} /></li>
+            <li><ServerStatusProcessesLink hostname={hostname} port={nodeServerStatus} /></li>
+            <li><ServerStatusRecentLogLink hostname={hostname} port={nodeServerStatus} /></li>
+          </ul>
 
-      <h4>Processes</h4>
-      <AllProcesses status={status} hostname={hostname} processNames={processNames} activeProcesses={processes} />
-      
+          <h4>Processes</h4>
+          <AllProcesses status={status} hostname={hostname} processNames={processNames} activeProcesses={processes} />
+        </div>
+        <div className="col-md-7">
+          Hello
+        </div>
+      </div>
     </div>
-)
+  );
 }
 
 export default connect(mapStateToProps)(RaspberryPi);
