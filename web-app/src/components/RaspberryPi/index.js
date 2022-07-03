@@ -1,10 +1,13 @@
 import { useParams } from "react-router-dom";
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faBoxArchive } from '@fortawesome/free-solid-svg-icons'
+import RasperryPiSideContent from './RasperryPiSideContent';
+
 import { SERVER_STATUSES } from '../../redux/constants/server-constants';
 import ServerStatus from "../misc/ServerStatus";
-
-import RasperryPiSideContent from './RasperryPiSideContent';
+import Tooltip from '../misc/Tooltip';
 
 const mapStateToProps = (props) => {
   const { serverReducers } = props;
@@ -56,7 +59,12 @@ const ServerStatusRecentLogLink = (props) => {
 const RecentLogLink = ({ processName }) => {
   let params = useParams();
   const { hostname } = params;
-  return <Link to={`/raspberry/${hostname}/readLog/${processName}`}>Read Log</Link>
+
+  return <Tooltip message={"Read most recent log"}>
+    <Link to={`/raspberry/${hostname}/readLog/${processName}`}>
+      <FontAwesomeIcon icon={faBoxArchive} />
+    </Link>
+  </Tooltip>
 }
 
 const ProcessDetails = ({ activeProcesses, processName }) => {
