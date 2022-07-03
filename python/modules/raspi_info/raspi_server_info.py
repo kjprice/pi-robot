@@ -52,6 +52,9 @@ class RaspiServerInfo:
 
         if self.is_online == is_server_online:
             return False
+        
+        if not is_server_online:
+            self.processes = []
 
         self.is_online = is_server_online
         return True
