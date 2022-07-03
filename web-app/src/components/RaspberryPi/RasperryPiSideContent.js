@@ -74,6 +74,7 @@ const DisplayMostRecentLog = props => {
 
   return <div>
     <h4>Newest Log For Process "{processName}"</h4>
+    <div><button className='btn' type='button' onClick={fetchAndSetLog}>Refresh</button></div>
     <div><FormattedLog logString={recentLogByProcess[processName]} /></div>
   </div>;
 }
