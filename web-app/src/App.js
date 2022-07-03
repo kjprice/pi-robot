@@ -37,6 +37,7 @@ function App(props) {
             <Route path="/" element={<CameraRobot />} />
             <Route path="/security_camera" element={<SecurityCamera />} />
             <Route path="raspberry/:hostname" element={<RaspberryPi />} />
+            <Route path="raspberry/:hostname/:additionalInfo/:processName" element={<RaspberryPi />} />
           </Routes>
       </div>
     </>

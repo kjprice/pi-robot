@@ -1,7 +1,10 @@
 import { useParams } from "react-router-dom";
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { SERVER_STATUSES } from '../../redux/constants/server-constants';
 import ServerStatus from "../misc/ServerStatus";
+
+import RasperryPiSideContent from './RasperryPiSideContent';
 
 const mapStateToProps = (props) => {
   const { serverReducers } = props;
@@ -50,11 +53,17 @@ const ServerStatusRecentLogLink = (props) => {
   return <ServerStatusLink {...props} endpoint="readLog/nodeServerStatus" />
 }
 
+const RecentLogLink = ({ processName }) => {
+  let params = useParams();
+  const { hostname } = params;
+  return <Link to={`/raspberry/${hostname}/readLog/${processName}`}>Read Log</Link>
+}
+
 const ProcessDetails = ({ activeProcesses, processName }) => {
   const processStatus = activeProcesses.includes(processName) ? SERVER_STATUSES.ONLINE : SERVER_STATUSES.OFFLINE;
 
   return (<li>
-    {processName} <ServerStatus serverStatus={processStatus} />
+    {processName} <ServerStatus serverStatus={processStatus} /> <RecentLogLink processName={processName} />
   </li>);
 
 }
@@ -99,7 +108,7 @@ function RaspberryPi(props) {
           <AllProcesses status={status} hostname={hostname} processNames={processNames} activeProcesses={processes} />
         </div>
         <div className="col-md-7">
-          Hello
+          <RasperryPiSideContent {...props} />
         </div>
       </div>
     </div>

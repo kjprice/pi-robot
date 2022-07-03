@@ -1,11 +1,13 @@
 const express = require('express');
-const app = express();
 const http = require('http');
 const { Server } = require("socket.io");
+const cors = require('cors');
 
 const getProcesses = require('./tools/getProcesses');
 const readRecentLog = require('./tools/readRecentLog');
 
+const app = express();
+app.use(cors());
 const server = http.createServer(app);
 const io = new Server(server);
 
