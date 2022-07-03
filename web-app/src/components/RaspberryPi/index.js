@@ -46,6 +46,10 @@ const ServerStatusProcessesLink = (props) => {
   return <ServerStatusLink {...props} endpoint="processes" />
 }
 
+const ServerStatusRecentLogLink = (props) => {
+  return <ServerStatusLink {...props} endpoint="readLog/nodeServerStatus" />
+}
+
 const ProcessDetails = ({ activeProcesses, processName }) => {
   const processStatus = activeProcesses.includes(processName) ? SERVER_STATUSES.ONLINE : SERVER_STATUSES.OFFLINE;
 
@@ -56,6 +60,9 @@ const ProcessDetails = ({ activeProcesses, processName }) => {
 }
 
 const AllProcesses = ({ hostname, activeProcesses, processNames, status }) => {
+  if (!processNames) {
+    return '';
+  }
   return (<ul className="list-unstyled">
     {processNames.map(processName => <ProcessDetails key={processName} activeProcesses={activeProcesses} processName={processName} />)}
   </ul>);
@@ -83,6 +90,7 @@ function RaspberryPi(props) {
       <ul className="list-unstyled">
         <li><ServerStatusPingLink hostname={hostname} port={nodeServerStatus} /></li>
         <li><ServerStatusProcessesLink hostname={hostname} port={nodeServerStatus} /></li>
+        <li><ServerStatusRecentLogLink hostname={hostname} port={nodeServerStatus} /></li>
       </ul>
 
       <h4>Processes</h4>
