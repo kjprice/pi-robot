@@ -49,7 +49,7 @@ const DisplayMostRecentLog = props => {
   let params = useParams();
   const { hostname, processName } = params;
 
-  const [recentLog, setRecentLog] = useState(null);
+  const [recentLogByProcess, setRecentLog] = useState({});
 
   const fetchAndSetLog = () => {
     return getMostRecentLog(hostname, processName, nodeServerStatusPort)
@@ -57,24 +57,24 @@ const DisplayMostRecentLog = props => {
       return txt.message || txt;
     })
     .then(txt => {
-      setRecentLog(txt);
+      setRecentLog({...recentLogByProcess, [processName]: txt});
     });
   }
 
   useEffect(() => {
-    if (nodeServerStatusPort) {
+    if (!recentLogByProcess[processName] && nodeServerStatusPort) {
       fetchAndSetLog();
     };
   })
   
 
-  if (!recentLog) {
+  if (!recentLogByProcess[processName]) {
     return '';
   }
 
   return <div>
     <h4>Newest Log For Process "{processName}"</h4>
-    <div><FormattedLog logString={recentLog} /></div>
+    <div><FormattedLog logString={recentLogByProcess[processName]} /></div>
   </div>;
 }
 
