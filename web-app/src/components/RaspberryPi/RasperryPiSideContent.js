@@ -27,8 +27,6 @@ const getMostRecentLog = (hostname, processName, nodeServerStatusPort) => {
     mode: 'cors'
   })
   .then(res => {
-    console.log({res});
-    console.log({body: res.body});
     return res.text().then(txt => {
       if (!res.ok) {
         throw new Error(txt);
@@ -39,24 +37,34 @@ const getMostRecentLog = (hostname, processName, nodeServerStatusPort) => {
   });
 }
 
+const FormattedLog = ({ logString }) => {
+  return logString.split('\n').map((logLine, i) => <div key={`${i}{logLine}`}>
+    <code>{logLine}</code>
+  </div>);
+}
 
 const DisplayMostRecentLog = props => {
   const { nodeServerStatusPort } = props;
+
   let params = useParams();
   const { hostname, processName } = params;
 
   const [recentLog, setRecentLog] = useState(null);
 
-  useEffect(() => {
-    if (!recentLog) {
-      getMostRecentLog(hostname, processName, nodeServerStatusPort)
+  const fetchAndSetLog = () => {
+    return getMostRecentLog(hostname, processName, nodeServerStatusPort)
     .catch(txt => {
       return txt.message || txt;
     })
     .then(txt => {
       setRecentLog(txt);
-    })
+    });
   }
+
+  useEffect(() => {
+    if (nodeServerStatusPort) {
+      fetchAndSetLog();
+    };
   })
   
 
@@ -66,7 +74,7 @@ const DisplayMostRecentLog = props => {
 
   return <div>
     <h4>Newest Log For Process "{processName}"</h4>
-    <div>{recentLog}</div>
+    <div><FormattedLog logString={recentLog} /></div>
   </div>;
 }
 
