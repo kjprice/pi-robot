@@ -201,6 +201,7 @@ export default function serverReducer(state = getDefaultState(), data) {
     case SERVER_STOP_COMPLETE:
       return setServerStopComplete(state, 'allServers');
     case SERVER_OUTPUT_RECEIVED:
+      console.log('setServerOutputReceived', data.payload)
       return setServerOutputReceived(state, data.payload);
     case SERVER_PROCESSED_IMAGE_RECEIVED:
       return setServerProcessedImageReceived(state, data.payload);

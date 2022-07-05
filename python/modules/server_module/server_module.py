@@ -12,12 +12,17 @@ from ..config import append_log_info, get_log_dir_by_server_name, write_log_info
 TIME_IN_SECONDS_BETWEEN_CHECKING_STATUS = 0.001
 
 def is_url_accessible(url:str) -> bool:
+    print('ur', url)
     try:
-        r = requests.get(url, timeout=2)
+        r = requests.get(url, timeout=5)
+        print(r)
 
         return r.status_code in (200, 204)
-    except requests.exceptions.ConnectionError:
+    except requests.exceptions.RequestException:
         return False
+    except Exception as e:
+        print('Found a different error')
+        print(e)
 
 def handle_default_server_response(response):
     text = response.text
@@ -44,6 +49,7 @@ class ServerModule:
     abort_signal_received = False
     other_thread_functions = []
     flags = None
+    main_job = None
     def __init__(self, server_name: SERVER_NAMES, arg_flags):
         if not server_name in SERVER_NAMES:
             raise AssertionError('Expected server name "{}" to be one of: {}'.format(server_name, SERVER_NAMES))
@@ -52,14 +58,22 @@ class ServerModule:
         
         self.init_log_info()
         self.setup_args()
+        print('arg_flags', arg_flags)
         self.set_flags(arg_flags)
 
     def start_threads(self):
         with cf.ThreadPoolExecutor() as executor:
-            thread_functions = [self.connect_to_socket, self.run_with_exception_catch, *self.other_thread_functions]
+            # thread_functions = [self.connect_to_socket, self.run_with_exception_catch, *self.other_thread_functions]
+            # thread_functions = [self.connect_to_socket, self.run_with_exception_catch, *self.other_thread_functions]
+
+            self.main_job = executor.submit(self.run_with_exception_catch)
             futures = [
-                executor.submit(fn) for fn in thread_functions
+                executor.submit(self.connect_to_socket),
+                self.main_job,
+                # executor.submit(fn) for fn in self.other_thread_functions
             ]
+            for fn in self.other_thread_functions:
+                futures.append(executor.submit(fn))
             cf.as_completed(futures)
     
     def init_log_info(self):
@@ -76,6 +90,7 @@ class ServerModule:
 
     # All functions in here will act as socket io message receivers - these are used
     def connect_to_socket(self):
+        print('connect_to_socket')
         self.sio = sio = socketio.Client()
 
         @sio.event
@@ -162,6 +177,7 @@ class ServerModule:
             self.get_args().socket_server_local_uri,
         ]
         for url in possible_urls:
+            print('Attempting to connect to "{}"'.format(url))
             if is_url_accessible(url):
                 return url
         return None            
@@ -179,8 +195,10 @@ class ServerModule:
             'server_name': self.server_name_str
         }
         self.write_log(output_text)
-        if not self.emit('send_output', data):
-            print(output_text)
+        # if not self.emit('send_output', data):
+        #     print(output_text)
+        self.emit('send_output', data)
+            # print(output_text)
 
     def run_with_exception_catch(self):
         try:

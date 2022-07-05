@@ -16,6 +16,7 @@ if [ -z $log_filepath ]; then
   npm install
   node index 
 else
+  # Send all output to a shell script which will handle logs (possibly create a new directory/file)
   npm install >> ../../$log_filepath 2>&1
   node index >> ../../$log_filepath 2>&1 &
 fi

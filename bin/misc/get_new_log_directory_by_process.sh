@@ -14,3 +14,6 @@ mkdir -p ../../$log_dir
 log_path=$log_dir/$log_filename
 
 echo $log_path
+
+# TODO: MOve this file to bin/logs
+# TODO: Make logging smarter so that folders are grouped by day, would require some rewrite

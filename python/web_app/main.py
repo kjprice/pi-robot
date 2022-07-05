@@ -16,7 +16,7 @@ import socketio
 
 from ..modules.config import SERVER_NAMES, SOCKET_IO_SERVER_PORT, SOCKET_ROOMS, STATIC_DIR, load_json_config, get_local_ip, SOCKET_IO_HOST_URI, SOCKET_IO_HOST_URI_LOCAL
 from ..modules.workers.job_process.job_process import JobProcess
-from ..modules.workers.job_process.ssh_process import SSH_Process
+from ..modules.workers.job_process.ssh_process import SSH_Process, kill_process_by_name
 from ..modules.raspi_info.raspi_poller import RaspiPoller
 
 from ..pi_applications.run_image_processing_server import run_image_processing_server
@@ -80,7 +80,11 @@ class WebApp():
 
   def start_process_ssh(self, hostname: str, process_name: str, flags: str = ''):
     flags = self.add_default_arg_flags(flags)
-    SSH_Process(hostname, process_name, '')      
+    SSH_Process(hostname, process_name, flags)
+
+  def stop_process_ssh(self, hostname: str, process_name: str, flags: str = ''):
+    flags = self.add_default_arg_flags(flags)
+    kill_process_by_name(hostname, process_name)
 
   def create_image_processing_server_job(self, classification_model: str):
     arg_flags = ''
@@ -125,7 +129,7 @@ class WebApp():
       self.raspi_info_by_hostname[raspi_server_info['hostname']] = raspi_server_info
 
   def start_socket_server(self):
-    sio = socketio.Server(cors_allowed_origins='*')
+    sio = self.sio = socketio.Server(cors_allowed_origins='*')
     app = socketio.WSGIApp(sio, static_files={
         '/': os.path.join(STATIC_DIR, 'index.html'),
         '/static': os.path.join(STATIC_DIR, 'static')
@@ -148,9 +152,24 @@ class WebApp():
       sio.enter_room(sid, room_name)
       print('setting client "{}" to room "{}"'.format(sid, room_name))
 
+      # output='test'
+      # print('send_output', output)
+      # data = {
+      #   'message': output,
+      #   # TODO: Update this
+      #   'server_name': 'pi3'
+
+      # }
+      # print('self.sio', self.sio)
+      # self.sio.emit('send_output', data, room=BROWSERS_ROOM_NAME)
+      # print('self.sio sent')
+
+
     # From all backend clients (not browser)
+    # TODO: Use this
     @sio.event
     def send_output(sid, data):
+      print('send_output', data)
       sio.emit('send_output', data, room=BROWSERS_ROOM_NAME)
 
     # From raspi poller
@@ -189,7 +208,13 @@ class WebApp():
     def start_process(sid, data):
       hostname = data['hostname']
       process_name = data['processName']
-      self.start_process_ssh(hostname, process_name)      
+      self.start_process_ssh(hostname, process_name)
+
+    @sio.event
+    def stop_process(sid, data):
+      hostname = data['hostname']
+      process_name = data['processName']
+      self.stop_process_ssh(hostname, process_name)
 
     @sio.event
     def stop_all_servers(sid):

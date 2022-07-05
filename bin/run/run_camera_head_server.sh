@@ -1,18 +1,18 @@
-#!/bin/bash
+# #!/bin/bash
 
-# To run locally: nodemon -e py,sh -x 'IS_TEST=true sh bin/run_camera_head_server.sh'
-cd "$(dirname "$0")"
+# # To run locally: nodemon -e py,sh -x 'IS_TEST=true sh bin/run_camera_head_server.sh'
+# cd "$(dirname "$0")"
 
-source ../misc/setup_shell.sh
+# source ../misc/setup_shell.sh
 
-../misc/kill_process_by_name.sh securityCamera
+# ../misc/kill_process_by_name.sh securityCamera
 
-../download/download_model.sh
+# ../download/download_model.sh
 
-cd ../..
+# cd ../..
 
-if [ -z $IS_TEST ] ; then
-    python -m python.pi_applications.run_camera_head_server $@
-else
-    python -m python.pi_applications.run_camera_head_server --is_test
-fi
+# if [ -z $IS_TEST ] ; then
+#     python -m python.pi_applications.run_camera_head_server $@
+# else
+#     python -m python.pi_applications.run_camera_head_server --is_test
+# fi
