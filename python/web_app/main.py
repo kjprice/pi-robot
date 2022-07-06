@@ -30,7 +30,6 @@ class WebApp():
     self.jobs_running_by_fn_name = {}
     self.raspi_info_by_hostname = {}
 
-    self.create_raspi_poller_job()
     print_startup_details()
     self.start_socket_server()
   
@@ -124,12 +123,15 @@ class WebApp():
     for raspi_server_info in raspi_servers_info:
       self.raspi_info_by_hostname[raspi_server_info['hostname']] = raspi_server_info
 
+  # TODO: Refactor this method - pull out unrelated pieces
   def start_socket_server(self):
     sio = socketio.Server(cors_allowed_origins='*')
     app = socketio.WSGIApp(sio, static_files={
         '/': os.path.join(STATIC_DIR, 'index.html'),
         '/static': os.path.join(STATIC_DIR, 'static')
     })
+
+    self.create_raspi_poller_job()
 
     # From all clients
     @sio.event
