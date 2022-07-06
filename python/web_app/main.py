@@ -16,7 +16,7 @@ import socketio
 
 from ..modules.config import SERVER_NAMES, SOCKET_IO_SERVER_PORT, SOCKET_ROOMS, STATIC_DIR, load_json_config, get_local_ip, SOCKET_IO_HOST_URI, SOCKET_IO_HOST_URI_LOCAL
 from ..modules.workers.job_process.job_process import JobProcess
-from ..modules.workers.job_process.ssh_process import SSH_Process
+from ..modules.workers.job_process.ssh_process import kill_process_by_name, start_process_by_name
 from ..modules.raspi_info.raspi_poller import RaspiPoller
 
 from ..pi_applications.run_image_processing_server import run_image_processing_server
@@ -74,12 +74,17 @@ class WebApp():
     fn_name = self.get_fn_for_ssh_job(hostname, process_name)
     self.stop_job_if_exists_by_fn_name(fn_name)
     flags = self.add_default_arg_flags(flags)
-    job = SSH_Process(hostname, process_name, flags)
+    # TODO: Need to wrap this in a JobProcess so that sockets communicate
+    job = start_process_by_name(hostname, process_name, flags)
     self.jobs_running_by_fn_name[fn_name] = job
 
   def start_process_ssh(self, hostname: str, process_name: str, flags: str = ''):
     flags = self.add_default_arg_flags(flags)
-    SSH_Process(hostname, process_name, '')      
+    start_process_by_name(hostname, process_name, flags)
+
+  def stop_process_ssh(self, hostname: str, process_name: str, flags: str = ''):
+    flags = self.add_default_arg_flags(flags)
+    kill_process_by_name(hostname, process_name, flags)
 
   def create_image_processing_server_job(self, classification_model: str):
     arg_flags = ''
@@ -191,7 +196,13 @@ class WebApp():
     def start_process(sid, data):
       hostname = data['hostname']
       process_name = data['processName']
-      self.start_process_ssh(hostname, process_name)      
+      self.start_process_ssh(hostname, process_name)
+
+    @sio.event
+    def stop_process(sid, data):
+      hostname = data['hostname']
+      process_name = data['processName']
+      self.stop_process_ssh(hostname, process_name)
 
     @sio.event
     def stop_all_servers(sid):
