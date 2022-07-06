@@ -18,6 +18,7 @@ sudo apt-get install -y python3-setuptools
 sudo apt-get install -y python3-scipy
 sudo apt-get update
 sudo apt-get install -y python3-h5py
+sudo apt-get install -y vim
 
 # PiCamera2 dependencies
 sudo apt install -y python3-libcamera python3-kms++
