@@ -16,7 +16,7 @@ def is_url_accessible(url:str) -> bool:
         r = requests.get(url, timeout=2)
 
         return r.status_code in (200, 204)
-    except requests.exceptions.ConnectionError:
+    except requests.exceptions.RequestException as e:
         return False
 
 def handle_default_server_response(response):
@@ -44,6 +44,7 @@ class ServerModule:
     abort_signal_received = False
     other_thread_functions = []
     flags = None
+    main_job = None
     def __init__(self, server_name: SERVER_NAMES, arg_flags):
         if not server_name in SERVER_NAMES:
             raise AssertionError('Expected server name "{}" to be one of: {}'.format(server_name, SERVER_NAMES))
@@ -56,10 +57,17 @@ class ServerModule:
 
     def start_threads(self):
         with cf.ThreadPoolExecutor() as executor:
-            thread_functions = [self.connect_to_socket, self.run_with_exception_catch, *self.other_thread_functions]
+
+            socket_job = executor.submit(self.connect_to_socket)
+            self.main_job = executor.submit(self.run_with_exception_catch)
+
             futures = [
-                executor.submit(fn) for fn in thread_functions
+                socket_job,
+                self.main_job,
             ]
+
+            for fn in self.other_thread_functions:
+                futures.append(executor.submit(fn))
             cf.as_completed(futures)
     
     def init_log_info(self):
