@@ -9,7 +9,10 @@ config=`cat config.json`
 field_value=`echo $config | jq ".$field_name"`
 data_type=`echo $field_value | jq "type"`
 
-if [ "$data_type" = '"array"' ]; then
+if [ "$data_type" = '"null"' ]; then
+  echo "config not found for $field_name" 1>&2
+  exit 1
+elif [ "$data_type" = '"array"' ]; then
   # Send output as raw (can be iterated on)
   echo $field_value | jq --raw-output '.[]'
 else
