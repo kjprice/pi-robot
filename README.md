@@ -89,7 +89,11 @@ This solution helped me tremendously:
  - [ ] Log *everything* that runs on the raspberry pis
  - [ ] Move log path directories to config.json
  - [ ] Add UI to web-app to display all logs
- - [ ] Add UI to web-app to display videos from security
+ - [ ] Add UI to web-app to display videos from security - stream from shell?
+ - [ ] Display all error logs unique from regular logs
+ - [ ] Make sure that the security camera is taking clear videos
+ - [ ] Upload security camera videos to the cloud
+ - [ ] Store logs in a uniform way, folders by year then month, one file for each day
  
  
  
