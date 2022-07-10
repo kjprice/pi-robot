@@ -94,6 +94,7 @@ This solution helped me tremendously:
  - [ ] Make sure that the security camera is taking clear videos
  - [ ] Upload security camera videos to the cloud
  - [ ] Store logs in a uniform way, folders by year then month, one file for each day
+ - [ ] Why are startup logs empty? http://pi3misc2:8001/logs/startup/
  
  
  
