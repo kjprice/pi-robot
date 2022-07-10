@@ -1,6 +1,6 @@
 import { bindActionCreators } from 'redux';
 
-import socket from './socket';
+import getSocket from './socket';
 import store from '../redux/store';
 import {
   setServerStartComplete,
@@ -19,6 +19,11 @@ function mapDispatchToProps(dispatch) {
 }
 
 const actions = mapDispatchToProps(store.dispatch);
+
+let socket = null;
+getSocket().then(foundSocket => {
+  socket = foundSocket;
+});
 
 export function loadAllServers(delay, remote, classificationModel) {
   return new Promise((res, rej) => {

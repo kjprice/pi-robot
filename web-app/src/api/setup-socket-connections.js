@@ -11,7 +11,7 @@ import {
 
 import { getImageSourceFromArrayBuffer } from '../utilities/image-utilities';
 
-import socket, { SOCKET_ROOM_NAME } from './socket';
+import getSocket, { SOCKET_ROOM_NAME } from './socket';
 import store from '../redux/store';
 
 
@@ -29,45 +29,39 @@ function mapDispatchToProps(dispatch) {
 const actions = mapDispatchToProps(store.dispatch);
 
 
-socket.on('connect', () => {
-  console.log(socket.id);
-  actions.setWebServerConnected();
-  socket.emit('set_socket_room', SOCKET_ROOM_NAME);
-  socket.emit('get_server_statuses');
+getSocket().then(socket => {
+  socket.on('reconnect', () => {
+    console.log('socket reconnect');
+    actions.setWebServerConnected();
+  });
+
+  socket.on('disconnect', () => {
+    console.log('socket disconnect');
+    actions.setWebServerOffline();
+  });
+
+  socket.on('browser_init_status', (data) => {
+    console.log('browser_init_status', {data});
+    actions.setServerInitialStatus(data);
+  });
+
+  function handleImageReceived(arrayBuffer) {
+    const processedImage = getImageSourceFromArrayBuffer(arrayBuffer);
+    actions.setServerProcessedImageReceived(processedImage);
+  }
+
+  socket.on('processed_image_finished', handleImageReceived);
+  socket.on('send_output', actions.setServerOutputReceived);
+
+  // TODO: Wire in action
+  socket.on('raspi_status_changed', (server) => {
+    console.log('raspi_status_changed', server);
+    actions.setRaspiStatuses([server]);
+  });
+
+  // TODO: This is getting called twice
+  socket.on('all_raspi_statuses', (servers) => {
+    console.log('all_raspi_statuses', servers);
+    actions.setRaspiStatuses(servers)
+  });
 });
-
-socket.on('reconnect', () => {
-  console.log('socket reconnect');
-  actions.setWebServerConnected();
-});
-
-socket.on('disconnect', () => {
-  console.log('socket disconnect');
-  actions.setWebServerOffline();
-});
-
-socket.on('browser_init_status', (data) => {
-  console.log('browser_init_status', {data});
-  actions.setServerInitialStatus(data);
-});
-
-function handleImageReceived(arrayBuffer) {
-  const processedImage = getImageSourceFromArrayBuffer(arrayBuffer);
-  actions.setServerProcessedImageReceived(processedImage);
-}
-
-socket.on('processed_image_finished', handleImageReceived);
-socket.on('send_output', actions.setServerOutputReceived);
-
-// TODO: Wire in action
-socket.on('raspi_status_changed', (server) => {
-  console.log('raspi_status_changed', server);
-  actions.setRaspiStatuses([server]);
-});
-
-// TODO: This is getting called twice
-socket.on('all_raspi_statuses', (servers) => {
-  console.log('all_raspi_statuses', servers);
-  actions.setRaspiStatuses(servers)
-});
-
