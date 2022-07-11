@@ -8,7 +8,7 @@
     "pythonHttpServer": 8001,
     "nodeServerStatus": 1818
   },
-  "serverHostnames": ["pirobot", "pi3misc2", "kj-macbook.lan"],
+  "serverHostnames": ["pirobot", "pi3misc2", "kj-macbook.lan", "DESKTOP-U1E9RTD"],
   "logDirectoriesByProcess": {
     "pythonHttpServer": "python_http_server",
     "nodeServerStatus": "node_server_status",
