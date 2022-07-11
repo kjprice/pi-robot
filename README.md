@@ -96,7 +96,6 @@ This solution helped me tremendously:
  - [ ] Why are startup logs empty? http://pi3misc2:8001/logs/startup/
  - [ ] Process status should change in real time (eg, clicking on "start process" does not immediately react)
  - [ ] Add button to reboot raspberry pis
- - [ ] Fix "recent logs" to work with new log directory
  
  
  
