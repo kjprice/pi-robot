@@ -5,12 +5,13 @@ import { SERVER_STATUSES } from '../redux/constants/server-constants';
 
 const mapStateToProps = (props) => {
   const { serverReducers } = props;
-  const { config, raspiStatusesByHostname } = serverReducers;
+  const { config, raspiStatusesByHostname, webAppServerHostname } = serverReducers;
   const { serverHostnames } = config;
 
   return {
     serverHostnames,
-    raspiStatusesByHostname
+    raspiStatusesByHostname,
+    webAppServerHostname
   };
 };
 
@@ -36,10 +37,21 @@ const ServerStatuses = (props) => {
         <RaspiTextItem hostname={hostname} /> <ServerStatus serverStatus={serverStatus} />
       </li>
     )
-})
+  });
+}
+
+const WebAppServerStatus = (props) => {
+  const { webAppServerHostname } = props;
+  return <>
+    <h5>Web App Server</h5>
+    <div>Connected to:</div>
+    <div>{webAppServerHostname}</div>
+  </>
 }
 
 function SideBar(props) {
+  const { webAppServerHostname } = props;
+
   return (
     <aside id="sidebar" className="p-3">
       <h3>Robot Web App</h3>
@@ -51,6 +63,7 @@ function SideBar(props) {
       <ul className="list-unstyled">
         {ServerStatuses(props)}
       </ul>
+      <WebAppServerStatus webAppServerHostname={webAppServerHostname} />
     </aside>
   )
 }

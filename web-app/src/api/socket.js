@@ -42,7 +42,7 @@ const getFirstAvailableSocket = () => {
       }, 3000);
       
       socket.on('connect', () => {
-          actions.setWebServerConnected();
+          actions.setWebServerConnected(socketHostname);
           console.log(`Connected to ${socketHostname}`)
           socket.emit('set_socket_room', SOCKET_ROOM_NAME);
           socket.emit('get_server_statuses');

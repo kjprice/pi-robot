@@ -28,6 +28,7 @@ const getDefaultState = () => ({
   classificationModel: CLASSIFICATION_MODELS.FACES_ONLY, 
   config: {},
   raspiStatusesByHostname: {},
+  webAppServerHostname: ''
 });
 
 const setServerInitialState = (state, payload) => {
@@ -71,11 +72,18 @@ function setServerStartInit(state, serverName) {
     ...state,
     serversStatuses: {
       ...serversStatuses,
-      [serverName]: SERVER_STATUSES.STARTING
+      [serverName]: SERVER_STATUSES.STARTING,
     }
-  }
+  };
 }
 
+function setWebServerConnected(state, webAppServerHostname) {
+  return {
+    ...setServerStartInit(state, 'webApp'),
+    webAppServerHostname
+  };
+}
+  
 function setServerStartComplete(state, serverName) {
   const { serversStatuses } = state;
   return {
@@ -209,7 +217,7 @@ export default function serverReducer(state = getDefaultState(), data) {
     case SET_SERVER_WEBSERVER_OFFLINE:
       return setServerStopComplete(state, 'webApp');
     case SET_SERVER_WEBSERVER_CONNECTED:
-      return setServerStartInit(state, 'webApp');
+      return setWebServerConnected(state, data.payload);
     default:
       return state;
   }

@@ -26,5 +26,5 @@ export const setServerOutputReceived = (payload) => ({ type: SERVER_OUTPUT_RECEI
 export const setServerProcessedImageReceived = (payload) => ({ type: SERVER_PROCESSED_IMAGE_RECEIVED, payload})
 export const setServerProcessedClassificationModel = (payload) => ({ type: SERVER_SET_CLASSIFICATION_MODEL, payload})
 export const setWebServerOffline = () => ({ type: SET_SERVER_WEBSERVER_OFFLINE });
-export const setWebServerConnected = () => ({ type: SET_SERVER_WEBSERVER_CONNECTED });
+export const setWebServerConnected = (payload) => ({ type: SET_SERVER_WEBSERVER_CONNECTED, payload });
 export const setRaspiStatuses = (payload) => ({ type: SET_RASPI_STATUSES, payload });
