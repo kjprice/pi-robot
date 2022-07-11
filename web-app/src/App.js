@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { Route, Routes } from 'react-router-dom';
 
 import './App.css';
-import './api/setup-socket-connections';
+import './api/socket';
 
 import CameraRobot from './components/CameraRobot/';
 import SecurityCamera from './components/SecurityCamera';

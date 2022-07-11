@@ -7,6 +7,8 @@ import {
 
 import store from '../redux/store';
 
+import setupNewConnection from './setup-socket-connections';
+
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
     setWebServerConnected,
@@ -65,11 +67,15 @@ const getSocket = () => {
     return getFirstAvailableSocket()
     .then((socketFound) => {  
       socket = socketFound;
+      
+      setupNewConnection(socket);
       res(socketFound);
     });
   });
 
   return socketPromise;
 }
+
+getSocket();
 
 export default getSocket;

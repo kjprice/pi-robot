@@ -11,7 +11,6 @@ import {
 
 import { getImageSourceFromArrayBuffer } from '../utilities/image-utilities';
 
-import getSocket from './socket';
 import store from '../redux/store';
 
 
@@ -29,7 +28,8 @@ function mapDispatchToProps(dispatch) {
 const actions = mapDispatchToProps(store.dispatch);
 
 
-getSocket().then(socket => {
+const setupNewConnection = (socket => {
+  // TODO: Move to socket.js
   socket.on('reconnect', () => {
     console.log('socket reconnect');
     actions.setWebServerConnected();
@@ -65,3 +65,5 @@ getSocket().then(socket => {
     actions.setRaspiStatuses(servers)
   });
 });
+
+export default setupNewConnection;
