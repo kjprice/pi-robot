@@ -20,6 +20,7 @@ python3 -m pip install --no-input pandas
 python3 -m pip install --no-input flask
 python3 -m pip install --no-input flask-cors
 python3 -m pip install --no-input eventlet
+python3 -m pip install --no-input psutil
 
 # TO start ssh on wsl ubuntu:
 # sudo service ssh start
