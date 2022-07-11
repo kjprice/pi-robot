@@ -25,7 +25,7 @@ class RaspiServerInfo:
         try:
             r = requests.get(ping_url, timeout=SECONDS_BEFORE_TIMEOUT)
             is_server_online = r.status_code == 200
-        except requests.exceptions.ConnectionError:
+        except requests.exceptions.RequestException:
             is_server_online = False
         
         return is_server_online
