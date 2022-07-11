@@ -98,6 +98,8 @@ This solution helped me tremendously:
  - [ ] Display the host which the web app is connected to
  - [ ] Add button to reboot raspberry pis
  - [ ] Fix "recent logs" to work with new log directory
+ - [ ] Move client "socket" to redux - when disconnected try to find a new socket to connect
+ 
  
  
  
