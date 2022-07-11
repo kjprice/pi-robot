@@ -94,6 +94,14 @@ This solution helped me tremendously:
  - [ ] Make sure that the security camera is taking clear videos
  - [ ] Upload security camera videos to the cloud
  - [ ] Why are startup logs empty? http://pi3misc2:8001/logs/startup/
+ - [ ] Process status should change in real time (eg, clicking on "start process" does not immediately react)
+ - [ ] Display the host which the web app is connected to
+ - [ ] Add button to reboot raspberry pis
+ - [ ] Fix "recent logs" to work with new log directory
+ 
+ 
+ 
+ 
  
  
  
