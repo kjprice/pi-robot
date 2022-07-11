@@ -18,12 +18,30 @@ if [ ! -d "$folder_name/" ]; then
   exit 1
 fi
 
-most_recent_log=`ls $folder_name/ | tail -n 1`
+function find_newest_file_iterate() {
+  path=$1
+  sleep 0.1
+  if [ -z $path ]; then
+    echo ''
+  elif [ -f $path ]; then
+    echo "$path"
+  else
+    child_path=`ls $path/ | tail -n 1`
+    if [ -z $child_path ]; then
+      echo $path
+    else
+      most_recent_log=$path/$child_path
+      find_newest_file_iterate $most_recent_log
+    fi
+  fi
+}
 
-if [ ! -f "$folder_name/$most_recent_log" ]; then
-  echo "process '$process_name' exists but no logs found in its directory '$folder_name'" 1>&2
+path=`find_newest_file_iterate $folder_name`
+
+if [ ! -f "$path" ]; then
+  echo "process '$process_name' exists but no logs found in its directory '$folder_name'. Path found is '$path'" 1>&2
   exit 1
 fi
 
-echo "$folder_name/$most_recent_log"
-cat "$folder_name/$most_recent_log"
+echo "data/logs/$path"
+cat "$path"
