@@ -11,11 +11,9 @@ echo "Attempting to start new process with name '$process_name'"
 
 ../misc/kill_process_by_name.sh $process_name
 
-log_path=`../misc/get_new_log_directory_by_process.sh $process_name`
-# ../start_process/$process_name.sh
-echo "Storing process info in '$log_path'"
+({ ../start_process/$process_name.sh "$other_args" 2>&3 | ../logs/write_std_log.sh $process_name; } 3>&1 | ../logs/write_std_log.sh $process_name error ) &
 
-process_id=`../start_process/$process_name.sh $log_path "$other_args"`
+process_id="$!"
 
 echo "Setting Process with name '$process_name' and id '$process_id'"
 (cd ../../; python -m python.modules.processes.process_id set $process_name $process_id)
