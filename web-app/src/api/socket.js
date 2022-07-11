@@ -16,7 +16,7 @@ function mapDispatchToProps(dispatch) {
 const actions = mapDispatchToProps(store.dispatch);
 
 // TODO Move to config
-export const SOCKET_ROOM_NAME = 'browsers'
+const SOCKET_ROOM_NAME = 'browsers'
 
 // TODO: Move to config
 const SOCKET_HOSTNAMES = [

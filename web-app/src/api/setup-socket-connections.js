@@ -11,7 +11,7 @@ import {
 
 import { getImageSourceFromArrayBuffer } from '../utilities/image-utilities';
 
-import getSocket, { SOCKET_ROOM_NAME } from './socket';
+import getSocket from './socket';
 import store from '../redux/store';
 
 
