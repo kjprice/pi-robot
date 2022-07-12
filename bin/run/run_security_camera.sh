@@ -14,7 +14,6 @@ folder=$(date '+%Y-%m-%d')
 
 DATA_DIR=data/security_videos/$folder
 mkdir -p $DATA_DIR
-mkdir -p $LOGS_DIR
 
 filename=$(date '+%Y-%m-%d_%H_%M_%S')
 raw_filepath=$DATA_DIR/$filename.h264
