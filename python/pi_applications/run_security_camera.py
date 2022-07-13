@@ -22,12 +22,12 @@ class SecurityCamera(ServerModule):
     save_out_pipe = None
     def __init__(self, arg_flags=None) -> None:
         self.save_in_pipe, self.save_out_pipe = Pipe()
-        # self.stream_in_pipe, self.stream_out_pipe = Pipe()
+        self.stream_in_pipe, self.stream_out_pipe = Pipe()
         server_name = SERVER_NAMES.SECURITY_CAMERA
         self.other_thread_functions = (
-            # self.get_video,
             self.stream_video,
             self.save_video,
+            self.get_video,
         )
         super().__init__(server_name, arg_flags)
     
@@ -39,7 +39,7 @@ class SecurityCamera(ServerModule):
         i = 0
         while True:
             i = i + 1
-            # self.stream_in_pipe.send(i)
+            self.stream_in_pipe.send(i)
             self.save_in_pipe.send(i)
             self.send_output('get_video')
             self.sleep(1)
@@ -47,7 +47,6 @@ class SecurityCamera(ServerModule):
     # Needs "write" and "flush" methods
     # TODO: Create a Process for this
     def stream_video(self):
-        return
         while True:
             while self.stream_out_pipe.poll():
                 output = self.stream_out_pipe.recv()
@@ -57,8 +56,8 @@ class SecurityCamera(ServerModule):
     def save_video(self):
         print('save_video')
         while True:
-            while self.save_in_pipe.poll():
-                output = self.save_in_pipe.recv()
+            while self.save_out_pipe.poll():
+                output = self.save_out_pipe.recv()
                 self.send_output('save_video {}'.format(output))
             print('save_video sleep')
             self.sleep(4)
@@ -68,7 +67,7 @@ class SecurityCamera(ServerModule):
             if self.abort_signal_received:
                 self.send_output('abort_signal_received - returning')
                 return
-            self.get_video()
+            self.sleep(5)
 
 def start_camera_process(arg_flags=None):
     camera_head = SecurityCamera(arg_flags)
