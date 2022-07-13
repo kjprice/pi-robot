@@ -247,7 +247,7 @@ class WebApp():
     def confirm_image_processing_server_online(sid):
       sio.emit('confirm_image_processing_server_online', room='camera_head')
 
-    eventlet.wsgi.server(eventlet.listen((get_local_ip(), SOCKET_IO_SERVER_PORT)), app)
+    eventlet.wsgi.server(eventlet.listen(('', SOCKET_IO_SERVER_PORT)), app)
 
 if __name__ == '__main__':
   WebApp()
