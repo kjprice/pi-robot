@@ -83,6 +83,25 @@ netstat -ano | findstr :PORT
 This solution helped me tremendously:
  -  https://stackoverflow.com/questions/11525703/port-forwarding-in-windows
 
+# SSH For WSL Ubuntu
+
+WSL does not have systemctl, so having a script run at startup is a bit annoying. The hack I'm currently using is to start ssh service (if offline) when a terminal is opened. This requires sudo without a password.
+
+### Sudo without a password
+Run `sudo visudo` and add to the end:
+```
+kjprice ALL=(ALL) NOPASSWD:ALL # Change "kjprice" with your username
+```
+
+### Start ssh service if offline
+Add to ~/.bash_profile:
+```
+if ! sudo service ssh status > /dev/null ; then
+ echo 'ssh offline, starting now'
+ sudo service ssh start
+fi
+```
+
 # TODO:
  - [ ] Add symbolic links on raspberry pis to all shell scripts they might need (add to ~/bin/ and set PATH)
  - [ ] Add symbolic links on raspberry pis to all logs (`~/Projects/pirobot/data/logs` -> `/var/logs/`)

@@ -23,4 +23,5 @@ python3 -m pip install --no-input eventlet
 python3 -m pip install --no-input psutil
 
 # TO start ssh on wsl ubuntu:
-# sudo service ssh start
+# - sudo service ssh start
+# - See /README.md on how to automatically start ssh on wsl
