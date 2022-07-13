@@ -38,7 +38,7 @@ SOCKET_IO_HOST_URI = 'http://{}:{}'.format(SOCKET_IO_SERVER_HOSTNAME, SOCKET_IO_
 SOCKET_IO_HOST_URI_LOCAL = 'http://{}:{}'.format(get_local_ip(), SOCKET_IO_SERVER_PORT)
 
 # TODO: Move to config.json
-SOCKET_ROOMS = ('image_processing_server', 'camera_head', 'browsers', 'raspi_poller')
+SOCKET_ROOMS = ('image_processing_server', 'camera_head', 'browsers', 'raspi_poller', 'security_camera')
 
 RESNET_MODEL_FILEPATH = os.path.join(MODELS_DIR, 'resnet50_coco_best_v2.1.0.h5')
 
@@ -49,12 +49,16 @@ class LOG_DIR_BASES(str, Enum):
     IMAGE_PROCESSING_SERVER = 'image_processing_server'
     RASPI_POLLER = 'raspi_poller'
     JOB_PROCESSER = 'job_processor'
+    # TODO: There are two folders of logs - consolidate how we log
+    SECURITY_CAMERA = 'security_camera'
 
 class SERVER_NAMES(str, Enum):
     CAMERA_HEAD = 'camera_head'
     IMAGE_PROCESSING = 'image_processing_server'
     RASPI_POLLER = 'raspi_poller'
     JOB_PROCESSER = 'job_processor'
+    SECURITY_CAMERA = 'security_camera'
+
     @classmethod
     def to_dict(cls):
         obj = {}
@@ -134,6 +138,8 @@ def get_log_dir_by_server_name(server_name: SERVER_NAMES):
         return LOG_DIR_BASES.RASPI_POLLER
     if server_name == SERVER_NAMES.JOB_PROCESSER:
         return LOG_DIR_BASES.JOB_PROCESSER
+    if server_name == SERVER_NAMES.SECURITY_CAMERA:
+        return LOG_DIR_BASES.SECURITY_CAMERA
     
     raise ValueError('Unknown server_name: {}'.format(server_name))
         
