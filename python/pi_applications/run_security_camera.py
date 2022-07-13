@@ -16,10 +16,13 @@ from ..modules.server_module.server_module import ServerModule
 
 
 class SecurityCamera(ServerModule):
-    in_pipe = None
-    out_pipe = None
+    stream_in_pipe = None
+    stream_out_pipe = None
+    save_in_pipe = None
+    save_out_pipe = None
     def __init__(self, arg_flags=None) -> None:
-        self.in_pipe, self.out_pipe = Pipe()
+        self.save_in_pipe, self.save_out_pipe = Pipe()
+        # self.stream_in_pipe, self.stream_out_pipe = Pipe()
         server_name = SERVER_NAMES.SECURITY_CAMERA
         self.other_thread_functions = (
             # self.get_video,
@@ -36,24 +39,28 @@ class SecurityCamera(ServerModule):
         i = 0
         while True:
             i = i + 1
-            self.in_pipe.send('save_video_pipe {}'.format(i))
+            # self.stream_in_pipe.send(i)
+            self.save_in_pipe.send(i)
             self.send_output('get_video')
             self.sleep(1)
         pass
     # Needs "write" and "flush" methods
     # TODO: Create a Process for this
     def stream_video(self):
-        self.sleep(0.1)
+        return
         while True:
-            self.send_output('stream_video')
-            self.sleep(1)
-        pass
+            while self.stream_out_pipe.poll():
+                output = self.stream_out_pipe.recv()
+                self.send_output('stream_video {}'.format(output))
+            self.sleep(2)
     # TODO: Create a Process for this
     def save_video(self):
+        print('save_video')
         while True:
-            while self.out_pipe.poll():
-                output = self.out_pipe.recv()
-                self.send_output('output', output)
+            while self.save_in_pipe.poll():
+                output = self.save_in_pipe.recv()
+                self.send_output('save_video {}'.format(output))
+            print('save_video sleep')
             self.sleep(4)
 
     def run_continuously(self):
