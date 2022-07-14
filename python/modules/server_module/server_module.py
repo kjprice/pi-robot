@@ -7,7 +7,7 @@ import requests
 
 import socketio
 
-from ..config import append_log_info, get_log_dir_by_server_name, write_log_info, SERVER_NAMES
+from ..config import get_log_dir_by_server_name, SERVER_NAMES
 
 TIME_IN_SECONDS_BETWEEN_CHECKING_STATUS = 0.001
 
@@ -51,7 +51,6 @@ class ServerModule:
         self.server_name = server_name
         self.server_name_str = server_name.value
         
-        self.init_log_info()
         self.setup_args()
         self.set_flags(arg_flags)
 
@@ -70,17 +69,6 @@ class ServerModule:
                 futures.append(executor.submit(fn))
             cf.as_completed(futures)
     
-    def init_log_info(self):
-        self.log_dir = get_log_dir_by_server_name(self.server_name)
-        self.log_filename = get_log_filename(self.server_name)
-        self.init_log_file()
-
-    def init_log_file(self):
-        write_log_info(self.log_dir, self.log_filename, '')
-    
-    def write_log(self, text):
-        append_log_info(self.log_dir, self.log_filename, text)
-        
 
     # All functions in here will act as socket io message receivers - these are used
     def connect_to_socket(self):
@@ -186,9 +174,9 @@ class ServerModule:
             'message': output_text,
             'server_name': self.server_name_str
         }
-        self.write_log(output_text)
-        if not self.emit('send_output', data):
-            print(output_text)
+
+        self.emit('send_output', data)
+        print(output_text)
 
     def run_with_exception_catch(self):
         try:
