@@ -14,38 +14,27 @@ from ..modules.camera_module import image_generator, camera_setup
 from ..modules.config import get_servo_url, SERVER_NAMES, get_port_by_name_from_config
 from ..modules.server_module.server_module import ServerModule
 
-
-class SecurityCamera(ServerModule):
+class SecurityCameraOutput(ServerModule):
+    from_video_pipe = None
     stream_in_pipe = None
     stream_out_pipe = None
     save_in_pipe = None
     save_out_pipe = None
-    def __init__(self, arg_flags=None) -> None:
+    def __init__(self, arg_flags, from_video_pipe: Connection) -> None:
         self.save_in_pipe, self.save_out_pipe = Pipe()
         self.stream_in_pipe, self.stream_out_pipe = Pipe()
-        server_name = SERVER_NAMES.SECURITY_CAMERA
+        self.from_video_pipe = from_video_pipe
+
+        server_name = SERVER_NAMES.SECURITY_CAMERA_OUTPUT
         self.other_thread_functions = (
             self.stream_video,
             self.save_video,
-            self.get_video,
+            # self.get_video,
         )
         super().__init__(server_name, arg_flags)
-    
-    def socket_init(self):
-        self.sio.emit('set_socket_room', 'security_camera')
-
-    def get_video(self):
-        self.sleep(0.1)
-        i = 0
-        while True:
-            i = i + 1
-            self.stream_in_pipe.send(i)
-            self.save_in_pipe.send(i)
-            self.send_output('get_video')
-            self.sleep(1)
-        pass
     # Needs "write" and "flush" methods
-    # TODO: Create a Process for this
+    def socket_init(self):
+        self.sio.emit('set_socket_room', 'security_camera_output')
     def stream_video(self):
         while True:
             while self.stream_out_pipe.poll():
@@ -54,20 +43,73 @@ class SecurityCamera(ServerModule):
             self.sleep(2)
     # TODO: Create a Process for this
     def save_video(self):
-        print('save_video')
+        self.send_output('save_video')
         while True:
             while self.save_out_pipe.poll():
                 output = self.save_out_pipe.recv()
                 self.send_output('save_video {}'.format(output))
-            print('save_video sleep')
+            self.send_output('save_video sleep')
+            self.sleep(4)
+    def run_continuously(self):
+        self.send_output('SecurityCameraOutput run_continuously')
+        while True:
+            while self.from_video_pipe.poll():
+                output = self.from_video_pipe.recv()
+                self.send_output('save_video {}'.format(output))
+                self.stream_in_pipe.send(output)
+                self.save_in_pipe.send(output)
+            self.send_output('save_video sleep')
             self.sleep(4)
 
+def start_camera_output_process(arg_flags, from_video_pipe: Connection):
+    print('start_camera_output_process')
+    start_camera_output = SecurityCameraOutput(arg_flags, from_video_pipe)
+    start_camera_output.start_threads()
+
+class SecurityCamera(ServerModule):
+    video_in_pipe = None
+    video_out_pipe = None
+    _arg_flags = None
+    def __init__(self, arg_flags=None) -> None:
+        self._arg_flags = arg_flags
+        self.video_in_pipe, self.video_out_pipe = Pipe()
+        # self.stream_in_pipe, self.stream_out_pipe = Pipe()
+        server_name = SERVER_NAMES.SECURITY_CAMERA
+        print("!!!!??")
+        self.other_thread_functions = (
+            # self.stream_video,
+            # self.save_video,
+            # self.get_video,
+            self.init_output,
+        )
+        # self.init_output(arg_flags)
+        super().__init__(server_name, arg_flags)
+    
+    def init_output(self):
+        print('init_output')
+        start_camera_output_process(self._arg_flags, self.video_out_pipe)
+        # start_camera_output_process.start_threads()
+
+    def socket_init(self):
+        self.sio.emit('set_socket_room', 'security_camera')
+
+    def get_video(self):
+        self.sleep(0.1)
+        i = 0
+        while True:
+            i = i + 1
+            self.video_in_pipe.send(i)
+            self.send_output('get_video')
+            self.sleep(1)
+        pass
+
     def run_continuously(self):
+        # start_camera_output_process(self._arg_flags, self.video_out_pipe)
         while True:
             if self.abort_signal_received:
                 self.send_output('abort_signal_received - returning')
                 return
-            self.sleep(5)
+            self.get_video()
 
 def start_camera_process(arg_flags=None):
     camera_head = SecurityCamera(arg_flags)
