@@ -9,10 +9,32 @@
 
 from multiprocessing import Pipe, Process
 from multiprocessing.connection import Connection
+from typing import Callable
 
 from ..modules.camera_module import image_generator, camera_setup
 from ..modules.config import get_servo_url, SERVER_NAMES, get_port_by_name_from_config
 from ..modules.server_module.server_module import ServerModule
+
+class VideoInputAbstract:
+    send_output = None
+    def __init__(self, send_output: Callable) -> None:
+        self.send_output = send_output
+    def write(self, data) -> None:
+        pass
+    def flush(self) -> None:
+        pass
+
+class StreamVideoInput(VideoInputAbstract):
+    def write(self, data) -> None:
+        self.send_output('write StreamVideoInput')
+    def flush(self) -> None:
+        pass
+
+class SaveVideoInput(VideoInputAbstract):
+    def write(self, data) -> None:
+        self.send_output('write SaveVideoInput')
+    def flush(self) -> None:
+        pass
 
 class SecurityCameraOutput(ServerModule):
     from_video_pipe = None
@@ -34,19 +56,22 @@ class SecurityCameraOutput(ServerModule):
 
     def socket_init(self):
         self.sio.emit('set_socket_room', 'security_camera_output')
-
+    
     def stream_video(self):
+        stream_video_input = StreamVideoInput(self.send_output)
         while True:
             while self.stream_out_pipe.poll():
                 output = self.stream_out_pipe.recv()
+                stream_video_input.write(output)
                 self.send_output('stream_video {}'.format(output))
             self.sleep(2)
 
     def save_video(self):
-        self.send_output('save_video')
+        save_video_input = SaveVideoInput(self.send_output)
         while True:
             while self.save_out_pipe.poll():
                 output = self.save_out_pipe.recv()
+                save_video_input.write(output)
                 self.send_output('save_video {}'.format(output))
             self.send_output('save_video sleep')
             self.sleep(4)
