@@ -9,32 +9,12 @@
 
 from multiprocessing import Pipe, Process
 from multiprocessing.connection import Connection
-from typing import Callable
 
 from ..modules.camera_module import image_generator, camera_setup
 from ..modules.config import get_servo_url, SERVER_NAMES, get_port_by_name_from_config
 from ..modules.server_module.server_module import ServerModule
-
-class VideoInputAbstract:
-    send_output = None
-    def __init__(self, send_output: Callable) -> None:
-        self.send_output = send_output
-    def write(self, data) -> None:
-        pass
-    def flush(self) -> None:
-        pass
-
-class StreamVideoInput(VideoInputAbstract):
-    def write(self, data) -> None:
-        self.send_output('write StreamVideoInput')
-    def flush(self) -> None:
-        pass
-
-class SaveVideoInput(VideoInputAbstract):
-    def write(self, data) -> None:
-        self.send_output('write SaveVideoInput')
-    def flush(self) -> None:
-        pass
+from ..modules.raspi_video.save_video_input import SaveVideoInput
+from ..modules.raspi_video.stream_video_input import StreamVideoInput
 
 class SecurityCameraOutput(ServerModule):
     from_video_pipe = None
