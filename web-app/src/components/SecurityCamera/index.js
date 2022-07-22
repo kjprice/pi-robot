@@ -21,10 +21,12 @@ const devicesRunningSecurityCamera = raspiStatusesByHostname => {
     return processes.includes(SECURITY_CAMERA_PROCESS_NAME);
   })
 }
+// TODO: Cleanup - pull from config
 const STREAM_URL = 'http://pi3misc2:8999/data/security_videos/stream/stream.m3u8';
 
 let videoStarted = false;
 
+// TODO: Rewrite so this is not needed or otherwise wrap in a react hook
 const startHls = () => {
   console.log('starting video')
 
@@ -55,6 +57,7 @@ function SecurityCamera(props) {
 
   const hostnamesRunningSecurityCamera = devicesRunningSecurityCamera(raspiStatusesByHostname);
 
+  // TODO: React hook or remove
   startVideo();
   return (
     <div>

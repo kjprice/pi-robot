@@ -1,4 +1,5 @@
 from typing import Callable
+# TODO: Delete this
 
 class VideoInputAbstract:
     send_output = None
