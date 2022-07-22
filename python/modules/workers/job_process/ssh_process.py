@@ -53,6 +53,8 @@ class SSH_Process(ServerModule):
     stderr = list(ssh.stderr)
     for line in stderr:
       self.send_output(line)
+    
+    self.send_output('all done here')
 
 def run_ssh_process(hostname, commands, process_name, flags):
     job = Process(
