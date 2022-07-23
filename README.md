@@ -108,14 +108,16 @@ fi
  - [ ] Log *everything* that runs on the raspberry pis
  - [ ] Move log path directories to config.json
  - [ ] Add UI to web-app to display all logs
- - [ ] Add UI to web-app to display videos from security - stream from shell?
  - [ ] Display all error logs unique from regular logs
  - [ ] Make sure that the security camera is taking clear videos
  - [ ] Upload security camera videos to the cloud
  - [ ] Why are startup logs empty? http://pi3misc2:8001/logs/startup/
  - [ ] Process status should change in real time (eg, clicking on "start process" does not immediately react)
  - [ ] Add button to reboot raspberry pis
- 
+ - [ ] Have python http server serve cors-enabled headers
+ - [ ] Pull security camera feed from existing python http server
+ - [ ] Make sure that logs are working correctly (security camera is not logging stdin)
+ - [ ] Set correct filepaths for securityCamera videos
  
  
  
