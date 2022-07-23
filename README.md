@@ -114,10 +114,14 @@ fi
  - [ ] Why are startup logs empty? http://pi3misc2:8001/logs/startup/
  - [ ] Process status should change in real time (eg, clicking on "start process" does not immediately react)
  - [ ] Add button to reboot raspberry pis
+ - [ ] Add button to restart raspberry pi processes
  - [ ] Have python http server serve cors-enabled headers
  - [ ] Pull security camera feed from existing python http server
  - [ ] Make sure that logs are working correctly (security camera is not logging stdin)
  - [ ] Set correct filepaths for securityCamera videos
+ - [ ] Add timestamp to all videos
+ - [ ] Add date (update or created) to simple python http server
+ - [ ] Add timestamp to all all logs
  
  
  
