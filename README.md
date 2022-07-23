@@ -119,7 +119,6 @@ fi
  - [ ] Pull security camera feed from existing python http server
  - [ ] Make sure that logs are working correctly (security camera is not logging stdin)
  - [ ] Set correct filepaths for securityCamera videos
- - [ ] Add timestamp to all videos
  - [ ] Add date (update or created) to simple python http server
  - [ ] Add timestamp to all all logs
  

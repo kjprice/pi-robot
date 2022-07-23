@@ -9,17 +9,28 @@
 
 print('just for testing -delete me')
 
-from multiprocessing import Pipe, Process
-from multiprocessing.connection import Connection
+import cv2
+from multiprocessing import Pipe
 
 from ..modules.config import SERVER_NAMES
 from ..modules.server_module.server_module import ServerModule
 from http.server import HTTPServer, SimpleHTTPRequestHandler, test
 import time
 
-from picamera2 import Picamera2
+from picamera2 import MappedArray, Picamera2
 from picamera2.encoders import H264Encoder
 from picamera2.outputs import FfmpegOutput, FileOutput
+
+def apply_timestamp(request):
+    colour = (0, 255, 0)
+    origin = (0, 30)
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    scale = 1
+    thickness = 2
+
+    timestamp = time.strftime("%Y-%m-%d %X")
+    with MappedArray(request, "main") as m:
+        cv2.putText(m.array, timestamp, origin, font, scale, colour, thickness)
 class SecurityCamera(ServerModule):
     video_in_pipe = None
     video_out_pipe = None
@@ -64,6 +75,8 @@ class SecurityCamera(ServerModule):
         file_output = FileOutput()
         encoder.output = [stream_output, file_output]
 
+        picam2.pre_callback = apply_timestamp
+        
         picam2.start_encoder(encoder)
         picam2.start()
 
