@@ -7,8 +7,6 @@
 
 #!/usr/bin/python3
 
-print('just for testing -delete me')
-
 import cv2
 from multiprocessing import Pipe
 
@@ -32,34 +30,11 @@ def apply_timestamp(request):
     with MappedArray(request, "main") as m:
         cv2.putText(m.array, timestamp, origin, font, scale, colour, thickness)
 class SecurityCamera(ServerModule):
-    video_in_pipe = None
-    video_out_pipe = None
-    _arg_flags = None
     def __init__(self, arg_flags=None) -> None:
-        self._arg_flags = arg_flags
-        self.video_in_pipe, self.video_out_pipe = Pipe()
-
         server_name = SERVER_NAMES.SECURITY_CAMERA
-        self.other_thread_functions = (
-            self.init_python_server,
-        )
 
         super().__init__(server_name, arg_flags)
-    
-    def init_python_server(self):
-        print('starting python server')
-        class CORSRequestHandler (SimpleHTTPRequestHandler):
-            def end_headers (self):
-                self.send_header('Access-Control-Allow-Origin', '*')
-                SimpleHTTPRequestHandler.end_headers(self)
 
-        # TODO: Store in config
-        PYTHON_SERVER_PORT=8999
-        # TODO: Move to correct folder (/data/security_videos/)
-        test(CORSRequestHandler, HTTPServer, port=PYTHON_SERVER_PORT)
-        print('completed python server')
-
-    
     def socket_init(self):
         self.sio.emit('set_socket_room', 'security_camera')
 
@@ -76,7 +51,7 @@ class SecurityCamera(ServerModule):
         encoder.output = [stream_output, file_output]
 
         picam2.pre_callback = apply_timestamp
-        
+
         picam2.start_encoder(encoder)
         picam2.start()
 

@@ -22,7 +22,7 @@ const devicesRunningSecurityCamera = raspiStatusesByHostname => {
   })
 }
 // TODO: Cleanup - pull from config
-const STREAM_URL = 'http://pi3misc2:8999/data/security_videos/stream/stream.m3u8';
+const STREAM_URL = 'http://pi3misc2:8001/security_videos/stream/stream.m3u8';
 
 let videoStarted = false;
 

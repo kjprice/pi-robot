@@ -51,7 +51,7 @@ class LOG_DIR_BASES(str, Enum):
     JOB_PROCESSER = 'job_processor'
     # TODO: There are two folders of logs - consolidate how we log
     SECURITY_CAMERA = 'security_camera'
-    SECURITY_CAMERA_OUTPUT = 'security_camera_output'
+    PYTHON_SIMPLE_SERVER = 'python_simple_server'
 
 class SERVER_NAMES(str, Enum):
     CAMERA_HEAD = 'camera_head'
@@ -59,7 +59,7 @@ class SERVER_NAMES(str, Enum):
     RASPI_POLLER = 'raspi_poller'
     JOB_PROCESSER = 'job_processor'
     SECURITY_CAMERA = 'security_camera'
-    SECURITY_CAMERA_OUTPUT = 'security_camera_output'
+    PYTHON_SIMPLE_SERVER = 'python_simple_server'
 
     @classmethod
     def to_dict(cls):
@@ -142,8 +142,8 @@ def get_log_dir_by_server_name(server_name: SERVER_NAMES):
         return LOG_DIR_BASES.JOB_PROCESSER
     if server_name == SERVER_NAMES.SECURITY_CAMERA:
         return LOG_DIR_BASES.SECURITY_CAMERA
-    if server_name == SERVER_NAMES.SECURITY_CAMERA_OUTPUT:
-        return LOG_DIR_BASES.SECURITY_CAMERA_OUTPUT
+    if server_name == SERVER_NAMES.PYTHON_SIMPLE_SERVER:
+        return LOG_DIR_BASES.PYTHON_SIMPLE_SERVER
     
     raise ValueError('Unknown server_name: {}'.format(server_name))
         
@@ -219,4 +219,9 @@ def load_json_config():
 def get_port_by_name_from_config(port_name: str):
     config = load_json_config()
     ports = config['ports']
+    return ports[port_name]
+
+def get_port_by_process_name_from_config(port_name: str):
+    config = load_json_config()
+    ports = config['portsByProcess']
     return ports[port_name]
