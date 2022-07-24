@@ -109,7 +109,6 @@ fi
  - [ ] Move log path directories to config.json
  - [ ] Add UI to web-app to display all logs
  - [ ] Display all error logs unique from regular logs
- - [ ] Make sure that the security camera is taking clear videos
  - [ ] Upload security camera videos to the cloud
  - [ ] Why are startup logs empty? http://pi3misc2:8001/logs/startup/
  - [ ] Process status should change in real time (eg, clicking on "start process" does not immediately react)
