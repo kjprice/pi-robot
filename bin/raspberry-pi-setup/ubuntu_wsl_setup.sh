@@ -22,6 +22,7 @@ python3 -m pip install --no-input flask-cors
 python3 -m pip install --no-input eventlet
 python3 -m pip install --no-input psutil
 python3 -m pip install --no-input bs4 # Beautiful Soup
+python3 -m pip install --no-input pymongo
 
 # TO start ssh on wsl ubuntu:
 # - sudo service ssh start
