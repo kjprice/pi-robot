@@ -23,6 +23,8 @@ python3 -m pip install --no-input eventlet
 python3 -m pip install --no-input psutil
 python3 -m pip install --no-input bs4 # Beautiful Soup
 python3 -m pip install --no-input pymongo
+python3 -m pip install --no-input jupyterlab
+python3 -m pip install --no-input notebook
 
 # TO start ssh on wsl ubuntu:
 # - sudo service ssh start
