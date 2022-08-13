@@ -26,6 +26,9 @@ python3 -m pip install --no-input pymongo
 python3 -m pip install --no-input jupyterlab
 python3 -m pip install --no-input notebook
 python3 -m pip install --no-input matplotlib
+python3 -m pip install --no-input tensorflow
+python3 -m pip install --no-input keras
+python3 -m pip install --no-input -U scikit-learn
 
 # TO start ssh on wsl ubuntu:
 # - sudo service ssh start
