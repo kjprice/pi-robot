@@ -30,6 +30,16 @@ python3 -m pip install --no-input tensorflow
 python3 -m pip install --no-input keras
 python3 -m pip install --no-input -U scikit-learn
 
+# Install Cuda and Ananconda https://docs.microsoft.com/en-us/windows/ai/directml/gpu-tensorflow-wsl
+cd /tmp
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh 
+bash Miniconda3-latest-Linux-x86_64.sh 
+
+conda create --name directml python=3.6 
+conda activate directml 
+
+pip install tensorflow-directml
+
 # TO start ssh on wsl ubuntu:
 # - sudo service ssh start
 # - See /README.md on how to automatically start ssh on wsl
