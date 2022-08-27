@@ -23,8 +23,8 @@ python3 -m pip install --no-input eventlet
 python3 -m pip install --no-input psutil
 python3 -m pip install --no-input bs4 # Beautiful Soup
 python3 -m pip install --no-input pymongo
-python3 -m pip install --no-input jupyterlab
-python3 -m pip install --no-input notebook
+# python3 -m pip install --no-input jupyterlab
+# python3 -m pip install --no-input notebook
 python3 -m pip install --no-input matplotlib
 python3 -m pip install --no-input tensorflow
 python3 -m pip install --no-input keras
@@ -35,10 +35,14 @@ cd /tmp
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh 
 bash Miniconda3-latest-Linux-x86_64.sh 
 
+# May need to open new terminal
 conda create --name directml python=3.6 
 conda activate directml 
 
 pip install tensorflow-directml
+
+conda install ipykernel
+ipython kernel install --user --name=directml
 
 # TO start ssh on wsl ubuntu:
 # - sudo service ssh start
