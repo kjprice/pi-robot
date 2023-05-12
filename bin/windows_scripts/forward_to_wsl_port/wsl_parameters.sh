@@ -14,4 +14,6 @@ PORTS=(${PI_ROBOT_PORTS[@]})
 PORTS+=(${SCRAPE_COMICS_PORTS[@]})
 
 WSL_IP=`wsl hostname -I`
-WINDOWS_IP=`ipconfig|grep -m 1 IPv4|sed "s/IPv4 Address. . . . . . . . . . . : //g" | xargs`
+WINDOWS_IP='0.0.0.0'
+# WINDOWS_IP=`ipconfig|grep -m 1 IPv4|sed "s/IPv4 Address. . . . . . . . . . . : //g" | xargs`
+
