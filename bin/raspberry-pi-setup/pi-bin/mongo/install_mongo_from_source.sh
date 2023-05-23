@@ -3,7 +3,8 @@ cd "$(dirname "$0")"
 
 ## Install Mongodb - requires 64bit OS
 # https://www.mongodb.com/community/forums/t/add-mongodb-4-2-arm64-builds-for-raspberry-pi-os-64-bit-debian-buster/5046
-# https://github.com/mongodb/mongo/blob/master/docs/building.md
+# https://github.com/mongodb/mongo/blob/r4.4.0/docs/building.md
+# https://forums.raspberrypi.com/viewtopic.php?t=300028
 # https://gist.github.com/kjprice/d233856093fd3a89fd19f1372aba7ba8
 cd /tmp
 sudo apt-get install -y gcc-10 g++-10

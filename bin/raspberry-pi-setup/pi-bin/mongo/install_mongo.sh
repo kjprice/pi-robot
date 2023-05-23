@@ -3,6 +3,7 @@ cd "$(dirname "$0")"
 
 # ./install_mongo_from_source.sh
 ./install_mongo_from_s3.sh
+./install_mongo_tools.sh
 
 ./setup_mongo.sh
 
