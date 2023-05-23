@@ -62,6 +62,8 @@ pip install --no-input pynput
 # NVM and Node.js
 curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
 nvm install stable
+source  ~/.bashrc
+npm install -g nodemon
 
 # Read JSON in shell commands
 sudo apt-get install -y jq
