@@ -95,5 +95,7 @@ cd ~/kits
 git clone https://github.com/Freenove/Freenove_Robot_Dog_Kit_for_Raspberry_Pi Freenove_Robot_Dog
 
 ## Mongo
+python3 -m pip install --no-input pymongo
+
 cd /tmp/setup
 ./mongo/install_mongo.sh
