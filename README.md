@@ -3,7 +3,9 @@ All package depencies and initial setup for a raspberry pi can be found in `./bi
 
 To configure a raspberry pi, you can use the utility `./bin/raspberry-pi-setup/run.sh`, which will run [initial_setup.sh](/bin/raspberry-pi-setup/pi-bin/initial_setup.sh).
 
-To configure a new host that can control the raspberry pis (like a ubuntu server or mac), run [ubuntu_wsl_setup.sh](/bin/raspberry-pi-setup/ubuntu_wsl_setup.sh). See specific information for WSL setup below.
+To configure a new WSL host that can control the raspberry pis (like a ubuntu server or mac), run [ubuntu_wsl_setup.sh](/bin/raspberry-pi-setup/ubuntu_wsl_setup.sh). See specific information for WSL setup below.
+
+To edit common utilities (shared by wsl and raspberry pi) edit [common_dependencies.sh](bin/raspberry-pi-setup/common_dependencies.sh)
 
 
 # Startup scripts
